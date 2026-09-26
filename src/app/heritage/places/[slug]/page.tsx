@@ -1,0 +1,27 @@
+import type { Metadata } from "next";
+import { ComingSoonPage } from "@/components/shared/PageHero";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+type Props = { params: Promise<{ slug?: string; event?: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const resolved = await params;
+  const key = resolved.slug ?? resolved.event ?? "item";
+  return buildPageMetadata({
+    title: `جزئیات مکان · ${key}`,
+    description: "صفحه جزئیات مکان.",
+    path: "/heritage/places/" + key,
+  });
+}
+
+export default async function Page({ params }: Props) {
+  const resolved = await params;
+  const key = resolved.slug ?? resolved.event ?? "item";
+  return (
+    <ComingSoonPage
+      title={`جزئیات مکان: ${key}`}
+      description="صفحه جزئیات مکان."
+      breadcrumbs={[{ label: "خانه", href: "/" }, { label: "مکان‌ها", href: "/heritage/places" }, { label: "جزئیات" }]}
+    />
+  );
+}

@@ -1,26 +1,368 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: Vazir;
+  src: url("/fonts/vazir/Vazir-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Vazir;
+  src: url("/fonts/vazir/Vazir-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Vazir;
+  src: url("/fonts/vazir/Vazir-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Vazir;
+  src: url("/fonts/vazir/Vazir-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
+  Color system — SensibleCool architecture (RGB channels + .dark).
+  Default brand = SensibleCool mint teal (#2F7F78).
+  Runtime palette overrides inject via #brand-theme (see lib/brand).
+  Future admin can switch brandPaletteId like SensibleCool.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --cream: 249 246 243;
+  --ink: 42 38 36;
+  --ink-muted: 122 115 108;
+  --pine: 47 127 120;
+  --pine-dark: 36 102 97;
+  --mint: 216 237 235;
+  --mint-soft: 240 247 246;
+  --mint-deep: 47 127 120;
+  --blush: 237 228 223;
+  --surface: 255 255 255;
+  --border: 42 38 36;
+  --rule: 212 207 200;
+  --bronze: 138 115 85;
+  --danger: 185 28 28;
+
+  /* Aliases used across heritage UI (explicit RGB — avoid nested var for rgb()) */
+  --paper: 249 246 243;
+  --accent: 47 127 120;
+  --accent-soft: 240 247 246;
+  --accent-deep: 36 102 97;
+  --focus: 47 127 120;
+
+  --font-sans: "Vazir", Tahoma, sans-serif;
+  --font-display: "Vazir", Tahoma, sans-serif;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+
+  --shadow-card: 0 1px 2px rgb(42 38 36 / 0.04), 0 18px 40px -20px rgb(42 38 36 / 0.18);
+  --shadow-soft: 0 1px 2px rgb(42 38 36 / 0.05);
+
+  --space-section: clamp(3.5rem, 8vw, 7rem);
+  --content-max: 72rem;
+  --content-wide: 90rem;
+}
+
+.dark {
+  --cream: 20 19 18;
+  --ink: 242 238 233;
+  --ink-muted: 163 158 152;
+  --pine: 91 191 183;
+  --pine-dark: 74 173 165;
+  --mint: 42 58 56;
+  --mint-soft: 31 36 35;
+  --mint-deep: 91 191 183;
+  --blush: 46 41 38;
+  --surface: 28 27 26;
+  --border: 242 238 233;
+  --rule: 64 60 56;
+  --bronze: 186 160 120;
+  --danger: 248 113 113;
+
+  --paper: 20 19 18;
+  --accent: 91 191 183;
+  --accent-soft: 31 36 35;
+  --accent-deep: 74 173 165;
+  --focus: 91 191 183;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.35), 0 18px 40px -18px rgb(0 0 0 / 0.55);
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.35);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-cream: rgb(var(--cream));
+  --color-paper: rgb(var(--paper));
+  --color-surface: rgb(var(--surface));
+  --color-ink: rgb(var(--ink));
+  --color-ink-muted: rgb(var(--ink-muted));
+  --color-pine: rgb(var(--pine));
+  --color-pine-dark: rgb(var(--pine-dark));
+  --color-mint: rgb(var(--mint));
+  --color-mint-soft: rgb(var(--mint-soft));
+  --color-mint-deep: rgb(var(--mint-deep));
+  --color-blush: rgb(var(--blush));
+  --color-accent: rgb(var(--accent));
+  --color-accent-soft: rgb(var(--accent-soft));
+  --color-accent-deep: rgb(var(--accent-deep));
+  --color-rule: rgb(var(--rule));
+  --color-bronze: rgb(var(--bronze));
+  --color-danger: rgb(var(--danger));
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --shadow-card: var(--shadow-card);
+  --shadow-soft: var(--shadow-soft);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: rgb(var(--cream));
+    color: rgb(var(--ink));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background: transparent;
+    color: rgb(var(--ink));
+    line-height: 1.7;
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--pine));
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: rgb(var(--mint));
+    color: rgb(var(--ink));
+  }
+
+  .dark ::selection {
+    background: rgb(47 69 52);
+    color: rgb(var(--ink));
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .container-page {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--content-wide);
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-page {
+      padding-inline: 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-page {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    background: rgb(var(--pine));
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+  }
+
+  .btn-primary:hover {
+    background: rgb(var(--pine-dark));
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid rgb(var(--ink) / 0.1);
+    background: rgb(var(--surface));
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgb(var(--ink));
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .btn-secondary:hover {
+    border-color: rgb(var(--pine) / 0.3);
+    background: rgb(var(--mint-soft));
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: rgb(var(--mint-deep));
+  }
+
+  .card-surface {
+    border-radius: var(--radius-xl);
+    border: 1px solid rgb(var(--ink) / 0.1);
+    background: rgb(var(--surface));
+    box-shadow: var(--shadow-soft);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .card-surface:hover {
+    border-color: rgb(var(--pine) / 0.35);
+    box-shadow: var(--shadow-card);
+  }
 }
+
+@layer utilities {
+  .text-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .hairline {
+    border-color: rgb(var(--rule));
+  }
+
+  .section-pad {
+    padding-block: var(--space-section);
+  }
+
+  .content-shell {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--content-max);
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .content-shell {
+      padding-inline: 2rem;
+    }
+  }
+
+  .content-wide {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--content-wide);
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .content-wide {
+      padding-inline: 2rem;
+    }
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes fadeUp {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* Heritage hero — SensibleCool Bomija-style peek of next slide */
+.heritage-hero-swiper {
+  overflow: visible;
+}
+
+.heritage-hero-swiper .swiper-slide {
+  height: auto;
+  opacity: 0.55;
+  transition: opacity 0.35s ease;
+}
+
+.heritage-hero-swiper .swiper-slide-active {
+  opacity: 1;
+}
+
+.heritage-hero-swiper .swiper-slide > * {
+  width: 100%;
+  height: 100%;
+}
+
