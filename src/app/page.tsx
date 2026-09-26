@@ -9,6 +9,8 @@ import {
   MemoryCTA,
   MuseumPreview,
   NewsPreview,
+  SponsorsPreview,
+  PartnersPreview,
   SupportCTA,
 } from "@/components/homepage/sections";
 import { EventsPreview } from "@/components/homepage/EventsPreview";
@@ -31,6 +33,8 @@ export default function HomePage() {
       <NewsPreview />
       <EducationPreview />
       <MagazinePreview />
+      <SponsorsPreview />
+      <PartnersPreview />
       <MemoryCTA />
       <SupportCTA />
     </>

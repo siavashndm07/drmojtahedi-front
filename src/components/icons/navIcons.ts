@@ -3,6 +3,7 @@ import {
   Archive,
   AudioLines,
   BookOpen,
+  Briefcase,
   Building2,
   CalendarDays,
   Camera,
@@ -11,9 +12,12 @@ import {
   Compass,
   Construction,
   FileText,
+  FolderKanban,
   GraduationCap,
   HandHeart,
+  Handshake,
   Home,
+  Images,
   Landmark,
   Languages,
   Library,
@@ -23,6 +27,7 @@ import {
   Mic,
   Mountain,
   Newspaper,
+  Scale,
   Search,
   Sparkles,
   Theater,
@@ -43,6 +48,10 @@ export type NavIconName =
   | "people"
   | "places"
   | "institutions"
+  | "foundation"
+  | "charter"
+  | "organs"
+  | "students"
   | "museum"
   | "collections"
   | "exhibitions"
@@ -59,6 +68,12 @@ export type NavIconName =
   | "courses"
   | "workshops"
   | "resources"
+  | "assessment"
+  | "projects"
+  | "collaborate"
+  | "sponsors"
+  | "gallery"
+  | "books"
   | "archive"
   | "documents"
   | "photos"
@@ -87,6 +102,10 @@ export const navIcons: Record<NavIconName, LucideIcon> = {
   people: Users,
   places: MapPin,
   institutions: Building2,
+  foundation: Landmark,
+  charter: Scale,
+  organs: Briefcase,
+  students: GraduationCap,
   museum: Landmark,
   collections: Archive,
   exhibitions: Sparkles,
@@ -103,6 +122,12 @@ export const navIcons: Record<NavIconName, LucideIcon> = {
   courses: BookOpen,
   workshops: MessagesSquare,
   resources: FileText,
+  assessment: Sparkles,
+  projects: FolderKanban,
+  collaborate: Handshake,
+  sponsors: HandHeart,
+  gallery: Images,
+  books: BookOpen,
   archive: Archive,
   documents: FileText,
   photos: Camera,

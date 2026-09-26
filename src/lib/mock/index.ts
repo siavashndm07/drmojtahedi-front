@@ -142,6 +142,7 @@ export const mockPeople: Person[] = [
     name: "ساموئل جوردن",
     role: "بنیان‌گذار دبیرستان البرز",
     relationship: "پیشگام مدیریت البرز پیش از دوران مجتهدی",
+    kind: "colleague",
     description:
       "مبلّغ و آموزگار آمریکایی که دبیرستان البرز را پایه‌گذاری کرد. پس از ملی‌شدن مدارس، مدیریت به ایرانیان سپرده شد و بعدها دکتر مجتهدی مدیریت را به اوج رساند.",
     biography:
@@ -156,12 +157,104 @@ export const mockPeople: Person[] = [
     name: "سوزان ژان ماری وندنوستن",
     role: "همسر · پیانیست",
     relationship: "همسر دکتر محمدعلی مجتهدی",
+    kind: "family",
     description:
       "پیانیست فرانسوی که در پاریس با مجتهدی آشنا شد؛ در ۱۹۳۸ ازدواج کردند و به ایران آمدند.",
     status: "published",
     source: "خاطرات دکتر مجتهدی",
   },
+  {
+    id: "person-shoja",
+    slug: "alireza-shoja-pour",
+    title: "علیرضا شجاع‌پور",
+    name: "استاد علیرضا شجاع‌پور",
+    role: "شاعر · دانش‌آموختهٔ البرز",
+    relationship: "شاگرد دکتر مجتهدی",
+    kind: "student",
+    description:
+      "شاعر نام‌آشنا و فارغ‌التحصیل دبیرستان ماندگار البرز؛ از شاگردان زنده‌یاد دکتر مجتهدی (خبر درگذشت، مهر ۱۴۰۲).",
+    status: "published",
+    source: "اخبار بنیاد · drmojtahedi.com",
+  },
+  {
+    id: "person-pesyani",
+    slug: "atila-pesyani",
+    title: "آتیلا پسیانی",
+    name: "آتیلا پسیانی",
+    role: "هنرمند · بازیگر",
+    relationship: "شاگرد دکتر مجتهدی",
+    kind: "student",
+    description:
+      "هنرمند ارزشمند ایران و شاگرد فرهیختهٔ زنده‌یاد دکتر محمدعلی مجتهدی (خبر درگذشت، مهر ۱۴۰۲).",
+    status: "published",
+    source: "اخبار بنیاد · drmojtahedi.com",
+  },
+  {
+    id: "person-mahjoobi",
+    slug: "hossein-mahjoobi",
+    title: "حسین محجوبی",
+    name: "استاد حسین محجوبی اصیل",
+    role: "نقاش · عضو هیئت موسس",
+    relationship: "عضو هیئت موسس بنیاد",
+    kind: "founder",
+    organRole: "هیئت موسس",
+    description:
+      "فارغ‌التحصیل ۱۳۳۱ البرز؛ اهداکنندهٔ آثار «حرکت و زندگی» و «برج البرز» برای اهداف آموزشی و یادمان/موزه.",
+    status: "published",
+    source: "روابط عمومی بنیاد · ۱۴۰۳/۰۵/۰۲",
+  },
+  {
+    id: "person-ashtari",
+    slug: "behzad-ashtari",
+    title: "بهزاد اشتری",
+    name: "بهزاد اشتری",
+    role: "عضو هیئت موسس",
+    kind: "founder",
+    organRole: "هیئت موسس",
+    description: "کارشناسی ارشد علوم سیاسی · فارغ‌التحصیل ۱۳۴۵ دبیرستان البرز.",
+    status: "published",
+    source: "ارکان بنیاد · drmojtahedi.com",
+  },
+  {
+    id: "person-shiri",
+    slug: "mahmoud-shiri",
+    title: "محمود شیری",
+    name: "مهندس محمود شیری",
+    role: "عضو هیئت موسس · دانش‌آموختهٔ شریف",
+    kind: "founder",
+    organRole: "هیئت موسس",
+    description:
+      "از شاگردان نخستین دورهٔ دانشگاه صنعتی شریف (۱۳۴۵)؛ از ۱۴۰۰ جایگزین آقای طبیب‌زاده‌نوری در هیئت موسس.",
+    status: "published",
+    source: "ارکان بنیاد · drmojtahedi.com",
+  },
+  {
+    id: "person-mehdipour",
+    slug: "mohammad-hossein-mehdipour",
+    title: "محمدحسین مهدی‌پور",
+    name: "محمدحسین مهدی‌پور",
+    role: "عضو هیئت موسس",
+    kind: "founder",
+    organRole: "هیئت موسس",
+    description: "از مؤسسان بنیاد فرهنگی دکتر مجتهدی.",
+    status: "published",
+    source: "ارکان بنیاد · drmojtahedi.com",
+  },
 ];
+
+export {
+  mockAssessment,
+  mockBooks,
+  mockCharterChapters,
+  mockCollaborateOptions,
+  mockEducationPrograms,
+  mockFoundationIntro,
+  mockOrganMembers,
+  mockPartnerLinks,
+  mockProjects,
+  mockSponsors,
+  organGroupLabels,
+} from "./foundation";
 
 export const mockPlaces: Place[] = [
   {
@@ -212,11 +305,37 @@ export const mockArchive: ArchiveItem[] = [
     type: "book",
     description:
       "متن تاریخ شفاهی و خاطرات، به کوشش حبیب لاجوردی — منبع اصلی روایت خودِ مجتهدی از زندگی و کارش.",
-    dateLabel: "۱۳۷۹ / ۲۰۰۰",
+    dateLabel: "۱۳۸۰ / ۲۰۰۰",
     creator: "حبیب لاجوردی · تاریخ شفاهی ایران",
     collection: "تاریخ شفاهی و خاطرات",
     status: "published",
     source: "انتشارات صفحه سفید / مرکز مطالعات خاورمیانه هاروارد",
+  },
+  {
+    id: "arch-harekat",
+    slug: "tablo-harekat-va-zendegi",
+    title: "تابلوی «حرکت و زندگی»",
+    type: "object",
+    description:
+      "اثر رنگ‌وروغن روی بوم ۱۰۰×۱۰۰ سانتی‌متر اثر استاد حسین محجوبی؛ اهداشده برای توسعهٔ اهداف آموزشی و فرهنگی و پیگیری یادمان/موزه.",
+    dateLabel: "۱۴۰۳/۰۵/۰۲",
+    creator: "استاد حسین محجوبی اصیل",
+    collection: "آثار اهدایی",
+    status: "published",
+    source: "اخبار بنیاد · توافقنامهٔ هیئت مدیره",
+  },
+  {
+    id: "arch-borj-alborz",
+    slug: "tablo-borj-alborz",
+    title: "تابلوی «برج البرز»",
+    type: "object",
+    description:
+      "اثر ۸۰×۱۲۰ سانتی‌متر رنگ‌وروغن روی بوم؛ ایده‌پردازی استاد محجوبی برای بنای یادمان دکتر مجتهدی در تپه‌های اطراف لاهیجان — نگهداری دائمی در موزهٔ بنیاد.",
+    dateLabel: "۱۴۰۳/۰۵/۰۲",
+    creator: "استاد حسین محجوبی اصیل",
+    collection: "آثار اهدایی",
+    status: "published",
+    source: "اخبار بنیاد · توافقنامهٔ هیئت مدیره",
   },
   {
     id: "arch-alborz-photo",
@@ -226,9 +345,21 @@ export const mockArchive: ArchiveItem[] = [
     description:
       "مجموعهٔ در حال گردآوری از فضای دبیرستان البرز در دوران ریاست دکتر مجتهدی — نسخهٔ دیجیتال به‌تدریج افزوده می‌شود.",
     dateLabel: "۱۳۲۳–۱۳۵۷",
-    collection: "عکس‌های تاریخی",
+    collection: "گالری تصاویر",
     status: "coming-soon",
     source: "آرشیو بنیاد · در حال آماده‌سازی",
+  },
+  {
+    id: "arch-foundation-video",
+    slug: "video-bonyad-intro",
+    title: "ویدئوی معرفی بنیاد",
+    type: "video",
+    description:
+      "ویدئوی معرفی بنیاد فرهنگی دکتر مجتهدی با شعار «به مملکت‌تان خدمت کنید» — از صفحهٔ اصلی سایت پیشین.",
+    dateLabel: "آرشیو ویدئو",
+    collection: "گالری ویدئو",
+    status: "coming-soon",
+    source: "drmojtahedi.com",
   },
   {
     id: "arch-oral",
@@ -314,6 +445,156 @@ export const mockEvents: EventItem[] = [
 
 export const mockNews: NewsItem[] = [
   {
+    id: "news-mahjoobi",
+    slug: "ehdaye-asar-mahjoobi",
+    title: "اهدای ۲ اثر از آثار و تابلوهای ارزشمند استاد محجوبی به بنیاد",
+    description:
+      "استاد حسین محجوبی، از اعضای هیئت موسس، ۲ اثر «حرکت و زندگی» و «برج البرز» را برای اهداف آموزشی و یادمان/موزه به بنیاد اهدا کرد.",
+    dateLabel: "۲ مرداد ۱۴۰۳",
+    category: "اهدا",
+    author: "روابط عمومی بنیاد",
+    coverTone: "pine",
+    status: "published",
+    source: "drmojtahedi.com · NewsDetails",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "مطابق توافقنامه و صورتجلسهٔ هیئت مدیره با استاد حسین محجوبی اصیل، دو اثر «حرکت و زندگی» و «برج البرز» برای توسعهٔ اهداف آموزشی و فرهنگی عام‌المنفعه — از جمله پیگیری مقدمات ساخت یادمان و موزه در لاهیجان یا تهران — به بنیاد اهدا شده است.",
+      },
+      {
+        type: "h2",
+        text: "جزئیات آثار",
+      },
+      {
+        type: "ul",
+        text: "«حرکت و زندگی»: ۱۰۰×۱۰۰ سانتی‌متر، رنگ‌وروغن روی بوم — کمک بلاعوض برای اهداف آموزشی\n«برج البرز»: ۸۰×۱۲۰ سانتی‌متر — ایده‌پردازی برای بنای یادمان در تپه‌های اطراف لاهیجان؛ نگهداری دائمی در موزه",
+      },
+      {
+        type: "paragraph",
+        text: "توافقنامه با حضور ابراهیم ثابت (بازرس قانونی) و محمدحسن/سعید محجوبی (نمایندهٔ تام‌الاختیار استاد) مبادله شد.",
+      },
+      {
+        type: "tip",
+        text: "آثار را در [آرشیو](/archive) و پروژهٔ [خانهٔ فرهنگی و یادمان](/projects) ببینید.",
+      },
+    ],
+  },
+  {
+    id: "news-book6",
+    slug: "chap-sheshom-be-mamlekatoon",
+    title: "چاپ ششم کتاب «به مملکتتون خدمت کنید» در آستانهٔ انتشار",
+    description:
+      "کتاب ارزشمند «به مملکتتون خدمت کنید» در ششمین مرحله به‌زودی چاپ و منتشر می‌شود.",
+    dateLabel: "۴ اردیبهشت ۱۴۰۳",
+    category: "انتشارات",
+    author: "روابط عمومی بنیاد",
+    coverTone: "bronze",
+    status: "published",
+    source: "drmojtahedi.com · NewsDetails",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "کتاب ارزشمند «به مملکتتون خدمت کنید» در ششمین مرحله به‌زودی چاپ و منتشر می‌شود. این کتاب از منابع کلیدی معرفی اندیشه و شعار بنیاد است.",
+      },
+      {
+        type: "tip",
+        text: "جزئیات را در صفحهٔ [کتاب‌ها](/library/books) ببینید.",
+      },
+    ],
+  },
+  {
+    id: "news-tax",
+    slug: "moafiat-maliati-1401",
+    title: "ابلاغ تشخیص و اعمال معافیت ۱۰۰٪ مالیاتی عملکرد سال ۱۴۰۱ بنیاد",
+    description:
+      "با ابلاغ تشخیص، بنیاد فرهنگی دکتر مجتهدی از معافیت کامل مالیاتی عملکرد ۱۴۰۱ برخوردار شد.",
+    dateLabel: "۲۴ بهمن ۱۴۰۲",
+    category: "اعلان رسمی",
+    author: "هیئت رئیسه بنیاد",
+    coverTone: "ink",
+    status: "published",
+    source: "drmojtahedi.com · NewsDetails",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "اعمال معافیت مالیاتی برای مؤسسات عام‌المنفعه پس از ارائهٔ دفاتر قانونی، اظهارنامه‌ها و رسیدگی ممیز و تأیید ناظر مالیاتی انجام می‌شود. این فرآیند برای بنیاد در دارایی شرق تهران طی و رسماً ابلاغ شد.",
+      },
+      {
+        type: "tip",
+        text: "برای آشنایی با هویت حقوقی بنیاد، [معرفی بنیاد](/foundation) و [اساس‌نامه](/foundation/charter) را بخوانید.",
+      },
+    ],
+  },
+  {
+    id: "news-shoja",
+    slug: "parvaz-asemani-shoja-pour",
+    title: "پرواز آسمانی استاد علیرضا شجاع‌پور، شاعر و شاگرد دکتر مجتهدی",
+    description:
+      "استاد علیرضا شجاع‌پور، فارغ‌التحصیل دبیرستان ماندگار البرز و شاگرد زنده‌یاد دکتر مجتهدی، به رحمت ایزدی پیوست.",
+    dateLabel: "۲۷ مهر ۱۴۰۲",
+    category: "یادبود",
+    author: "روابط عمومی بنیاد",
+    coverTone: "ink",
+    status: "published",
+    source: "drmojtahedi.com · NewsDetails",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "استاد علیرضا شجاع‌پور شاعر معروف، فارغ‌التحصیل دبیرستان ماندگار البرز و شاگرد زنده‌یاد فرهیخته دکتر محمدعلی مجتهدی گیلانی، به رحمت ایزدی پیوست.",
+      },
+      {
+        type: "tip",
+        text: "صفحهٔ [شاگردان](/heritage/students) را ببینید.",
+      },
+    ],
+  },
+  {
+    id: "news-chabahar",
+    slug: "dastur-abdolmaleki-chabahar",
+    title: "دستور پیگیری توافقنامهٔ بنیاد با منطقهٔ آزاد چابهار",
+    description:
+      "دستور دکتر عبدالملکی، دبیر شورای عالی مناطق آزاد، برای تهیهٔ گزارش فوری از نحوهٔ اجرای توافقنامه با بنیاد.",
+    dateLabel: "۲۴ مهر ۱۴۰۲",
+    category: "پروژه",
+    author: "روابط عمومی بنیاد",
+    coverTone: "bronze",
+    status: "published",
+    source: "drmojtahedi.com · NewsDetails",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "دستور صریح برای رسیدگی به علت توقف و نحوهٔ اجرای توافقنامهٔ فی‌مابین بنیاد فرهنگی دکتر مجتهدی و سازمان منطقهٔ آزاد چابهار صادر شد.",
+      },
+      {
+        type: "tip",
+        text: "جزئیات را در [پروژه‌های بنیاد](/projects) دنبال کنید.",
+      },
+    ],
+  },
+  {
+    id: "news-pesyani",
+    slug: "parvaz-asemani-atila-pesyani",
+    title: "پرواز آسمانی آتیلا پسیانی، شاگرد فرهیختهٔ دکتر مجتهدی",
+    description:
+      "آتیلا پسیانی، شاگرد فرهیختهٔ زنده‌یاد دکتر مجتهدی و هنرمند ارزشمند ایران، به رحمت ایزدی پیوست.",
+    dateLabel: "۱۵ مهر ۱۴۰۲",
+    category: "یادبود",
+    author: "روابط عمومی بنیاد",
+    coverTone: "ink",
+    status: "published",
+    source: "drmojtahedi.com · NewsDetails",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "آتیلا پسیانی شاگرد فرهیختهٔ زنده‌یاد دکتر مجتهدی و هنرمند ارزشمند ایران به رحمت ایزدی پیوست.",
+      },
+      {
+        type: "tip",
+        text: "در [شاگردان](/heritage/students) بیشتر بخوانید.",
+      },
+    ],
+  },
+  {
     id: "news-1",
     slug: "etelaeieh-majmooe-farhangi",
     title: "آغاز فاز معرفی مجموعهٔ فرهنگی",
@@ -328,19 +609,11 @@ export const mockNews: NewsItem[] = [
     blocks: [
       {
         type: "paragraph",
-        text: "با راه‌اندازی پلتفرم دیجیتال میراث، معرفی مجموعهٔ فرهنگی دکتر مجتهدی وارد مرحلهٔ تازه‌ای شد. در این مرحله، زندگی‌نامه، خط زمان، آرشیو و مجله در دسترس عموم قرار گرفته است.",
-      },
-      {
-        type: "h2",
-        text: "چه چیزی منتشر شده؟",
-      },
-      {
-        type: "ul",
-        text: "روایت مستند زندگی دکتر مجتهدی\nخط زمان تعاملی نقاط عطف\nمقالات تحریریه دربارهٔ البرز و شریف\nدرگاه ارسال خاطره و حمایت",
+        text: "با راه‌اندازی پلتفرم دیجیتال میراث، معرفی مجموعهٔ فرهنگی دکتر مجتهدی وارد مرحلهٔ تازه‌ای شد.",
       },
       {
         type: "tip",
-        text: "برای آشنایی با چشم‌انداز فیزیکی، صفحهٔ [مجموعه فرهنگی](/complex) را ببینید.",
+        text: "صفحهٔ [مجموعه فرهنگی](/complex) را ببینید.",
       },
     ],
   },
@@ -359,70 +632,11 @@ export const mockNews: NewsItem[] = [
     blocks: [
       {
         type: "paragraph",
-        text: "آرشیو دیجیتال بنیاد برای گردآوری خاطرات، عکس‌ها و اسناد مرتبط با دوران ریاست دکتر مجتهدی بر دبیرستان البرز آماده است. ارسال محتوا به معنی انتشار فوری نیست و پس از بررسی انجام می‌شود.",
-      },
-      {
-        type: "h2",
-        text: "چه چیزی می‌توانید بفرستید؟",
-      },
-      {
-        type: "ul",
-        text: "خاطرهٔ شخصی از کلاس و فضای مدرسه\nعکس یا سند خانوادگی مرتبط\nروایت دربارهٔ معلمان و فضای علمی البرز",
+        text: "آرشیو دیجیتال بنیاد برای گردآوری خاطرات، عکس‌ها و اسناد مرتبط با دوران ریاست دکتر مجتهدی بر دبیرستان البرز آماده است.",
       },
       {
         type: "tip",
-        text: "از طریق صفحهٔ [ارسال خاطره](/memories) روایت خود را ثبت کنید.",
-      },
-    ],
-  },
-  {
-    id: "news-3",
-    slug: "gozaresh-nekoodasht",
-    title: "گزارش نکوداشت دکتر مجتهدی در دانشگاه شریف",
-    description:
-      "مروری بر مراسم نکوداشت برگزارشده به همت بنیاد نخبگان استان تهران و دانشگاه صنعتی شریف.",
-    dateLabel: "آذر ۱۳۹۷",
-    category: "گزارش",
-    author: "تحریریهٔ بنیاد",
-    coverTone: "ink",
-    relatedEventSlug: "nekoodasht-1397",
-    status: "published",
-    source: "گزارش‌های عمومی",
-    blocks: [
-      {
-        type: "paragraph",
-        text: "مراسم نکوداشت دکتر محمدعلی مجتهدی گیلانی با حضور استادان، دانشجویان و مستعدین برتر در دانشگاه صنعتی شریف برگزار شد و بر نقش او در آموزش متوسطه و عالی ایران تأکید کرد.",
-      },
-      {
-        type: "quote",
-        text: "میراث او در انسان‌هایی است که ساخت و نهادی که بنیان گذاشت.",
-      },
-      {
-        type: "tip",
-        text: "جزئیات رویداد را در صفحهٔ [نکوداشت](/events/nekoodasht-1397) ببینید.",
-      },
-    ],
-  },
-  {
-    id: "news-4",
-    slug: "barnamerizi-namayeshgah-alborz",
-    title: "برنامه‌ریزی نمایشگاه موضوعی البرز",
-    description:
-      "نمایشگاه موضوعی دربارهٔ دبیرستان البرز و مدیریت دکتر مجتهدی در دستور کار موزه قرار گرفت.",
-    dateLabel: "به‌زودی",
-    category: "موزه",
-    author: "موزه",
-    coverTone: "pine",
-    status: "coming-soon",
-    source: null,
-    blocks: [
-      {
-        type: "paragraph",
-        text: "موزهٔ بنیاد در حال طراحی نمایشگاهی دربارهٔ پیوند مجتهدی و دبیرستان البرز است. اسناد و عکس‌های آرشیوی به‌تدریج برای این نمایشگاه آماده‌سازی می‌شوند.",
-      },
-      {
-        type: "tip",
-        text: "صفحهٔ [نمایشگاه‌ها](/museum/exhibitions) را برای اعلام زمان‌بندی دنبال کنید.",
+        text: "از طریق [ارسال خاطره](/memories) روایت خود را ثبت کنید.",
       },
     ],
   },

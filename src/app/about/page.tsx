@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BookOpen, Compass, Sparkles } from "lucide-react";
+import {
+  BookOpen,
+  Compass,
+  FileText,
+  GraduationCap,
+  Landmark,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { FadeIn } from "@/components/shared/FadeIn";
 import { PageHero } from "@/components/shared/PageHero";
 import { IconBadge } from "@/components/ui/IconBadge";
@@ -33,6 +41,30 @@ const gateways = [
     description: "میراث البرز، شریف و پیوند با مجموعهٔ فرهنگی امروز.",
     icon: Sparkles,
   },
+  {
+    href: "/foundation",
+    title: "معرفی بنیاد",
+    description: "مأموریت، چشم‌انداز و هویت بنیاد فرهنگی.",
+    icon: Landmark,
+  },
+  {
+    href: "/foundation/organs",
+    title: "ارکان بنیاد",
+    description: "هیئت‌ها، اعضا و نمایندگان منطقه‌ای.",
+    icon: Users,
+  },
+  {
+    href: "/heritage/students",
+    title: "شاگردان",
+    description: "دانش‌آموختگان و شاگردان مرتبط با البرز.",
+    icon: GraduationCap,
+  },
+  {
+    href: "/foundation/charter",
+    title: "اساس‌نامه",
+    description: "خلاصهٔ اسناد نهادی بنیاد.",
+    icon: FileText,
+  },
 ];
 
 export default function AboutPage() {
@@ -42,7 +74,7 @@ export default function AboutPage() {
         breadcrumbs={[{ label: "خانه", href: "/" }, { label: "دکتر مجتهدی" }]}
         eyebrow="دکتر مجتهدی"
         title={siteConfig.personTitle}
-        description={`${siteConfig.personRoles.slice(0, 2).join(" · ")}. ${siteConfig.birthYear}–${siteConfig.deathYear}. از اینجا زندگی‌نامه، خط زمان و میراث او را بپیمایید.`}
+        description={`${siteConfig.personRoles.slice(0, 2).join(" · ")}. ${siteConfig.birthYear}–${siteConfig.deathYear}. از اینجا زندگی‌نامه، بنیاد و شاگردان را بپیمایید.`}
       />
       <div className="content-shell section-pad !pt-8">
         <FadeIn>

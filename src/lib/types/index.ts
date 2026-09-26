@@ -30,12 +30,61 @@ export type EntityBase = {
   relatedContent?: RelatedRef[];
 };
 
+export type PersonKind =
+  | "student"
+  | "colleague"
+  | "founder"
+  | "family"
+  | "organ"
+  | "other";
+
 export type Person = EntityBase & {
   name: string;
   role?: string;
   relationship?: string;
   portrait?: MediaAsset;
   biography?: string;
+  /** Classification for directories (e.g. شاگردان) */
+  kind?: PersonKind;
+  /** Organ role label when kind is organ */
+  organRole?: string;
+};
+
+export type OrganGroup =
+  | "boards"
+  | "members"
+  | "representatives"
+  | "other";
+
+export type FoundationOrganMember = {
+  id: string;
+  name: string;
+  role: string;
+  group: OrganGroup;
+  location?: string;
+  note?: string;
+  status: ContentStatus;
+};
+
+export type Sponsor = EntityBase & {
+  kind: "individual" | "organization";
+  logoLabel?: string;
+};
+
+export type FoundationProject = EntityBase & {
+  phase?: string;
+  location?: string;
+  href?: string;
+  coverTone?: "pine" | "ink" | "bronze";
+};
+
+export type CollaborateOption = EntityBase & {
+  kind: "volunteer" | "partner" | "research" | "donate-artifact" | "corporate";
+};
+
+export type AssessmentProgram = EntityBase & {
+  audience?: string;
+  outcomes?: string[];
 };
 
 export type Place = EntityBase & {

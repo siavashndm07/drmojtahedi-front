@@ -14,11 +14,15 @@ export function SiteFooter() {
           <div className="space-y-4">
             <p className="text-sm text-white/70">{siteConfig.name}</p>
             <p className="text-display text-2xl">{siteConfig.personName}</p>
+            <p className="text-sm font-medium text-mint-soft/90">{siteConfig.tagline}</p>
             <p className="max-w-md text-sm leading-7 text-white/75">
               {siteConfig.personRoles.slice(0, 2).join(" · ")}
             </p>
             <p className="max-w-md text-sm leading-7 text-white/60">
-              {siteConfig.description}
+              {siteConfig.address}
+            </p>
+            <p className="text-sm text-white/60">
+              تلفن: {toPersianDigits(siteConfig.phone)} · {siteConfig.email}
             </p>
             <form className="flex max-w-md flex-col gap-2 sm:flex-row" action="#" method="post">
               <label className="sr-only" htmlFor="newsletter-email">

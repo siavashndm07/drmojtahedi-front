@@ -2,14 +2,164 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronDown, HeartHandshake } from "lucide-react";
+import { ArrowLeft, ChevronDown, HeartHandshake } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getNavIcon } from "@/components/icons/navIcons";
-import { primaryNavigation, utilityNavigation } from "@/config/navigation";
+import {
+  primaryNavigation,
+  utilityNavigation,
+  type NavChild,
+  type NavFeatured,
+  type NavGroup,
+  type NavItem,
+} from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils/cn";
+
+function MegaLink({
+  child,
+  onNavigate,
+  compact = false,
+}: {
+  child: NavChild;
+  onNavigate?: () => void;
+  compact?: boolean;
+}) {
+  const ChildIcon = getNavIcon(child.icon);
+  return (
+    <Link
+      href={child.href}
+      onClick={onNavigate}
+      className={cn(
+        "group/link flex items-start gap-3 rounded-xl transition-colors hover:bg-mint-soft",
+        compact ? "px-2.5 py-2" : "px-3 py-2.5",
+      )}
+    >
+      <span
+        className={cn(
+          "inline-flex shrink-0 items-center justify-center rounded-xl bg-mint-soft text-pine transition group-hover/link:bg-pine group-hover/link:text-white",
+          compact ? "mt-0.5 size-8" : "mt-0.5 size-9",
+        )}
+      >
+        <ChildIcon className={compact ? "size-3.5" : "size-4"} strokeWidth={1.8} aria-hidden />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-sm font-semibold text-ink group-hover/link:text-pine">
+          {child.label}
+        </span>
+        {child.description && !compact ? (
+          <span className="mt-0.5 block text-xs leading-5 text-ink-muted">{child.description}</span>
+        ) : null}
+      </span>
+    </Link>
+  );
+}
+
+function FeaturedCard({ featured }: { featured: NavFeatured }) {
+  return (
+    <Link
+      href={featured.href}
+      className="group flex h-full min-h-40 flex-col justify-between rounded-2xl bg-pine p-5 text-white transition hover:bg-pine-dark"
+    >
+      <div>
+        <p className="text-[11px] tracking-[0.16em] text-white/60">پیشنهاد</p>
+        <p className="mt-2 text-lg font-semibold leading-7">{featured.title}</p>
+        <p className="mt-2 text-sm leading-7 text-white/75">{featured.description}</p>
+      </div>
+      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-mint-soft">
+        {featured.cta ?? "مشاهده"}
+        <ArrowLeft className="size-3.5 transition group-hover:-translate-x-0.5" aria-hidden />
+      </span>
+    </Link>
+  );
+}
+
+function MegaPanel({ item }: { item: NavItem }) {
+  const groups = item.groups ?? [];
+  const hasFeatured = Boolean(item.featured);
+  const cols = groups.length;
+
+  return (
+    <div
+      className={cn(
+        "overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-card",
+        cols + (hasFeatured ? 1 : 0) >= 3
+          ? "w-[min(54rem,calc(100vw-2rem))]"
+          : cols === 2
+            ? "w-[min(36rem,calc(100vw-2rem))]"
+            : "w-[min(22rem,calc(100vw-2rem))]",
+      )}
+    >
+      <div
+        className={cn(
+          "grid gap-0",
+          cols === 1 && !hasFeatured && "grid-cols-1",
+          cols === 1 && hasFeatured && "sm:grid-cols-[1.2fr_0.9fr]",
+          cols === 2 && !hasFeatured && "sm:grid-cols-2",
+          cols === 2 && hasFeatured && "lg:grid-cols-[1fr_1fr_0.9fr]",
+          cols === 3 && !hasFeatured && "lg:grid-cols-3",
+          cols === 3 && hasFeatured && "lg:grid-cols-[1fr_1fr_1fr_0.95fr]",
+        )}
+      >
+        {groups.map((group, index) => (
+          <div
+            key={group.title}
+            className={cn(
+              "p-3 md:p-4",
+              index > 0 && "border-t border-ink/8 sm:border-t-0 sm:border-s",
+            )}
+          >
+            <p className="mb-2 px-3 text-[11px] font-semibold tracking-[0.14em] text-bronze">
+              {group.title}
+            </p>
+            <ul className="space-y-0.5">
+              {group.items.map((child) => (
+                <li key={`${child.href}-${child.label}`}>
+                  <MegaLink child={child} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+        {item.featured ? (
+          <div
+            className={cn(
+              "border-ink/8 bg-mint-soft/25 p-3 md:p-4",
+              "border-t sm:border-t-0 sm:border-s",
+            )}
+          >
+            <FeaturedCard featured={item.featured} />
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function MobileGroup({
+  group,
+  onNavigate,
+}: {
+  group: NavGroup;
+  onNavigate: () => void;
+}) {
+  return (
+    <div className="space-y-1">
+      <p className="px-3 pt-2 text-[11px] font-semibold tracking-[0.14em] text-bronze">
+        {group.title}
+      </p>
+      <ul className="grid gap-0.5 sm:grid-cols-2">
+        {group.items.map((child) => (
+          <li key={child.href + child.label}>
+            <MegaLink child={child} onNavigate={onNavigate} compact />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -65,9 +215,10 @@ export function SiteHeader() {
 
             <div className="flex-1 overflow-y-auto px-4 py-5 pb-10">
               <nav aria-label="منوی اصلی موبایل">
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {primaryNavigation.map((item) => {
                     const Icon = getNavIcon(item.icon);
+                    const groups = item.groups ?? [];
                     return (
                       <li
                         key={item.href}
@@ -83,24 +234,16 @@ export function SiteHeader() {
                           </span>
                           <span className="text-base font-semibold text-ink">{item.label}</span>
                         </Link>
-                        {item.children?.length ? (
-                          <ul className="grid gap-1 border-t border-ink/10 bg-mint-soft/30 p-2 sm:grid-cols-2">
-                            {item.children.map((child) => {
-                              const ChildIcon = getNavIcon(child.icon);
-                              return (
-                                <li key={child.href}>
-                                  <Link
-                                    href={child.href}
-                                    className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-ink-muted hover:bg-surface hover:text-pine"
-                                    onClick={() => setOpen(false)}
-                                  >
-                                    <ChildIcon className="size-4 shrink-0" strokeWidth={1.8} />
-                                    {child.label}
-                                  </Link>
-                                </li>
-                              );
-                            })}
-                          </ul>
+                        {groups.length ? (
+                          <div className="space-y-3 border-t border-ink/10 bg-mint-soft/25 px-2 pb-3">
+                            {groups.map((group) => (
+                              <MobileGroup
+                                key={group.title}
+                                group={group}
+                                onNavigate={() => setOpen(false)}
+                              />
+                            ))}
+                          </div>
                         ) : null}
                       </li>
                     );
@@ -141,7 +284,6 @@ export function SiteHeader() {
   return (
     <>
       <header className="sticky top-0 z-50">
-        {/* Blur stays on inner bar so it does not trap position:fixed descendants */}
         <div className="border-b border-ink/10 bg-cream/90 backdrop-blur-md">
           <div className="content-wide">
             <div className="flex h-16 items-center justify-between gap-3 md:h-[4.75rem]">
@@ -157,15 +299,11 @@ export function SiteHeader() {
                 <span className="sr-only">{siteConfig.name}</span>
               </Link>
 
-              <nav
-                aria-label="ناوبری اصلی"
-                className="hidden items-center gap-0.5 lg:flex"
-              >
+              <nav aria-label="ناوبری اصلی" className="hidden items-center gap-0.5 lg:flex">
                 {primaryNavigation.map((item, itemIndex) => {
                   const Icon = getNavIcon(item.icon);
-                  const hasChildren = Boolean(item.children?.length);
+                  const hasChildren = Boolean(item.groups?.length);
                   const isOpen = activeMega === item.href;
-                  /* RTL: start = right. Leftmost items (high index) flip to end so the panel stays on-screen. */
                   const alignToEnd = itemIndex >= primaryNavigation.length - 2;
 
                   return (
@@ -174,6 +312,12 @@ export function SiteHeader() {
                       className="relative"
                       onMouseEnter={() => hasChildren && setActiveMega(item.href)}
                       onMouseLeave={() => setActiveMega(null)}
+                      onFocusCapture={() => hasChildren && setActiveMega(item.href)}
+                      onBlurCapture={(event) => {
+                        if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+                          setActiveMega(null);
+                        }
+                      }}
                     >
                       <Link
                         href={item.href}
@@ -206,51 +350,7 @@ export function SiteHeader() {
                             alignToEnd ? "end-0" : "start-0",
                           )}
                         >
-                          <div
-                            className={cn(
-                              "overflow-hidden rounded-2xl border border-ink/10 bg-surface p-2 shadow-card",
-                              (item.children?.length ?? 0) > 4
-                                ? "w-[min(28rem,calc(100vw-2rem))]"
-                                : "w-[min(18rem,calc(100vw-2rem))]",
-                            )}
-                          >
-                            <ul
-                              className={cn(
-                                "grid gap-1",
-                                (item.children?.length ?? 0) > 4 && "sm:grid-cols-2",
-                              )}
-                            >
-                              {item.children!.map((child) => {
-                                const ChildIcon = getNavIcon(child.icon);
-                                return (
-                                  <li key={child.href}>
-                                    <Link
-                                      href={child.href}
-                                      className="flex items-start gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-mint-soft"
-                                    >
-                                      <span className="mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-mint-soft text-pine">
-                                        <ChildIcon
-                                          className="size-4"
-                                          strokeWidth={1.8}
-                                          aria-hidden
-                                        />
-                                      </span>
-                                      <span className="min-w-0">
-                                        <span className="block text-sm font-semibold text-ink">
-                                          {child.label}
-                                        </span>
-                                        {child.description ? (
-                                          <span className="mt-0.5 block text-xs leading-5 text-ink-muted">
-                                            {child.description}
-                                          </span>
-                                        ) : null}
-                                      </span>
-                                    </Link>
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          </div>
+                          <MegaPanel item={item} />
                         </div>
                       ) : null}
                     </div>

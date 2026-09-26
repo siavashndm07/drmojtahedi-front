@@ -18,7 +18,7 @@ import { FadeIn } from "@/components/shared/FadeIn";
 import { Badge } from "@/components/ui/Badge";
 import { IconBadge } from "@/components/ui/IconBadge";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { mockArticles, mockNews } from "@/lib/mock";
+import { mockArticles, mockNews, mockPartnerLinks, mockSponsors } from "@/lib/mock";
 import { toPersianDigits } from "@/lib/utils/digits";
 
 function MediaTile({
@@ -391,6 +391,65 @@ export function MemoryCTA() {
   );
 }
 
+export function PartnersPreview() {
+  return (
+    <FadeIn>
+      <section className="border-y border-ink/10 bg-paper/60">
+        <div className="content-shell section-pad !py-10">
+          <SectionHeading
+            eyebrow="لینک‌ها و دوستان"
+            title="شبکهٔ همکاران"
+            description="دانشگاه‌ها، انجمن‌ها و مؤسسات مرتبط — از فوتر سایت پیشین بنیاد."
+          />
+          <ul className="mt-8 flex flex-wrap gap-2">
+            {mockPartnerLinks.map((partner) => (
+              <li key={partner.id}>
+                <span className="inline-flex rounded-full border border-ink/10 bg-surface px-3.5 py-1.5 text-xs text-ink-muted">
+                  {partner.title}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    </FadeIn>
+  );
+}
+
+export function SponsorsPreview() {
+  return (
+    <FadeIn>
+      <section className="content-shell section-pad !pb-4">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <SectionHeading
+            eyebrow="حامیان"
+            title="حامیان گرامی بنیاد"
+            description="افراد و سازمان‌هایی که برنامه‌های عام‌المنفعه را ممکن می‌سازند."
+          />
+          <Link href="/sponsors" className="text-sm font-medium text-pine hover:underline">
+            مشاهده همه
+          </Link>
+        </div>
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
+          {mockSponsors.map((sponsor) => (
+            <li
+              key={sponsor.id}
+              className="flex min-h-24 flex-col items-center justify-center rounded-xl border border-ink/10 bg-surface px-3 py-4 text-center shadow-sm"
+            >
+              <span className="flex size-10 items-center justify-center rounded-full bg-mint-soft text-xs font-semibold text-pine">
+                {sponsor.logoLabel ?? sponsor.title.slice(0, 1)}
+              </span>
+              <p className="mt-2 line-clamp-2 text-[11px] leading-4 text-ink-muted">
+                {sponsor.title}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </FadeIn>
+  );
+}
+
 export function SupportCTA() {
   return (
     <FadeIn>
@@ -411,13 +470,21 @@ export function SupportCTA() {
                 </p>
               </div>
             </div>
-            <Link
-              href="/support"
-              className="inline-flex items-center gap-2 rounded-full bg-pine px-6 py-3.5 text-sm font-semibold text-white hover:bg-pine-dark"
-            >
-              <HandHeart className="size-4" aria-hidden />
-              راه‌های حمایت
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/support"
+                className="inline-flex items-center gap-2 rounded-full bg-pine px-6 py-3.5 text-sm font-semibold text-white hover:bg-pine-dark"
+              >
+                <HandHeart className="size-4" aria-hidden />
+                راه‌های حمایت
+              </Link>
+              <Link
+                href="/collaborate"
+                className="inline-flex items-center gap-2 rounded-full border border-ink/10 bg-surface px-6 py-3.5 text-sm font-semibold hover:border-pine/40"
+              >
+                همکاری
+              </Link>
+            </div>
           </div>
         </div>
       </section>
