@@ -67,28 +67,18 @@ function HeroCtaButtons({
   );
 }
 
-function HeroSlideMedia({
-  slide,
-  index,
-}: {
-  slide: HeroSlide;
-  index: number;
-}) {
+function HeroSlideMedia({ slide, index }: { slide: HeroSlide; index: number }) {
   return (
-    <div
-      className={cn(
-        "absolute inset-0 bg-gradient-to-br",
-        tonePanel[slide.tone],
-      )}
-    >
+    <div className={cn("absolute inset-0 bg-gradient-to-br", tonePanel[slide.tone])}>
       <div className={cn("absolute inset-0", toneGlow[slide.tone])} aria-hidden />
+
       <Image
         src={slide.mobileImage || slide.image}
         alt={slide.imageAlt}
         fill
         priority={index === 0}
         sizes="100vw"
-        className="object-contain object-center p-[18%] opacity-90 brightness-0 invert sm:hidden"
+        className="object-cover object-center sm:hidden"
       />
       <Image
         src={slide.image}
@@ -96,12 +86,11 @@ function HeroSlideMedia({
         fill
         priority={index === 0}
         sizes="100vw"
-        className="hidden object-contain object-center p-[14%] opacity-90 brightness-0 invert sm:block md:p-[12%]"
+        className="hidden object-cover object-center sm:block"
       />
     </div>
   );
 }
-
 function HeroSlideOverlay({
   slide,
   index,
