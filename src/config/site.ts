@@ -13,7 +13,7 @@ export const siteConfig = {
   deathYear: "۱۳۷۶",
   tagline: "به مملکت‌تان خدمت کنید",
   description:
-    "پلتفرم دیجیتال میراث دکتر محمدعلی مجتهدی گیلانی — معلم البرز، بنیان‌گذار دانشگاه صنعتی شریف؛ آرشیو، موزه، آموزش و رویدادها.",
+    "بنیاد فرهنگی دکتر محمدعلی مجتهدی گیلانی — معرفی بنیاد، اخبار، پروژه‌ها، گالری و همراهی با میراث آموزشی او.",
   url: process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "http://localhost:3000",
   locale: "fa_IR",
   language: "fa",
@@ -28,10 +28,16 @@ export const siteConfig = {
   postalCode: "1951733164",
   registrationNumber: "36982",
   nationalId: "14005292410",
+  /** Official channels — leave empty string to hide icon until URL is set */
   social: {
-    telegram: null as string | null,
-    instagram: null as string | null,
-    youtube: null as string | null,
+    instagram: "",
+    telegram: "",
+    whatsapp: "https://wa.me/989122964459",
+    twitter: "",
+    linkedin: "",
+    bale: "",
+    eita: "",
+    rubika: "",
   },
 } as const;
 

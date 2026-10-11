@@ -20,13 +20,13 @@ export default async function ProjectsPage() {
         breadcrumbs={[{ label: "خانه", href: "/" }, { label: "پروژه‌های بنیاد" }]}
         eyebrow="برنامه‌ها"
         title="پروژه‌های بنیاد"
-        description="از مجموعهٔ فرهنگی و مرکز ارزیابی مدیران تا توافق‌های منطقه‌ای و پلتفرم دیجیتال میراث."
+        description="خانهٔ فرهنگی و یادمان، توافق‌های منطقه‌ای، دیجیتالی‌سازی گالری و پلتفرم میراث."
         actions={
           <Link
-            href="/construction"
+            href="/gallery"
             className="inline-flex rounded-lg border border-ink/10 bg-surface px-5 py-3 text-sm font-medium hover:border-pine/40"
           >
-            پیشرفت ساخت
+            گالری
           </Link>
         }
       />
@@ -41,6 +41,9 @@ export default async function ProjectsPage() {
             meta: [project.phase, project.location].filter(Boolean).join(" · "),
             badge: "پروژه",
             comingSoon: project.status === "coming-soon",
+            image: project.heroImage
+              ? { src: project.heroImage.src, alt: project.heroImage.alt }
+              : undefined,
           }))}
         />
       </div>

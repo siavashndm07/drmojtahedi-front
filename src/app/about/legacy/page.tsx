@@ -44,8 +44,8 @@ export default function LegacyPage() {
                 از دانش‌آموزان — بسیاری از آنان بعدها استاد، مهندس و مدیر شدند — از آن گذشتند.
                 نام مجتهدی و البرز برای ایرانیان هم‌معنا مانده است.
               </p>
-              <Link href="/education" className="mt-5 inline-flex text-sm font-medium text-pine hover:underline">
-                بخش آموزش
+              <Link href="/heritage/students" className="mt-5 inline-flex text-sm font-medium text-pine hover:underline">
+                شاگردان
               </Link>
             </section>
             <section className="border border-ink/10 bg-surface p-6 md:p-8">
@@ -62,13 +62,13 @@ export default function LegacyPage() {
         </FadeIn>
         <FadeIn>
           <section className="border border-ink/10 bg-mint-soft/50 p-6 md:p-8">
-            <h2 className="text-display text-xl">مجموعهٔ فرهنگی امروز</h2>
+            <h2 className="text-display text-xl">بنیاد فرهنگی امروز</h2>
             <p className="mt-3 max-w-3xl text-sm leading-8 text-ink-muted">
-              بنیاد فرهنگی دکتر مجتهدی این میراث را در قالب موزه، آرشیو دیجیتال، آموزش و
-              مجموعهٔ فیزیکی ادامه می‌دهد — تا روایت یک آموزگار ملی برای نسل جدید زنده بماند.
+              بنیاد فرهنگی دکتر مجتهدی این میراث را در قالب آرشیو دیجیتال، اخبار، پروژه‌ها و
+              همراهی عمومی ادامه می‌دهد — تا روایت یک آموزگار ملی برای نسل جدید زنده بماند.
             </p>
-            <Link href="/complex" className="mt-5 inline-flex text-sm font-medium text-pine hover:underline">
-              معرفی مجموعه
+            <Link href="/foundation" className="mt-5 inline-flex text-sm font-medium text-pine hover:underline">
+              معرفی بنیاد
             </Link>
           </section>
         </FadeIn>
@@ -77,10 +77,10 @@ export default function LegacyPage() {
             items={[
               { href: "/about/biography", label: "زندگی‌نامه", meta: "روایت فصل‌به‌فصل" },
               { href: "/about/timeline", label: "خط زمان", meta: "مسیر تعاملی" },
-              { href: "/museum", label: "موزه", meta: "تجربهٔ نمایش" },
+              { href: "/gallery", label: "گالری", meta: "تصاویر و ویدئو" },
               { href: "/archive", label: "آرشیو", meta: "اسناد و خاطرات" },
               { href: "/magazine/moalem-alborz", label: "معلم البرز", meta: "مقاله" },
-              { href: "/support", label: "حمایت", meta: "همراهی با مجموعه" },
+              { href: "/support", label: "حمایت", meta: "همراهی با بنیاد" },
             ]}
           />
         </FadeIn>

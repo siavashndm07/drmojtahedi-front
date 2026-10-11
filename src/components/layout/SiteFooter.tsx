@@ -2,7 +2,43 @@ import Link from "next/link";
 import { getNavIcon } from "@/components/icons/navIcons";
 import { footerColumns, utilityNavigation } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
+import { FOOTER_SOCIAL_LINKS, getActiveSocialLinks } from "@/lib/socialLinks";
 import { toPersianDigits } from "@/lib/utils/digits";
+import { cn } from "@/lib/utils/cn";
+
+function FooterSocials() {
+  const active = getActiveSocialLinks();
+  /** Show all platforms; inactive ones link to contact until URLs are configured */
+  const links = FOOTER_SOCIAL_LINKS.map((item) => {
+    const found = active.find((a) => a.id === item.id);
+    return {
+      ...item,
+      href: found?.href || "/contact",
+      pending: !found?.href,
+    };
+  });
+
+  return (
+    <nav className="flex max-w-md flex-wrap items-center gap-2" aria-label="شبکه‌های اجتماعی">
+      {links.map(({ id, Icon, href, labelFa, pending }) => (
+        <Link
+          key={id}
+          href={href}
+          target={href.startsWith("http") ? "_blank" : undefined}
+          rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+          aria-label={pending ? `${labelFa} — به‌زودی` : labelFa}
+          title={pending ? `${labelFa} — به‌زودی` : labelFa}
+          className={cn(
+            "inline-flex size-10 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white/80 transition hover:border-white/40 hover:bg-white/15 hover:text-white",
+            pending && "opacity-55",
+          )}
+        >
+          <Icon className="size-5" aria-hidden />
+        </Link>
+      ))}
+    </nav>
+  );
+}
 
 export function SiteFooter() {
   const year = toPersianDigits(new Date().getFullYear());
@@ -18,12 +54,11 @@ export function SiteFooter() {
             <p className="max-w-md text-sm leading-7 text-white/75">
               {siteConfig.personRoles.slice(0, 2).join(" · ")}
             </p>
-            <p className="max-w-md text-sm leading-7 text-white/60">
-              {siteConfig.address}
-            </p>
+            <p className="max-w-md text-sm leading-7 text-white/60">{siteConfig.address}</p>
             <p className="text-sm text-white/60">
               تلفن: {toPersianDigits(siteConfig.phone)} · {siteConfig.email}
             </p>
+            <FooterSocials />
             <form className="flex max-w-md flex-col gap-2 sm:flex-row" action="#" method="post">
               <label className="sr-only" htmlFor="newsletter-email">
                 ایمیل خبرنامه
@@ -83,7 +118,7 @@ export function SiteFooter() {
             © {year} {siteConfig.name}
           </p>
           <ul className="flex flex-wrap gap-4">
-            {utilityNavigation.slice(0, 4).map((item) => {
+            {utilityNavigation.map((item) => {
               const Icon = getNavIcon(item.icon);
               return (
                 <li key={item.href}>

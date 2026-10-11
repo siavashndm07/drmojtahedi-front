@@ -1,16 +1,15 @@
 import type {
-  AssessmentProgram,
   CollaborateOption,
-  EducationProgram,
   FoundationOrganMember,
   FoundationProject,
   LibraryItem,
   Sponsor,
 } from "@/lib/types";
+import { coverAsset } from "@/lib/mock/covers";
 
 /**
  * Seed content adapted from the public pages of drmojtahedi.com
- * (معرفی بنیاد، اساس‌نامه، ارکان، اخبار، تماس، پروژه‌ها، مرکز ارزیابی).
+ * (معرفی بنیاد، اساس‌نامه، ارکان، اخبار، تماس، پروژه‌ها).
  */
 
 export const mockFoundationIntro = {
@@ -292,48 +291,11 @@ export const mockProjects: FoundationProject[] = [
       "پروژهٔ خانهٔ فرهنگی و بنای یادمان — از جمله پیگیری مقدمات ساخت یادمان و موزه در لاهیجان یا تهران؛ ایدهٔ تابلوی «برج البرز» استاد محجوبی برای یادمان در تپه‌های اطراف لاهیجان.",
     phase: "پیگیری و برنامه‌ریزی",
     location: "لاهیجان / تهران",
-    href: "/complex",
+    href: "/projects",
     coverTone: "pine",
+    heroImage: coverAsset("memorial", "خانه فرهنگی و بنای یادمان"),
     status: "published",
     source: "پروژه‌های بنیاد · drmojtahedi.com",
-  },
-  {
-    id: "proj-complex",
-    slug: "majmooe-farhangi",
-    title: "مجموعهٔ فرهنگی گردشگری دکتر مجتهدی",
-    description:
-      "موزه، پارک، آمفی‌تئاتر، کتابخانه و فضاهای آموزشی در چارچوب چشم‌انداز مجتمع فرهنگی گردشگری.",
-    phase: "طراحی و معرفی",
-    location: "در حال برنامه‌ریزی",
-    href: "/complex",
-    coverTone: "bronze",
-    status: "published",
-    source: "بنیاد فرهنگی دکتر مجتهدی",
-  },
-  {
-    id: "proj-assessment",
-    slug: "markaz-arzyabi",
-    title: "مرکز ارزیابی و توسعهٔ مدیران",
-    description:
-      "مرکز تخصصی با همکاری انجمن مدیریت منابع انسانی ایران برای سنجش استعداد و سبک رهبری و توسعهٔ مدیران.",
-    phase: "فعال",
-    location: "تهران",
-    href: "/education/assessment",
-    coverTone: "ink",
-    status: "published",
-    source: "مرکز ارزیابی بنیاد",
-  },
-  {
-    id: "proj-skills",
-    slug: "markaz-tosee-maharat",
-    title: "مرکز توسعهٔ مهارت و سرمایهٔ اجتماعی",
-    description:
-      "رکن انسان‌افزاری بنیاد: ارزیابی روان‌سنجی، مربیگری، مشاوره و آموزش — با همکاری شرکت آروین.",
-    phase: "فعال",
-    href: "/education",
-    coverTone: "pine",
-    status: "published",
-    source: "خدمات آموزشی بنیاد",
   },
   {
     id: "proj-chabahar",
@@ -343,8 +305,9 @@ export const mockProjects: FoundationProject[] = [
       "همکاری بنیاد با سازمان منطقهٔ آزاد چابهار؛ پیگیری نحوهٔ اجرای توافقنامه از سوی شورای عالی مناطق آزاد.",
     phase: "پیگیری اجرا",
     location: "چابهار",
-    href: "/projects",
+    href: "/news/dastur-abdolmaleki-chabahar",
     coverTone: "bronze",
+    heroImage: coverAsset("heritage", "توافقنامه چابهار"),
     status: "published",
     source: "اخبار بنیاد · مهر ۱۴۰۲",
   },
@@ -353,63 +316,26 @@ export const mockProjects: FoundationProject[] = [
     slug: "platform-digital-miras",
     title: "پلتفرم دیجیتال میراث",
     description:
-      "آرشیو، زندگی‌نامه، مجله، اخبار و رویدادها روی بستر وب برای دسترسی عمومی.",
+      "آرشیو، زندگی‌نامه، مقالات، اخبار و گالری روی بستر وب برای دسترسی عمومی.",
     phase: "MVP منتشرشده",
     href: "/",
     coverTone: "pine",
+    heroImage: coverAsset("archive", "پلتفرم دیجیتال میراث"),
     status: "published",
     source: "روابط عمومی بنیاد",
   },
-];
-
-export const mockAssessment: AssessmentProgram = {
-  id: "assessment-center",
-  slug: "markaz-arzyabi-modiran",
-  title: "مرکز ارزیابی و توسعهٔ مدیران",
-  description:
-    "بر اساس رسالت بنیاد در توسعهٔ سرمایه‌های انسانی و اجتماعی و شعار «به مملکت‌تان خدمت کنید»، این مرکز با همکاری انجمن مدیریت منابع انسانی ایران ایجاد شده است. ارزیابی‌های لازم برای بررسی استعداد و سبک رهبری فراهم است و با گزارش تحلیلی جامع مشخص می‌شود هر فرد برای چه مدیریتی، در چه شرایطی و سطحی آمادگی دارد.",
-  audience: "سازمان‌ها و شرکت‌ها برای انتخاب یا توسعهٔ مدیران؛ افراد علاقه‌مند به شناخت استعداد رهبری",
-  outcomes: [
-    "گزارش تحلیلی جامع استعداد و سبک رهبری",
-    "شناخت نقاط قابل بهبود برای نقش مدیریتی فعلی",
-    "پشتیبانی از انتخاب و تحول مدیران سازمانی",
-    "پیوند با مرکز توسعهٔ مهارت و سرمایهٔ اجتماعی بنیاد",
-  ],
-  status: "published",
-  source: "eEvaluationCenter · drmojtahedi.com",
-};
-
-export const mockEducationPrograms: EducationProgram[] = [
   {
-    id: "edu-skills-center",
-    slug: "markaz-tosee-maharat",
-    title: "مرکز توسعهٔ مهارت و سرمایهٔ اجتماعی",
+    id: "proj-gallery-digitize",
+    slug: "digitize-gallery",
+    title: "دیجیتالی‌سازی گالری و آرشیو",
     description:
-      "یکی از چهار رکن فعالیت بنیاد؛ تمرکز بر انسان‌افزاری از طریق ارزیابی روان‌سنجی، مربیگری، مشاوره و آموزش.",
-    programType: "resource",
-    audience: "جوانان، مدیران و علاقه‌مندان توسعهٔ فردی",
+      "گردآوری و انتشار تدریجی عکس‌ها، آثار اهدایی و ویدئوهای مرتبط با بنیاد.",
+    phase: "در حال انجام",
+    href: "/gallery",
+    coverTone: "ink",
+    heroImage: coverAsset("gathering", "دیجیتالی‌سازی گالری"),
     status: "published",
-    source: "LearningArchive · ۱۳۹۸/۰۶/۰۳",
-  },
-  {
-    id: "edu-courses-catalog",
-    slug: "fehrest-doreha",
-    title: "فهرست دوره‌های آموزشی",
-    description: "کاتالوگ دوره‌های مهارتی و فرهنگی بنیاد — جزئیات از آرشیو آموزشی سایت پیشین.",
-    programType: "course",
-    audience: "عموم علاقه‌مندان",
-    status: "coming-soon",
-    source: "LearningArchive",
-  },
-  {
-    id: "edu-assessment-link",
-    slug: "arzyabi-modiran",
-    title: "ارزیابی مدیران",
-    description: "مسیر ورود به مرکز ارزیابی و توسعهٔ مدیران.",
-    programType: "workshop",
-    audience: "مدیران و سازمان‌ها",
-    status: "published",
-    source: "بنیاد",
+    source: "آرشیو بنیاد",
   },
 ];
 
@@ -418,7 +344,7 @@ export const mockCollaborateOptions: CollaborateOption[] = [
     id: "col-volunteer",
     slug: "davtalabi",
     title: "همکاری داوطلبانه",
-    description: "همراهی در رویدادها، آرشیو، راهنمایی بازدید و برنامه‌های آموزشی.",
+    description: "همراهی در آرشیو، گالری، پروژه‌ها و برنامه‌های فرهنگی بنیاد.",
     kind: "volunteer",
     status: "published",
   },
@@ -465,6 +391,7 @@ export const mockSponsors: Sponsor[] = [
     description: "حامی سازمانی بنیاد.",
     kind: "organization",
     logoLabel: "بینا",
+    coverImage: coverAsset("campus", "بینا پردازش گیل"),
     status: "published",
   },
   {
@@ -474,6 +401,7 @@ export const mockSponsors: Sponsor[] = [
     description: "حامی گرامی بنیاد.",
     kind: "individual",
     logoLabel: "ک.ق",
+    coverImage: coverAsset("portrait", "دکتر کامبیز قادری"),
     status: "published",
   },
   {
@@ -483,6 +411,7 @@ export const mockSponsors: Sponsor[] = [
     description: "حامی سازمانی برنامه‌های مکران.",
     kind: "organization",
     logoLabel: "مکران",
+    coverImage: coverAsset("heritage", "مجمع یاوران مکران"),
     status: "published",
   },
   {
@@ -492,6 +421,7 @@ export const mockSponsors: Sponsor[] = [
     description: "حامی گرامی بنیاد.",
     kind: "individual",
     logoLabel: "ا.م",
+    coverImage: coverAsset("alborz", "دکتر اردشیر منتصر"),
     status: "published",
   },
   {
@@ -501,6 +431,7 @@ export const mockSponsors: Sponsor[] = [
     description: "حامی گرامی بنیاد.",
     kind: "individual",
     logoLabel: "خ.س",
+    coverImage: coverAsset("ceremony", "خسرو ستوده"),
     status: "published",
   },
   {
@@ -510,6 +441,7 @@ export const mockSponsors: Sponsor[] = [
     description: "حامی گرامی بنیاد.",
     kind: "individual",
     logoLabel: "ز.پ",
+    coverImage: coverAsset("library", "زهره پرندیان"),
     status: "published",
   },
   {
@@ -519,6 +451,7 @@ export const mockSponsors: Sponsor[] = [
     description: "مجری مرکز توسعه مهارت و سرمایه اجتماعی؛ حامی سازمانی.",
     kind: "organization",
     logoLabel: "آروین",
+    coverImage: coverAsset("archive", "شرکت آروین"),
     status: "published",
   },
 ];

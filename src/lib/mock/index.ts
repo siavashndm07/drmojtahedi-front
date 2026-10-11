@@ -1,12 +1,12 @@
 import type {
   ArchiveItem,
   Article,
-  EventItem,
   NewsItem,
   Person,
   Place,
   TimelineEvent,
 } from "@/lib/types";
+import { coverAsset } from "@/lib/mock/covers";
 
 /**
  * Seed content based on well-documented public biography of
@@ -243,11 +243,9 @@ export const mockPeople: Person[] = [
 ];
 
 export {
-  mockAssessment,
   mockBooks,
   mockCharterChapters,
   mockCollaborateOptions,
-  mockEducationPrograms,
   mockFoundationIntro,
   mockOrganMembers,
   mockPartnerLinks,
@@ -376,73 +374,6 @@ export const mockArchive: ArchiveItem[] = [
   },
 ];
 
-export const mockEvents: EventItem[] = [
-  {
-    id: "event-nekoodasht",
-    slug: "nekoodasht-1397",
-    title: "مراسم نکوداشت دکتر مجتهدی",
-    description:
-      "نکوداشت به همت بنیاد نخبگان استان تهران و دانشگاه صنعتی شریف با حضور استادان، دانشجویان و مستعدین برتر.",
-    dateLabel: "۱۳۹۷",
-    startAt: "2018-11-01",
-    schedule: "past",
-    venue: "تهران · دانشگاه صنعتی شریف",
-    category: "نکوداشت",
-    coverTone: "pine",
-    body: "به پاس خدمات ارزشمند دکتر محمدعلی مجتهدی گیلانی، مراسم نکوداشتی با حضور جمعی از استادان دانشگاه، دانشجویان و مستعدین برتر برگزار شد. این برنامه فرصتی برای بازخوانی نقش او در دبیرستان البرز و بنیان‌گذاری دانشگاه صنعتی شریف بود.",
-    status: "published",
-    source: "گزارش‌های عمومی ۱۳۹۷",
-  },
-  {
-    id: "event-heritage-talk",
-    slug: "gofteman-miras-amoozesh",
-    title: "گفت‌وگو دربارهٔ میراث آموزشی",
-    description:
-      "برنامهٔ گفت‌وگو دربارهٔ نقش البرز و شریف در آموزش ایران — تقویم دقیق به‌زودی اعلام می‌شود.",
-    dateLabel: "به‌زودی",
-    schedule: "upcoming",
-    venue: "مجموعهٔ فرهنگی دکتر مجتهدی",
-    category: "گفت‌وگو",
-    coverTone: "bronze",
-    body: "این نشست به بررسی میراث آموزشی دکتر مجتهدی، الگوی مدیریت البرز، و تداوم آن در آموزش امروز می‌پردازد. زمان و نحوهٔ ثبت‌نام پس از نهایی‌شدن تقویم اعلام خواهد شد.",
-    status: "coming-soon",
-    source: null,
-  },
-  {
-    id: "event-oral-night",
-    slug: "shab-tarikh-shafahi",
-    title: "شب تاریخ شفاهی",
-    description:
-      "شنیدن روایت‌های شاگردان و همکاران دربارهٔ البرز و دوران ریاست دکتر مجتهدی.",
-    dateLabel: "بهار ۱۴۰۵",
-    startAt: "2026-04-01",
-    schedule: "upcoming",
-    venue: "آمفی‌تئاتر مجموعه",
-    category: "تاریخ شفاهی",
-    coverTone: "ink",
-    speakers: ["مهمانان مدعو"],
-    body: "در این برنامه، روایت‌های شفاهی مرتبط با دبیرستان البرز و مسیر زندگی دکتر مجتهدی خوانده و پخش می‌شود. علاقه‌مندان می‌توانند خاطرهٔ خود را از پیش از طریق بخش خاطرات ارسال کنند.",
-    status: "coming-soon",
-    source: null,
-  },
-  {
-    id: "event-alborz-centennial-talk",
-    slug: "neshast-alborz",
-    title: "نشست تخصصی دربارهٔ الگوی البرز",
-    description:
-      "بازخوانی الگوی مدیریت آموزشی دبیرستان البرز در دوران ریاست دکتر مجتهدی.",
-    dateLabel: "۱۴۰۲",
-    startAt: "2023-10-15",
-    schedule: "past",
-    venue: "تهران",
-    category: "نشست",
-    coverTone: "pine",
-    body: "این نشست به بررسی انضباط علمی، جذب معلمان و پرورش شخصیت در دبیرستان البرز پرداخت.",
-    status: "published",
-    source: "آرشیو بنیاد",
-  },
-];
-
 export const mockNews: NewsItem[] = [
   {
     id: "news-mahjoobi",
@@ -454,6 +385,7 @@ export const mockNews: NewsItem[] = [
     category: "اهدا",
     author: "روابط عمومی بنیاد",
     coverTone: "pine",
+    heroImage: coverAsset("gathering", "اهدای آثار استاد محجوبی"),
     status: "published",
     source: "drmojtahedi.com · NewsDetails",
     blocks: [
@@ -489,6 +421,7 @@ export const mockNews: NewsItem[] = [
     category: "انتشارات",
     author: "روابط عمومی بنیاد",
     coverTone: "bronze",
+    heroImage: coverAsset("library", "چاپ کتاب به مملکتتون خدمت کنید"),
     status: "published",
     source: "drmojtahedi.com · NewsDetails",
     blocks: [
@@ -512,6 +445,7 @@ export const mockNews: NewsItem[] = [
     category: "اعلان رسمی",
     author: "هیئت رئیسه بنیاد",
     coverTone: "ink",
+    heroImage: coverAsset("campus", "معافیت مالیاتی بنیاد"),
     status: "published",
     source: "drmojtahedi.com · NewsDetails",
     blocks: [
@@ -535,6 +469,7 @@ export const mockNews: NewsItem[] = [
     category: "یادبود",
     author: "روابط عمومی بنیاد",
     coverTone: "ink",
+    heroImage: coverAsset("portrait", "یادبود استاد شجاع‌پور"),
     status: "published",
     source: "drmojtahedi.com · NewsDetails",
     blocks: [
@@ -558,6 +493,7 @@ export const mockNews: NewsItem[] = [
     category: "پروژه",
     author: "روابط عمومی بنیاد",
     coverTone: "bronze",
+    heroImage: coverAsset("heritage", "توافقنامه چابهار"),
     status: "published",
     source: "drmojtahedi.com · NewsDetails",
     blocks: [
@@ -581,6 +517,7 @@ export const mockNews: NewsItem[] = [
     category: "یادبود",
     author: "روابط عمومی بنیاد",
     coverTone: "ink",
+    heroImage: coverAsset("ceremony", "خبر بنیاد"),
     status: "published",
     source: "drmojtahedi.com · NewsDetails",
     blocks: [
@@ -604,6 +541,7 @@ export const mockNews: NewsItem[] = [
     category: "مجموعه",
     author: "روابط عمومی بنیاد",
     coverTone: "pine",
+    heroImage: coverAsset("alborz", "تازه‌های بنیاد"),
     status: "published",
     source: "روابط عمومی بنیاد",
     blocks: [
@@ -613,7 +551,7 @@ export const mockNews: NewsItem[] = [
       },
       {
         type: "tip",
-        text: "صفحهٔ [مجموعه فرهنگی](/complex) را ببینید.",
+        text: "صفحهٔ [پروژه‌های بنیاد](/projects) را ببینید.",
       },
     ],
   },
@@ -627,6 +565,7 @@ export const mockNews: NewsItem[] = [
     category: "فراخوان",
     author: "آرشیو بنیاد",
     coverTone: "bronze",
+    heroImage: coverAsset("memorial", "تازه‌های بنیاد"),
     status: "published",
     source: "آرشیو بنیاد",
     blocks: [
@@ -636,7 +575,7 @@ export const mockNews: NewsItem[] = [
       },
       {
         type: "tip",
-        text: "از طریق [ارسال خاطره](/memories) روایت خود را ثبت کنید.",
+        text: "از طریق صفحهٔ [همکاری](/collaborate) با ما در ارتباط باشید.",
       },
     ],
   },
@@ -656,6 +595,7 @@ export const mockArticles: Article[] = [
     dateLabel: "فروردین ۱۴۰۴",
     readingTimeMinutes: 6,
     coverTone: "pine",
+    heroImage: coverAsset("alborz", "معلم البرز"),
     status: "published",
     source: "تحریریهٔ بنیاد",
     blocks: [
@@ -706,6 +646,7 @@ export const mockArticles: Article[] = [
     dateLabel: "اسفند ۱۴۰۳",
     readingTimeMinutes: 5,
     coverTone: "bronze",
+    heroImage: coverAsset("campus", "بنیان‌گذاری دانشگاه شریف"),
     status: "published",
     source: "تحریریهٔ بنیاد",
     blocks: [
@@ -752,6 +693,7 @@ export const mockArticles: Article[] = [
     dateLabel: "بهمن ۱۴۰۳",
     readingTimeMinutes: 7,
     coverTone: "ink",
+    heroImage: coverAsset("portrait", "از لاهیجان تا سوربن"),
     status: "published",
     source: "تحریریهٔ بنیاد · بر پایهٔ خاطرات",
     blocks: [
@@ -794,6 +736,7 @@ export const mockArticles: Article[] = [
     dateLabel: "دی ۱۴۰۳",
     readingTimeMinutes: 4,
     coverTone: "pine",
+    heroImage: coverAsset("heritage", "میراث امروز"),
     status: "published",
     source: "تحریریهٔ بنیاد",
     blocks: [
@@ -815,7 +758,7 @@ export const mockArticles: Article[] = [
       },
       {
         type: "tip",
-        text: "برای همراهی: [ارسال خاطره](/memories) یا [راه‌های حمایت](/support).",
+        text: "برای همراهی: [همکاری](/collaborate) یا [راه‌های حمایت](/support).",
       },
     ],
   },

@@ -1,20 +1,13 @@
 import type { Metadata } from "next";
-import { ComingSoonPage } from "@/components/shared/PageHero";
+import AccountDashboardPage from "./AccountDashboard";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "حساب کاربری",
-  description: "این بخش در حال توسعه است.",
+  title: "خلاصه حساب",
+  description: "خلاصه حساب کاربری بنیاد فرهنگی دکتر مجتهدی.",
   path: "/account",
 });
 
 export default function Page() {
-  return (
-    <ComingSoonPage
-      title="حساب کاربری"
-      description="این بخش در حال توسعه است."
-      breadcrumbs={[{ label: "خانه", href: "/" }, { label: "حساب" }]}
-      links={[{ href: "/account/login", label: "ورود" }, { href: "/account/register", label: "ثبت‌نام" }]}
-    />
-  );
+  return <AccountDashboardPage />;
 }

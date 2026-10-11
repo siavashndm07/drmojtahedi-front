@@ -3,17 +3,13 @@ import { HomeHeroSlider } from "@/components/homepage/HomeHeroSlider";
 import { TimelinePreview } from "@/components/homepage/TimelinePreview";
 import {
   ArchiveHighlights,
-  ComplexPreview,
-  EducationPreview,
   MagazinePreview,
-  MemoryCTA,
-  MuseumPreview,
   NewsPreview,
-  SponsorsPreview,
   PartnersPreview,
+  ProjectsPreview,
+  SponsorsPreview,
   SupportCTA,
 } from "@/components/homepage/sections";
-import { EventsPreview } from "@/components/homepage/EventsPreview";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -26,16 +22,12 @@ export default function HomePage() {
     <>
       <HomeHeroSlider />
       <TimelinePreview />
-      <MuseumPreview />
-      <ComplexPreview />
-      <ArchiveHighlights />
-      <EventsPreview />
       <NewsPreview />
-      <EducationPreview />
+      <ProjectsPreview />
+      <ArchiveHighlights />
       <MagazinePreview />
       <SponsorsPreview />
       <PartnersPreview />
-      <MemoryCTA />
       <SupportCTA />
     </>
   );

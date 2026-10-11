@@ -1,7 +1,6 @@
 import { isApiEnabled } from "@/lib/api/config";
 import { apiGet, unwrapList } from "@/lib/api/client";
 import {
-  mockAssessment,
   mockBooks,
   mockCollaborateOptions,
   mockOrganMembers,
@@ -10,7 +9,6 @@ import {
   mockSponsors,
 } from "@/lib/mock";
 import type {
-  AssessmentProgram,
   CollaborateOption,
   FoundationOrganMember,
   FoundationProject,
@@ -57,15 +55,6 @@ export async function listProjects(): Promise<FoundationProject[]> {
     FoundationProject[] | { results: FoundationProject[] }
   >("/projects/");
   return unwrapList(data);
-}
-
-export async function getAssessment(): Promise<AssessmentProgram> {
-  if (!isApiEnabled()) return mockAssessment;
-  try {
-    return await apiGet<AssessmentProgram>("/education/assessment/");
-  } catch {
-    return mockAssessment;
-  }
 }
 
 export async function listCollaborateOptions(): Promise<CollaborateOption[]> {

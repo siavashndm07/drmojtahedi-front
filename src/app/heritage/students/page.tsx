@@ -35,10 +35,10 @@ export default async function StudentsPage() {
               همهٔ افراد
             </Link>
             <Link
-              href="/memories"
+              href="/collaborate"
               className="inline-flex rounded-lg bg-pine px-5 py-3 text-sm font-medium text-white hover:bg-pine-dark"
             >
-              ارسال خاطره
+              همکاری با بنیاد
             </Link>
           </>
         }

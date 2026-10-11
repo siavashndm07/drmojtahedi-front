@@ -2,9 +2,9 @@ import type { SearchResult, SearchResultCategory } from "@/lib/types";
 import {
   mockArchive,
   mockArticles,
-  mockEvents,
   mockNews,
   mockPeople,
+  mockProjects,
 } from "@/lib/mock";
 
 export type SearchFilters = {
@@ -36,14 +36,6 @@ export async function search(
       category: "archive" as const,
       status: item.status,
     })),
-    ...mockEvents.map((item) => ({
-      id: item.id,
-      title: item.title,
-      excerpt: item.description,
-      href: `/events/${item.slug}`,
-      category: "events" as const,
-      status: item.status,
-    })),
     ...mockNews.map((item) => ({
       id: item.id,
       title: item.title,
@@ -58,6 +50,14 @@ export async function search(
       excerpt: item.description,
       href: `/magazine/${item.slug}`,
       category: "articles" as const,
+      status: item.status,
+    })),
+    ...mockProjects.map((item) => ({
+      id: item.id,
+      title: item.title,
+      excerpt: item.description,
+      href: item.href ?? "/projects",
+      category: "library" as const,
       status: item.status,
     })),
   ];

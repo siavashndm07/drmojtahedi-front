@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Calendar,
-  CalendarDays,
   Clock,
   Newspaper,
   User,
@@ -147,17 +146,17 @@ export function NewsIndex({ items }: { items: NewsItem[] }) {
               {toPersianDigits(items.length)} خبر
             </span>
             <Link
-              href="/events"
+              href="/projects"
               className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-surface px-5 py-2.5 text-sm font-semibold transition hover:border-pine/35 hover:text-pine"
             >
-              رویدادها
+              پروژه‌ها
               <ArrowLeft className="size-4" aria-hidden />
             </Link>
             <Link
               href="/magazine"
               className="inline-flex items-center gap-2 rounded-full bg-pine px-5 py-2.5 text-sm font-semibold text-white hover:bg-pine-dark"
             >
-              مجله
+              مقالات
             </Link>
           </>
         }
@@ -318,16 +317,6 @@ export function NewsDetail({
             <FadeIn>
               <BodyBlocks blocks={blocks} />
             </FadeIn>
-            {item.relatedEventSlug ? (
-              <Link
-                href={`/events/${item.relatedEventSlug}`}
-                className="mt-8 inline-flex items-center gap-2 rounded-2xl border border-pine/20 bg-mint-soft/60 px-5 py-4 text-sm font-semibold text-pine transition hover:border-pine/40"
-              >
-                <CalendarDays className="size-4" aria-hidden />
-                مشاهده رویداد مرتبط
-                <ArrowLeft className="size-4" aria-hidden />
-              </Link>
-            ) : null}
             <div className="mt-10 flex flex-wrap gap-3 border-t border-ink/10 pt-8">
               <Link
                 href="/news"

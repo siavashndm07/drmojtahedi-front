@@ -18,8 +18,8 @@ const relatedHrefMap: Record<string, string> = {
   "arch-oral": "/archive/oral-history-interview",
   "article-educator": "/magazine/moalem-alborz",
   "article-sharif": "/magazine/bonyangozari-sharif",
-  "event-nekoodasht": "/events/nekoodasht-1397",
-  "event-heritage-talk": "/events/gofteman-miras-amoozesh",
+  "event-nekoodasht": "/news",
+  "event-heritage-talk": "/news",
 };
 
 function relatedLabel(id: string): string {

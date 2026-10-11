@@ -69,6 +69,8 @@ export type FoundationOrganMember = {
 export type Sponsor = EntityBase & {
   kind: "individual" | "organization";
   logoLabel?: string;
+  logoImage?: MediaAsset;
+  coverImage?: MediaAsset;
 };
 
 export type FoundationProject = EntityBase & {
@@ -76,15 +78,11 @@ export type FoundationProject = EntityBase & {
   location?: string;
   href?: string;
   coverTone?: "pine" | "ink" | "bronze";
+  heroImage?: MediaAsset;
 };
 
 export type CollaborateOption = EntityBase & {
   kind: "volunteer" | "partner" | "research" | "donate-artifact" | "corporate";
-};
-
-export type AssessmentProgram = EntityBase & {
-  audience?: string;
-  outcomes?: string[];
 };
 
 export type Place = EntityBase & {
@@ -161,23 +159,6 @@ export type Facility = EntityBase & {
   image?: MediaAsset;
 };
 
-export type EventSchedule = "upcoming" | "past";
-
-export type EventItem = EntityBase & {
-  startAt?: string | null;
-  endAt?: string | null;
-  /** Persian display date */
-  dateLabel?: string;
-  /** Filter bucket for past / upcoming pills */
-  schedule?: EventSchedule;
-  venue?: string;
-  category?: string;
-  image?: MediaAsset;
-  speakers?: string[];
-  body?: string;
-  coverTone?: "pine" | "ink" | "bronze";
-};
-
 export type NewsItem = EntityBase & {
   dateLabel?: string;
   publishedAt?: string | null;
@@ -187,14 +168,6 @@ export type NewsItem = EntityBase & {
   heroImage?: MediaAsset;
   body?: string;
   blocks?: ArticleBodyBlock[];
-  /** Optional link to a related event */
-  relatedEventSlug?: string;
-};
-
-export type EducationProgram = EntityBase & {
-  programType?: "course" | "workshop" | "lecture" | "resource";
-  audience?: string;
-  image?: MediaAsset;
 };
 
 export type LibraryItem = EntityBase & {

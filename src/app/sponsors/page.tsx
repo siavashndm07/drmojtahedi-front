@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { FadeIn } from "@/components/shared/FadeIn";
 import { PageHero } from "@/components/shared/PageHero";
@@ -37,20 +38,34 @@ export default async function SponsorsPage() {
             {sponsors.map((sponsor) => (
               <li
                 key={sponsor.id}
-                className="flex flex-col items-start rounded-2xl border border-ink/10 bg-surface p-6 shadow-sm"
+                className="group overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-sm"
               >
-                <div className="flex size-14 items-center justify-center rounded-full bg-mint-soft text-sm font-semibold text-pine">
-                  {sponsor.logoLabel ?? sponsor.title.slice(0, 2)}
+                <div className="relative aspect-[16/10] overflow-hidden bg-mint-soft">
+                  {sponsor.coverImage ? (
+                    <Image
+                      src={sponsor.coverImage.src}
+                      alt={sponsor.coverImage.alt}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                    />
+                  ) : null}
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink/50 via-transparent to-transparent" />
+                  <span className="absolute start-4 top-4 inline-flex size-11 items-center justify-center rounded-full bg-white/90 text-sm font-semibold text-pine shadow-sm">
+                    {sponsor.logoLabel ?? sponsor.title.slice(0, 2)}
+                  </span>
                 </div>
-                <Badge tone="bronze" className="mt-4">
-                  {sponsor.kind === "organization" ? "سازمانی" : "فردی"}
-                </Badge>
-                <h2 className="mt-3 text-lg font-medium text-ink">{sponsor.title}</h2>
-                {sponsor.description ? (
-                  <p className="mt-2 text-sm leading-7 text-ink-muted">
-                    {sponsor.description}
-                  </p>
-                ) : null}
+                <div className="p-5">
+                  <Badge tone="bronze">
+                    {sponsor.kind === "organization" ? "سازمانی" : "فردی"}
+                  </Badge>
+                  <h2 className="mt-3 text-lg font-medium text-ink">{sponsor.title}</h2>
+                  {sponsor.description ? (
+                    <p className="mt-2 text-sm leading-7 text-ink-muted">
+                      {sponsor.description}
+                    </p>
+                  ) : null}
+                </div>
               </li>
             ))}
           </ul>

@@ -11,6 +11,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { HeaderAuthButton } from "@/components/auth/HeaderAuthButton";
 import { getNavIcon } from "@/components/icons/navIcons";
 import {
   primaryNavigation,
@@ -473,6 +474,23 @@ export function SiteHeader() {
                       </li>
                     );
                   })}
+                  <li>
+                    <Link
+                      href="/account"
+                      className="flex items-center gap-3 rounded-2xl border border-ink/10 bg-surface px-3.5 py-3 text-sm font-medium hover:border-pine/30 hover:text-pine"
+                      onClick={() => setOpen(false)}
+                    >
+                      <span className="inline-flex size-9 items-center justify-center rounded-xl bg-mint-soft text-pine">
+                        {(() => {
+                          const Icon = getNavIcon("person");
+                          return (
+                            <Icon className="size-4" strokeWidth={1.8} aria-hidden />
+                          );
+                        })()}
+                      </span>
+                      حساب کاربری
+                    </Link>
+                  </li>
                 </ul>
               </nav>
             </div>
@@ -577,12 +595,13 @@ export function SiteHeader() {
                 <SearchIcon className="size-4" strokeWidth={1.9} />
               </Link>
               <Link
-                href="/support"
+                href="/donate"
                 className="hidden items-center gap-1.5 rounded-full bg-pine px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-pine-dark md:inline-flex"
               >
                 <HeartHandshake className="size-4" strokeWidth={1.9} aria-hidden />
                 حمایت
               </Link>
+              <HeaderAuthButton />
               <ThemeToggle />
               <button
                 type="button"

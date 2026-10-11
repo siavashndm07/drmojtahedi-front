@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { FadeIn } from "@/components/shared/FadeIn";
@@ -48,6 +49,7 @@ export function ContentCardGrid({
     meta?: string;
     badge?: string;
     comingSoon?: boolean;
+    image?: { src: string; alt: string };
   }[];
   columns?: string;
 }) {
@@ -56,6 +58,17 @@ export function ContentCardGrid({
       {items.map((item) => {
         const inner = (
           <>
+            {item.image ? (
+              <div className="relative mb-4 aspect-[16/10] overflow-hidden rounded-xl bg-mint-soft">
+                <Image
+                  src={item.image.src}
+                  alt={item.image.alt}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover transition duration-700 group-hover:scale-[1.03]"
+                />
+              </div>
+            ) : null}
             <div className="flex flex-wrap items-center gap-2">
               {item.badge ? <Badge tone="pine">{item.badge}</Badge> : null}
               {item.comingSoon ? <Badge tone="placeholder">به‌زودی</Badge> : null}

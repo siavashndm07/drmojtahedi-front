@@ -35,30 +35,29 @@ export default function MembershipPage() {
       <PageHero
         breadcrumbs={[
           { label: "خانه", href: "/" },
-          { label: "حساب", href: "/account" },
           { label: "عضویت" },
         ]}
         eyebrow="عضویت در بنیاد"
         title="ثبت‌نام و عضویت"
-        description="انواع عضویت مطابق اساس‌نامه بنیاد. فرم آنلاین پس از اتصال سامانهٔ حساب کاربری فعال می‌شود."
+        description="انواع عضویت مطابق اساس‌نامه بنیاد. ثبت‌نام و ورود با کد یک‌بارمصرف پیامکی انجام می‌شود."
         actions={
           <>
             <Link
               href="/account/register"
               className="inline-flex rounded-lg bg-pine px-5 py-3 text-sm font-medium text-white hover:bg-pine-dark"
             >
-              شروع ثبت‌نام
+              ثبت‌نام با پیامک
             </Link>
             <Link
-              href="/foundation/charter"
+              href="/account/login"
               className="inline-flex rounded-lg border border-ink/10 bg-surface px-5 py-3 text-sm font-medium hover:border-pine/40"
             >
-              اساس‌نامه
+              ورود / حساب کاربری
             </Link>
           </>
         }
       />
-      <div className="content-shell section-pad !pt-8">
+      <div className="content-shell section-pad !pt-8 space-y-8">
         <FadeIn>
           <ul className="grid gap-4 sm:grid-cols-2">
             {tiers.map((tier) => (
@@ -71,6 +70,19 @@ export default function MembershipPage() {
               </li>
             ))}
           </ul>
+        </FadeIn>
+        <FadeIn>
+          <p className="text-sm text-ink-muted">
+            جزئیات حقوقی عضویت را در{" "}
+            <Link href="/foundation/charter" className="font-medium text-pine hover:underline">
+              اساس‌نامه
+            </Link>{" "}
+            و معرفی{" "}
+            <Link href="/foundation/organs" className="font-medium text-pine hover:underline">
+              ارکان بنیاد
+            </Link>{" "}
+            ببینید.
+          </p>
         </FadeIn>
       </div>
     </div>
