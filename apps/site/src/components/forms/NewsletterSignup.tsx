@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { subscribeNewsletter } from "@/lib/api/engagement";
+import { isApiEnabled } from "@/lib/api/config";
 import { cn } from "@/lib/utils/cn";
 
 const STORAGE_KEY = "drmojtahedi-newsletter";
@@ -29,15 +31,18 @@ export function NewsletterSignup({
       return;
     }
     setBusy(true);
-    await new Promise((r) => setTimeout(r, 500));
     try {
-      const prev = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as string[];
-      const next = Array.from(new Set([value, ...prev]));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      if (isApiEnabled()) {
+        await subscribeNewsletter(value);
+      } else {
+        const prev = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as string[];
+        const next = Array.from(new Set([value, ...prev]));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      }
       setDone(true);
       setEmail("");
     } catch {
-      setError("ذخیره ممکن نشد. دوباره تلاش کنید.");
+      setError("ثبت ممکن نشد. دوباره تلاش کنید.");
     } finally {
       setBusy(false);
     }
@@ -53,7 +58,9 @@ export function NewsletterSignup({
         )}
       >
         <CheckCircle2 className="size-4 shrink-0" aria-hidden />
-        ثبت شد. پس از اتصال پنل ادمین، خبرنامه فعال می‌شود.
+        {isApiEnabled()
+          ? "ثبت شد. از عضویت در خبرنامه سپاسگزاریم."
+          : "ثبت شد. پس از اتصال API، خبرنامه فعال می‌شود."}
       </p>
     );
   }

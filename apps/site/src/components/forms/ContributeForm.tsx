@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { SelectListbox } from "@/components/forms/SelectListbox";
+import { submitContribution } from "@/lib/api/engagement";
+import { isApiEnabled } from "@/lib/api/config";
 
 const STORAGE_KEY = "drmojtahedi-contributions";
 
@@ -38,23 +40,25 @@ export function ContributeForm() {
       return;
     }
     setBusy(true);
-    await new Promise((r) => setTimeout(r, 600));
     try {
-      const entry = {
-        id: `${Date.now()}`,
+      const payload = {
         type,
         name: name.trim(),
         phone: phone.trim(),
         email: email.trim(),
         title: title.trim(),
         body: body.trim(),
-        createdAt: new Date().toISOString(),
       };
-      const prev = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as unknown[];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([entry, ...prev]));
+      if (isApiEnabled()) {
+        await submitContribution(payload);
+      } else {
+        const entry = { id: `${Date.now()}`, ...payload, createdAt: new Date().toISOString() };
+        const prev = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as unknown[];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([entry, ...prev]));
+      }
       setDone(true);
     } catch {
-      setError("ارسال آزمایشی ناموفق بود.");
+      setError("ارسال ناموفق بود. دوباره تلاش کنید.");
     } finally {
       setBusy(false);
     }
@@ -68,8 +72,9 @@ export function ContributeForm() {
           درخواست شما ثبت شد
         </p>
         <p className="mt-3">
-          در این نسخهٔ آزمایشی، ارسال فقط روی دستگاه شما ذخیره می‌شود. پس از
-          راه‌اندازی پنل ادمین، بررسی و تماس از سوی بنیاد انجام خواهد شد.
+          {isApiEnabled()
+            ? "پس از بررسی، در صورت نیاز با شما تماس گرفته می‌شود."
+            : "در حالت seed، ارسال فقط روی دستگاه شما ذخیره می‌شود."}
         </p>
       </div>
     );
@@ -127,7 +132,7 @@ export function ContributeForm() {
         />
       </label>
       <p className="text-xs leading-6 text-ink-muted">
-        فایل پیوست پس از اتصال ادمین فعال می‌شود. فعلاً شرح و اطلاعات تماس کافی است.
+        فایل پیوست در نسخه‌های بعدی فعال می‌شود. فعلاً شرح و اطلاعات تماس کافی است.
       </p>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <button
