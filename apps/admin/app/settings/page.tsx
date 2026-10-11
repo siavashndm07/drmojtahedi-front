@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/PlaceholderPage";
+import SiteSettingsClient from "@/components/SiteSettingsClient";
 
 export default function Page() {
-  return <PlaceholderPage title="تنظیمات" />;
+  return <SiteSettingsClient />;
 }

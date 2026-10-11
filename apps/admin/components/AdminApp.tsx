@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import AdminShell from "@/components/AdminShell";
+import AdminLoadingScreen from "@/components/AdminLoadingScreen";
 import { useAuth } from "@/lib/auth";
 
 export default function AdminApp({ children }: { children: ReactNode }) {
@@ -28,11 +29,7 @@ export default function AdminApp({ children }: { children: ReactNode }) {
   }, [ready, user, isLogin, router]);
 
   if (!ready || redirecting || (!user && !isLogin) || (user && isLogin)) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-cream text-sm text-ink-muted">
-        در حال آماده‌سازی پنل…
-      </div>
-    );
+    return <AdminLoadingScreen message="در حال آماده‌سازی پنل…" />;
   }
 
   if (isLogin) return <>{children}</>;

@@ -17,6 +17,7 @@ import {
   setAdminTokens,
   adminTokenKeys,
 } from "@/lib/adminToken";
+import { STAFF_PERMISSION_KEYS } from "@/lib/staffPermissions";
 
 export type AdminUser = {
   username: string;
@@ -33,6 +34,7 @@ type AuthContextValue = {
   accessToken: string | null;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
+  hasPermission: (key: string) => boolean;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -60,7 +62,9 @@ function toUser(
       me.username ||
       fallback,
     isSuperuser: Boolean(me.isSuperuser),
-    permissions: Array.isArray(me.permissions) ? me.permissions : ["*"],
+    permissions: Array.isArray(me.permissions)
+      ? me.permissions
+      : [...STAFF_PERMISSION_KEYS],
   };
 }
 
@@ -85,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               lastName: "",
               displayName: username,
               isSuperuser: true,
-              permissions: ["*"],
+              permissions: [...STAFF_PERMISSION_KEYS],
             });
           }
           return;
@@ -116,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         lastName: "",
         displayName: username,
         isSuperuser: true,
-        permissions: ["*"],
+        permissions: [...STAFF_PERMISSION_KEYS],
       });
       return;
     }
@@ -137,9 +141,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const hasPermission = useCallback(
+    (key: string) => {
+      if (!user) return false;
+      if (user.isSuperuser) return true;
+      if (user.permissions.includes("*")) return true;
+      return user.permissions.includes(key);
+    },
+    [user],
+  );
+
   const value = useMemo(
-    () => ({ user, ready, accessToken, login, logout }),
-    [user, ready, accessToken, login, logout],
+    () => ({ user, ready, accessToken, login, logout, hasPermission }),
+    [user, ready, accessToken, login, logout, hasPermission],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

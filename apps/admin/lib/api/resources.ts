@@ -70,6 +70,25 @@ export type ContributionRow = {
   created_at?: string;
 };
 
+export type VisitDayPoint = {
+  date: string;
+  pageviews: number;
+  uniques: number;
+};
+
+export type VisitSlicePoint = {
+  label: string;
+  value: number;
+};
+
+export type RecentVisit = {
+  at: string;
+  path: string;
+  ip: string;
+  browser: string;
+  device: string;
+};
+
 export type DashboardStats = {
   news: number;
   people: number;
@@ -77,14 +96,29 @@ export type DashboardStats = {
   sponsors: number;
   newsletter: number;
   contributions: number;
+  todayVisits?: number;
+  todayUniques?: number;
+  visitsLast7Days?: VisitDayPoint[];
+  visitsSeries?: VisitDayPoint[];
+  visitBrowsers?: VisitSlicePoint[];
+  visitDevices?: VisitSlicePoint[];
+  recentVisits?: RecentVisit[];
 };
+
+export type TrafficRangeDays = 7 | 15 | 30;
 
 function unwrapList<T>(data: T[] | Paginated<T>): T[] {
   return Array.isArray(data) ? data : data.results ?? [];
 }
 
-export async function apiDashboard(token: string) {
-  return apiFetch<DashboardStats>("/admin/dashboard/", { token });
+export async function apiDashboard(token: string, visitDays?: number) {
+  const qs = visitDays ? `?visitDays=${visitDays}` : "";
+  return apiFetch<DashboardStats>(`/admin/dashboard/${qs}`, { token });
+}
+
+export async function getSiteTrafficSeries(token: string, days: TrafficRangeDays) {
+  const data = await apiDashboard(token, days);
+  return data.visitsSeries ?? [];
 }
 
 export async function apiListNews(token: string) {

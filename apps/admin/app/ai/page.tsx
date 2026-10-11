@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/PlaceholderPage";
+import AiAssistantSettingsClient from "@/components/AiAssistantSettingsClient";
 
 export default function Page() {
-  return <PlaceholderPage title="دستیار AI" />;
+  return <AiAssistantSettingsClient />;
 }

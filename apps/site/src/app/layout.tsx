@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Providers } from "@/components/Providers";
+import VisitBeacon from "@/components/VisitBeacon";
+import { SiteAnnouncementBanner } from "@/components/layout/SiteAnnouncementBanner";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -49,12 +51,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="flex min-h-full flex-col bg-cream font-sans text-ink">
         <Providers>
+          <VisitBeacon />
           <a
             href="#main-content"
             className="sr-only focus:not-sr-only focus:absolute focus:start-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-pine focus:px-4 focus:py-2 focus:text-white"
           >
             پرش به محتوای اصلی
           </a>
+          <SiteAnnouncementBanner />
           <SiteHeader />
           <main id="main-content" className="flex-1">
             {children}

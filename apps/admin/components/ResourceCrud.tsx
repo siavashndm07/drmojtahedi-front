@@ -1,19 +1,75 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { PageHeader } from "@/components/PageHeader";
+import {
+  Clock3,
+  LayoutGrid,
+  Loader2,
+  Pencil,
+  PencilLine,
+  Plus,
+  Rocket,
+  Trash2,
+  X,
+  type LucideIcon,
+} from "lucide-react";
+import { createPortal } from "react-dom";
+import ActionIconButton from "@/components/ActionIconButton";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import FilterPills from "@/components/FilterPills";
+import OptionPills, { type OptionPill } from "@/components/OptionPills";
+import PageHeader from "@/components/PageHeader";
+import { Field, Input, Textarea } from "@/components/form";
 import { useAuth } from "@/lib/auth";
+import { isApiEnabled } from "@/lib/api/client";
+import { toPersianDigits } from "@/lib/digits";
 
-type Field = {
+type FieldDef = {
   key: string;
   label: string;
-  type?: "text" | "textarea" | "select";
-  options?: { value: string; label: string }[];
+  type?: "text" | "textarea" | "pills";
+  options?: OptionPill[];
   required?: boolean;
+  columns?: 2 | 3 | "auto";
 };
 
-export function ResourceCrud<T extends { id: string | number; title?: string; name?: string }>({
+type StatusFilter = "all" | "published" | "draft" | "coming-soon";
+
+const STATUS_LABEL: Record<string, string> = {
+  published: "منتشر",
+  draft: "پیش‌نویس",
+  placeholder: "جایگزین",
+  "coming-soon": "به‌زودی",
+};
+
+const STATUS_ICON: Record<string, LucideIcon> = {
+  published: Rocket,
+  draft: PencilLine,
+  "coming-soon": Clock3,
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const Icon = STATUS_ICON[status];
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] ${
+        status === "published"
+          ? "bg-mint-soft text-pine"
+          : status === "draft"
+            ? "bg-amber-50 text-amber-700"
+            : "bg-cream text-ink-muted"
+      }`}
+    >
+      {Icon ? <Icon className="h-3 w-3" aria-hidden /> : null}
+      {STATUS_LABEL[status] ?? status}
+    </span>
+  );
+}
+
+export function ResourceCrud<
+  T extends { id: string | number; title?: string; name?: string; status?: string },
+>({
   title,
   description,
   fields,
@@ -24,30 +80,86 @@ export function ResourceCrud<T extends { id: string | number; title?: string; na
 }: {
   title: string;
   description?: string;
-  fields: Field[];
+  fields: FieldDef[];
   list: (token: string) => Promise<T[]>;
-  save: (token: string, payload: Record<string, string>, id?: string | number) => Promise<unknown>;
+  save: (
+    token: string,
+    payload: Record<string, string>,
+    id?: string | number,
+  ) => Promise<unknown>;
   remove: (token: string, id: string | number) => Promise<unknown>;
   emptyForm: Record<string, string>;
 }) {
   const { accessToken } = useAuth();
   const [rows, setRows] = useState<T[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | number | null>(null);
   const [busy, setBusy] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<T | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const reload = useCallback(async () => {
     if (!accessToken) return;
+    setLoading(true);
     try {
       setRows(await list(accessToken));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "خطا در بارگذاری");
+    } finally {
+      setLoading(false);
     }
   }, [accessToken, list]);
 
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  const statusCounts = useMemo(() => {
+    const counts = {
+      all: rows.length,
+      published: 0,
+      draft: 0,
+      "coming-soon": 0,
+    };
+    for (const row of rows) {
+      const s = row.status;
+      if (s === "published") counts.published += 1;
+      else if (s === "draft") counts.draft += 1;
+      else if (s === "coming-soon") counts["coming-soon"] += 1;
+    }
+    return counts;
+  }, [rows]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return rows.filter((row) => {
+      if (statusFilter !== "all" && row.status !== statusFilter) return false;
+      if (!q) return true;
+      const hay = `${row.title ?? ""} ${row.name ?? ""} ${row.status ?? ""}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }, [rows, query, statusFilter]);
+
+  function openCreate() {
+    setEditingId(null);
+    setForm(emptyForm);
+    setFormOpen(true);
+  }
+
+  function openEdit(row: T) {
+    setEditingId(row.id);
+    const next = { ...emptyForm };
+    for (const key of Object.keys(emptyForm)) {
+      const value = (row as Record<string, unknown>)[key];
+      next[key] = value == null ? "" : String(value);
+    }
+    setForm(next);
+    setFormOpen(true);
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -56,8 +168,9 @@ export function ResourceCrud<T extends { id: string | number; title?: string; na
     try {
       await save(accessToken, form, editingId ?? undefined);
       toast.success(editingId ? "ویرایش شد" : "ایجاد شد");
-      setForm(emptyForm);
+      setFormOpen(false);
       setEditingId(null);
+      setForm(emptyForm);
       await reload();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "ذخیره ناموفق");
@@ -66,140 +179,244 @@ export function ResourceCrud<T extends { id: string | number; title?: string; na
     }
   }
 
-  return (
-    <div className="space-y-6">
-      <PageHeader title={title} description={description} />
-      <form
-        onSubmit={onSubmit}
-        className="grid gap-3 rounded-2xl border border-ink/10 bg-surface p-5 sm:grid-cols-2"
-      >
-        {fields.map((field) => (
-          <label
-            key={field.key}
-            className={`block text-sm ${field.type === "textarea" ? "sm:col-span-2" : ""}`}
-          >
-            <span className="mb-1.5 block font-medium">{field.label}</span>
-            {field.type === "textarea" ? (
-              <textarea
-                className="min-h-24 w-full rounded-xl border border-ink/10 bg-cream/40 px-3 py-2 text-sm outline-none focus:border-pine/40"
-                value={form[field.key] ?? ""}
-                onChange={(e) => setForm((f) => ({ ...f, [field.key]: e.target.value }))}
-                required={field.required}
-              />
-            ) : field.type === "select" ? (
-              <select
-                className="w-full rounded-xl border border-ink/10 bg-cream/40 px-3 py-2 text-sm outline-none focus:border-pine/40"
-                value={form[field.key] ?? ""}
-                onChange={(e) => setForm((f) => ({ ...f, [field.key]: e.target.value }))}
-                required={field.required}
-              >
-                {(field.options ?? []).map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                className="w-full rounded-xl border border-ink/10 bg-cream/40 px-3 py-2 text-sm outline-none focus:border-pine/40"
-                value={form[field.key] ?? ""}
-                onChange={(e) => setForm((f) => ({ ...f, [field.key]: e.target.value }))}
-                required={field.required}
-              />
-            )}
-          </label>
-        ))}
-        <div className="flex flex-wrap gap-2 sm:col-span-2">
-          <button
-            type="submit"
-            disabled={busy}
-            className="rounded-xl bg-pine px-4 py-2.5 text-sm font-semibold text-white hover:bg-pine-dark disabled:opacity-60"
-          >
-            {editingId ? "ذخیره تغییرات" : "افزودن"}
-          </button>
-          {editingId ? (
+  async function confirmDelete() {
+    if (!accessToken || !deleteTarget) return;
+    setDeleting(true);
+    try {
+      await remove(accessToken, deleteTarget.id);
+      toast.success("حذف شد");
+      setDeleteTarget(null);
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "حذف ناموفق");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  const formDialog =
+    formOpen && typeof document !== "undefined"
+      ? createPortal(
+          <div className="fixed inset-0 z-[90] flex items-end justify-center p-4 sm:items-center">
             <button
               type="button"
-              className="rounded-xl border border-ink/10 px-4 py-2.5 text-sm"
+              className="absolute inset-0 bg-ink/40 backdrop-blur-[1px]"
+              aria-label="بستن"
               onClick={() => {
-                setEditingId(null);
-                setForm(emptyForm);
+                if (!busy) setFormOpen(false);
               }}
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-ink/10 bg-surface p-5 shadow-xl sm:p-6"
             >
-              انصراف
-            </button>
-          ) : null}
-        </div>
-      </form>
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-base font-bold text-ink">
+                    {editingId ? "ویرایش" : "مورد جدید"}
+                  </h2>
+                  <p className="mt-1 text-xs text-ink-muted">{title}</p>
+                </div>
+                <button
+                  type="button"
+                  className="rounded-lg p-1.5 text-ink-muted hover:bg-cream hover:text-ink"
+                  onClick={() => setFormOpen(false)}
+                  aria-label="بستن"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <form onSubmit={onSubmit} className="space-y-4">
+                {fields.map((field) =>
+                  field.type === "pills" ? (
+                    <OptionPills
+                      key={field.key}
+                      label={field.label}
+                      value={(form[field.key] as string) || (field.options?.[0]?.value ?? "")}
+                      options={field.options ?? []}
+                      columns={field.columns ?? "auto"}
+                      onChange={(next) =>
+                        setForm((f) => ({ ...f, [field.key]: next }))
+                      }
+                    />
+                  ) : (
+                    <Field
+                      key={field.key}
+                      label={field.label}
+                      htmlFor={`field-${field.key}`}
+                    >
+                      {field.type === "textarea" ? (
+                        <Textarea
+                          id={`field-${field.key}`}
+                          value={form[field.key] ?? ""}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, [field.key]: e.target.value }))
+                          }
+                          required={field.required}
+                        />
+                      ) : (
+                        <Input
+                          id={`field-${field.key}`}
+                          value={form[field.key] ?? ""}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, [field.key]: e.target.value }))
+                          }
+                          required={field.required}
+                        />
+                      )}
+                    </Field>
+                  ),
+                )}
+                <div className="flex flex-wrap justify-end gap-2 border-t border-ink/10 pt-4">
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    disabled={busy}
+                    onClick={() => setFormOpen(false)}
+                  >
+                    انصراف
+                  </button>
+                  <button type="submit" disabled={busy} className="btn-primary">
+                    {busy ? (
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                    ) : null}
+                    {editingId ? "ذخیره" : "ایجاد"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body,
+        )
+      : null;
 
-      <div className="overflow-hidden rounded-2xl border border-ink/10 bg-surface">
-        <table className="w-full text-sm">
-          <thead className="bg-mint-soft/60 text-start text-xs text-ink-muted">
-            <tr>
-              <th className="px-4 py-3 font-medium">عنوان</th>
-              <th className="px-4 py-3 font-medium">وضعیت/شناسه</th>
-              <th className="px-4 py-3 font-medium">عملیات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={3} className="px-4 py-8 text-center text-ink-muted">
-                  موردی نیست
-                </td>
-              </tr>
-            ) : (
-              rows.map((row) => (
-                <tr key={String(row.id)} className="border-t border-ink/5">
-                  <td className="px-4 py-3 font-medium">
-                    {row.title || row.name || String(row.id)}
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted">
-                    {"status" in row ? String((row as { status?: string }).status ?? "") : ""}
-                    <span className="ms-2 text-[11px]">#{row.id}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        className="rounded-lg border border-ink/10 px-2.5 py-1 text-xs hover:border-pine/40"
-                        onClick={() => {
-                          setEditingId(row.id);
-                          const next = { ...emptyForm };
-                          for (const key of Object.keys(emptyForm)) {
-                            const value = (row as Record<string, unknown>)[key];
-                            next[key] = value == null ? "" : String(value);
-                          }
-                          setForm(next);
-                        }}
-                      >
-                        ویرایش
-                      </button>
-                      <button
-                        type="button"
-                        className="rounded-lg border border-red-200 px-2.5 py-1 text-xs text-red-600"
-                        onClick={async () => {
-                          if (!accessToken) return;
-                          if (!confirm("حذف شود؟")) return;
-                          try {
-                            await remove(accessToken, row.id);
-                            toast.success("حذف شد");
-                            await reload();
-                          } catch (err) {
-                            toast.error(err instanceof Error ? err.message : "حذف ناموفق");
-                          }
-                        }}
-                      >
-                        حذف
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+  return (
+    <div>
+      <PageHeader
+        title={title}
+        description={
+          loading
+            ? "در حال بارگذاری…"
+            : `${toPersianDigits(filtered.length)} مورد${isApiEnabled() ? "" : " (دمو)"}`
+        }
+        action={
+          <button type="button" onClick={openCreate} className="btn-primary !gap-1.5 !py-2 text-xs">
+            <Plus className="h-4 w-4" />
+            مورد جدید
+          </button>
+        }
+      />
+
+      {description ? (
+        <div className="mb-4 rounded-2xl border border-ink/10 bg-mint-soft/30 p-4 text-sm leading-7 text-ink-muted dark:bg-mint/20">
+          {description}
+        </div>
+      ) : null}
+
+      <div className="mb-4 space-y-4 rounded-2xl border border-ink/10 bg-surface p-4">
+        <Input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="جستجو در عنوان…"
+        />
+        <FilterPills<StatusFilter>
+          label="وضعیت انتشار"
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={[
+            {
+              value: "all",
+              label: "همه",
+              count: statusCounts.all,
+              icon: LayoutGrid,
+            },
+            {
+              value: "published",
+              label: "منتشر",
+              count: statusCounts.published,
+              icon: Rocket,
+            },
+            {
+              value: "draft",
+              label: "پیش‌نویس",
+              count: statusCounts.draft,
+              icon: PencilLine,
+            },
+            {
+              value: "coming-soon",
+              label: "به‌زودی",
+              count: statusCounts["coming-soon"],
+              icon: Clock3,
+            },
+          ]}
+        />
       </div>
+
+      <ul className="space-y-3">
+        {filtered.length === 0 ? (
+          <li className="rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
+            موردی یافت نشد
+          </li>
+        ) : (
+          filtered.map((row) => (
+            <li
+              key={String(row.id)}
+              className="rounded-2xl border border-ink/10 bg-surface p-4 transition hover:border-pine/25"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {row.status ? (
+                      <StatusBadge status={row.status} />
+                    ) : null}
+                    <span className="rounded-full bg-cream px-2.5 py-0.5 text-[11px] text-ink-muted">
+                      #{toPersianDigits(row.id)}
+                    </span>
+                  </div>
+                  <h2 className="mt-2 font-semibold text-ink">
+                    {row.title || row.name || String(row.id)}
+                  </h2>
+                  {row.name && row.title && row.name !== row.title ? (
+                    <p className="mt-1 text-sm text-ink-muted">{row.name}</p>
+                  ) : null}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <ActionIconButton label="ویرایش" onClick={() => openEdit(row)} variant="primary">
+                    <Pencil className="h-4 w-4" />
+                  </ActionIconButton>
+                  <ActionIconButton
+                    label="حذف"
+                    onClick={() => setDeleteTarget(row)}
+                    variant="default"
+                  >
+                    <Trash2 className="h-4 w-4 text-red-600" />
+                  </ActionIconButton>
+                </div>
+              </div>
+            </li>
+          ))
+        )}
+      </ul>
+
+      {formDialog}
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="حذف این مورد؟"
+        description={
+          deleteTarget
+            ? `«${deleteTarget.title || deleteTarget.name || deleteTarget.id}» حذف می‌شود و قابل بازگشت نیست.`
+            : undefined
+        }
+        confirmLabel="حذف"
+        loading={deleting}
+        onClose={() => {
+          if (!deleting) setDeleteTarget(null);
+        }}
+        onConfirm={() => void confirmDelete()}
+      />
     </div>
   );
 }

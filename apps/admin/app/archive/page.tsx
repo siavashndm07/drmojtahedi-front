@@ -1,6 +1,12 @@
 "use client";
+
 import { ResourceCrud } from "@/components/ResourceCrud";
-import { apiDeleteArchive, apiListArchive, apiSaveArchive } from "@/lib/api/resources";
+import {
+  apiDeleteArchive,
+  apiListArchive,
+  apiSaveArchive,
+} from "@/lib/api/resources";
+import { ARCHIVE_TYPE_OPTIONS, PUBLISH_STATUS_OPTIONS } from "@/lib/optionSets";
 
 export default function ArchiveAdminPage() {
   return (
@@ -10,23 +16,33 @@ export default function ArchiveAdminPage() {
       fields={[
         { key: "title", label: "عنوان", required: true },
         { key: "slug", label: "اسلاگ", required: true },
-        { key: "type", label: "نوع", type: "select", options: [
-          { value: "document", label: "سند" },
-          { value: "photo", label: "عکس" },
-          { value: "audio", label: "صوت" },
-          { value: "video", label: "ویدئو" },
-          { value: "book", label: "کتاب" },
-          { value: "object", label: "شیء" },
-        ], required: true },
+        {
+          key: "type",
+          label: "نوع",
+          type: "pills",
+          options: ARCHIVE_TYPE_OPTIONS,
+          required: true,
+          columns: 3,
+        },
         { key: "collection", label: "مجموعه" },
-        { key: "status", label: "وضعیت", type: "select", options: [
-          { value: "published", label: "منتشر" },
-          { value: "coming-soon", label: "به‌زودی" },
-          { value: "draft", label: "پیش‌نویس" },
-        ], required: true },
+        {
+          key: "status",
+          label: "وضعیت انتشار",
+          type: "pills",
+          options: PUBLISH_STATUS_OPTIONS,
+          required: true,
+          columns: 3,
+        },
         { key: "description", label: "توضیح", type: "textarea" },
       ]}
-      emptyForm={{ title: "", slug: "", type: "document", collection: "", status: "published", description: "" }}
+      emptyForm={{
+        title: "",
+        slug: "",
+        type: "document",
+        collection: "",
+        status: "published",
+        description: "",
+      }}
       list={apiListArchive}
       save={(token, payload, id) => apiSaveArchive(token, payload as never, id)}
       remove={apiDeleteArchive}

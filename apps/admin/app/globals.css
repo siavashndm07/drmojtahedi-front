@@ -31,29 +31,37 @@
 
 :root {
   --cream: 249 246 243;
+  --surface: 255 255 255;
   --ink: 42 38 36;
   --ink-muted: 122 115 108;
   --pine: 47 127 120;
-  --pine-dark: 36 102 97;
-  --mint: 216 237 235;
-  --mint-soft: 240 247 246;
-  --surface: 255 255 255;
+  --pine-dark: 36 98 93;
+  --mint: 214 232 230;
+  --mint-soft: 232 243 241;
+  --mint-deep: 47 127 120;
+  --blush: 237 228 223;
   --bronze: 138 115 85;
   --danger: 185 28 28;
   --font-sans: "Vazir", Tahoma, sans-serif;
+  --shadow-card: 0 1px 2px rgb(42 38 36 / 0.04), 0 18px 40px -20px rgb(42 38 36 / 0.18);
+  color-scheme: light;
 }
 
 .dark {
-  --cream: 20 19 18;
-  --ink: 242 238 233;
-  --ink-muted: 163 158 152;
+  --cream: 28 32 31;
+  --surface: 36 42 41;
+  --ink: 240 244 243;
+  --ink-muted: 160 170 168;
   --pine: 91 191 183;
-  --pine-dark: 74 173 165;
+  --pine-dark: 71 160 153;
   --mint: 42 58 56;
-  --mint-soft: 31 36 35;
-  --surface: 28 27 26;
+  --mint-soft: 48 66 64;
+  --mint-deep: 143 210 204;
+  --blush: 58 52 50;
   --bronze: 186 160 120;
   --danger: 248 113 113;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.35), 0 18px 40px -18px rgb(0 0 0 / 0.55);
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -64,17 +72,83 @@
   --color-pine-dark: rgb(var(--pine-dark));
   --color-mint: rgb(var(--mint));
   --color-mint-soft: rgb(var(--mint-soft));
+  --color-mint-deep: rgb(var(--mint-deep));
   --color-surface: rgb(var(--surface));
+  --color-blush: rgb(var(--blush));
   --color-bronze: rgb(var(--bronze));
   --color-danger: rgb(var(--danger));
   --font-sans: var(--font-sans);
+  --shadow-card: var(--shadow-card);
 }
 
 html {
+  scroll-behavior: smooth;
   font-family: var(--font-sans);
 }
 
 body {
+  min-height: 100vh;
   background: rgb(var(--cream));
   color: rgb(var(--ink));
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-pine px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-pine-dark disabled:opacity-50;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink/10 bg-surface px-5 py-2.5 text-sm font-semibold text-ink transition hover:border-pine/30;
+}
+
+.eyebrow {
+  @apply text-xs font-semibold tracking-[0.18em] text-mint-deep;
+}
+
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+.bg-cool-mesh {
+  background-color: rgb(var(--cream));
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgb(var(--mint) / 0.55), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 20%, rgb(var(--blush) / 0.7), transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 90%, rgb(var(--pine) / 0.08), transparent 55%);
+}
+
+.dark .bg-cool-mesh {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgb(var(--mint) / 0.45), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 20%, rgb(var(--blush) / 0.35), transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 90%, rgb(var(--pine) / 0.12), transparent 55%);
+}
+
+@keyframes admin-loading-bar {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-200%);
+  }
+}
+
+.admin-loading-bar {
+  animation: admin-loading-bar 1.1s ease-in-out infinite;
+}
+
+@keyframes admin-route-progress {
+  0% {
+    transform: scaleX(0.08);
+  }
+  50% {
+    transform: scaleX(0.65);
+  }
+  100% {
+    transform: scaleX(0.88);
+  }
+}
+
+.admin-route-progress {
+  animation: admin-route-progress 1.2s ease-in-out infinite;
+  transform-origin: right center;
 }

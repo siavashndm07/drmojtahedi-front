@@ -1,5 +1,11 @@
-import { PlaceholderPage } from "@/components/PlaceholderPage";
+import PlaceholderPage from "@/components/PlaceholderPage";
 
 export default function Page() {
-  return <PlaceholderPage title="اعضا" />;
+  return (
+    <PlaceholderPage
+      title="اعضا"
+      description="اعضای سایت با ورود OTP."
+      notes={["MemberProfile از accounts", "الگوی مشتریان بینا — بدون سفارش"]}
+    />
+  );
 }
