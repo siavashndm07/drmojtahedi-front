@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: Vazir;
+  src: url("/fonts/vazir/Vazir-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: Vazir;
+  src: url("/fonts/vazir/Vazir-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: Vazir;
+  src: url("/fonts/vazir/Vazir-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: Vazir;
+  src: url("/fonts/vazir/Vazir-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --cream: 249 246 243;
+  --ink: 42 38 36;
+  --ink-muted: 122 115 108;
+  --pine: 47 127 120;
+  --pine-dark: 36 102 97;
+  --mint: 216 237 235;
+  --mint-soft: 240 247 246;
+  --surface: 255 255 255;
+  --bronze: 138 115 85;
+  --danger: 185 28 28;
+  --font-sans: "Vazir", Tahoma, sans-serif;
+}
+
+.dark {
+  --cream: 20 19 18;
+  --ink: 242 238 233;
+  --ink-muted: 163 158 152;
+  --pine: 91 191 183;
+  --pine-dark: 74 173 165;
+  --mint: 42 58 56;
+  --mint-soft: 31 36 35;
+  --surface: 28 27 26;
+  --bronze: 186 160 120;
+  --danger: 248 113 113;
+}
+
+@theme inline {
+  --color-cream: rgb(var(--cream));
+  --color-ink: rgb(var(--ink));
+  --color-ink-muted: rgb(var(--ink-muted));
+  --color-pine: rgb(var(--pine));
+  --color-pine-dark: rgb(var(--pine-dark));
+  --color-mint: rgb(var(--mint));
+  --color-mint-soft: rgb(var(--mint-soft));
+  --color-surface: rgb(var(--surface));
+  --color-bronze: rgb(var(--bronze));
+  --color-danger: rgb(var(--danger));
+  --font-sans: var(--font-sans);
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+body {
+  background: rgb(var(--cream));
+  color: rgb(var(--ink));
+}
