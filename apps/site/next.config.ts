@@ -7,6 +7,7 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim() ?? "";
 const mediaBaseUrl = process.env.NEXT_PUBLIC_MEDIA_BASE_URL?.trim() ?? "";
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["@drmojtahedi/shared"],
   env: {
     NEXT_PUBLIC_API_URL: apiUrl,
     NEXT_PUBLIC_MEDIA_BASE_URL: mediaBaseUrl,

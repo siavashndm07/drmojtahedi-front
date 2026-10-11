@@ -4,18 +4,19 @@ import { notFound } from "next/navigation";
 import { OralHistoryPlayer } from "@/components/oral/OralHistoryPlayer";
 import { FadeIn } from "@/components/shared/FadeIn";
 import { PageHero } from "@/components/shared/PageHero";
-import { mockOralHistory } from "@/lib/mock";
+import { getOralHistory, listOralHistory } from "@/lib/api/oralHistory";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
-  return mockOralHistory.map((item) => ({ slug: item.slug }));
+  const items = await listOralHistory();
+  return items.map((item) => ({ slug: item.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const interview = mockOralHistory.find((item) => item.slug === slug);
+  const interview = await getOralHistory(slug);
   if (!interview) {
     return buildPageMetadata({
       title: "مصاحبه یافت نشد",
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function OralHistoryDetailPage({ params }: Props) {
   const { slug } = await params;
-  const interview = mockOralHistory.find((item) => item.slug === slug);
+  const interview = await getOralHistory(slug);
   if (!interview) notFound();
 
   return (

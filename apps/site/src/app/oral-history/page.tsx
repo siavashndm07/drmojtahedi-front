@@ -3,7 +3,7 @@ import Link from "next/link";
 import { OralHistoryPlayer } from "@/components/oral/OralHistoryPlayer";
 import { FadeIn } from "@/components/shared/FadeIn";
 import { PageHero } from "@/components/shared/PageHero";
-import { mockOralHistory } from "@/lib/mock";
+import { listOralHistory } from "@/lib/api/oralHistory";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -12,7 +12,9 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/oral-history",
 });
 
-export default function OralHistoryPage() {
+export default async function OralHistoryPage() {
+  const interviews = await listOralHistory();
+
   return (
     <div>
       <PageHero
@@ -38,7 +40,7 @@ export default function OralHistoryPage() {
         }
       />
       <div className="content-shell section-pad !pt-8 space-y-8">
-        {mockOralHistory.map((interview) => (
+        {interviews.map((interview) => (
           <FadeIn key={interview.id}>
             <OralHistoryPlayer interview={interview} />
           </FadeIn>
