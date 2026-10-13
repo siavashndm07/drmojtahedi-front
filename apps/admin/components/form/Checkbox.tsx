@@ -19,6 +19,7 @@ export function Checkbox({
   disabled,
   variant = "default",
   id,
+  required: _required,
   ...rest
 }: CheckboxProps) {
   const inputId = id ?? (typeof rest.name === "string" ? rest.name : undefined);
@@ -29,12 +30,18 @@ export function Checkbox({
       <label
         htmlFor={inputId}
         className={`group relative inline-flex cursor-pointer gap-3 transition ${
-          isCard ? "w-full items-start rounded-xl border px-3.5 py-3" : "items-center"
+          isCard
+            ? `w-full items-start rounded-xl border px-3.5 py-3 ${
+                error && !checked ? "border-red-400" : ""
+              }`
+            : "items-center"
         } ${
           isCard
             ? checked
               ? "border-pine/40 bg-mint-soft/80 dark:bg-mint"
-              : "border-ink/10 bg-surface hover:border-pine/25"
+              : error
+                ? ""
+                : "border-ink/10 bg-surface hover:border-pine/25"
             : ""
         } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
       >
@@ -44,6 +51,7 @@ export function Checkbox({
           checked={checked}
           disabled={disabled}
           {...rest}
+          required={false}
           className="peer sr-only"
           aria-invalid={!!error}
         />
@@ -74,7 +82,11 @@ export function Checkbox({
           </span>
         ) : null}
       </label>
-      {error ? <p className="text-xs text-red-500">{error}</p> : null}
+      {error ? (
+        <p className="text-xs font-medium text-red-600" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

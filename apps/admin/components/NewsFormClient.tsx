@@ -15,6 +15,8 @@ import {
   FormSection,
   Input,
   NewsBodyEditor,
+  PersianDatePicker,
+  TagInput,
   Textarea,
 } from "@/components/form";
 import { useAuth } from "@/lib/auth";
@@ -35,7 +37,12 @@ import {
   type NewsBodyBlock,
 } from "@/lib/newsBlocks";
 import type { ContentStatus } from "@/lib/api/resources";
+import { requireTrimmed } from "@/lib/formValidation";
 import { FolderOpen, Tag } from "lucide-react";
+
+type FieldErrors = Partial<
+  Record<"title" | "slug" | "category" | "cover" | "dateLabel", string>
+>;
 
 type FormState = {
   slug: string;
@@ -48,6 +55,7 @@ type FormState = {
   publishedAt: string;
   cover: string;
   coverImageId: string | null;
+  tags: string[];
   blocks: NewsBodyBlock[];
 };
 
@@ -63,6 +71,7 @@ function emptyForm(): FormState {
     publishedAt: "",
     cover: "",
     coverImageId: null,
+    tags: [],
     blocks: [emptyNewsBlock()],
   };
 }
@@ -84,6 +93,7 @@ export default function NewsFormClient({
   const [notFound, setNotFound] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   const categoryOptions = useMemo(
     () =>
@@ -133,6 +143,7 @@ export default function NewsFormClient({
           publishedAt: (item.publishedAt || item.published_at || "").slice(0, 16),
           cover: item.cover || item.heroImage?.src || "",
           coverImageId: item.coverImageId ?? item.heroImage?.id ?? null,
+          tags: Array.isArray(item.tags) ? item.tags : [],
           blocks: blocks.length ? blocks : [emptyNewsBlock()],
         });
       } catch {
@@ -148,23 +159,28 @@ export default function NewsFormClient({
 
   function patch(partial: Partial<FormState>) {
     setValues((prev) => ({ ...prev, ...partial }));
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      if ("title" in partial) delete next.title;
+      if ("slug" in partial) delete next.slug;
+      if ("category" in partial) delete next.category;
+      if ("coverImageId" in partial || "cover" in partial) delete next.cover;
+      if ("dateLabel" in partial) delete next.dateLabel;
+      return next;
+    });
   }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!accessToken) return;
-    if (!values.title.trim() || !values.slug.trim()) {
-      toast.error("عنوان و اسلاگ الزامی است");
-      return;
-    }
-    if (!values.category.trim()) {
-      toast.error("دسته را انتخاب کنید");
-      return;
-    }
-    if (!values.coverImageId) {
-      toast.error("تصویر کاور الزامی است");
-      return;
-    }
+    const nextErrors: FieldErrors = {
+      title: requireTrimmed(values.title),
+      slug: requireTrimmed(values.slug),
+      category: requireTrimmed(values.category, "دسته را انتخاب کنید"),
+      cover: values.coverImageId ? undefined : "تصویر کاور الزامی است",
+    };
+    setFieldErrors(nextErrors);
+    if (Object.values(nextErrors).some(Boolean)) return;
     setSaving(true);
     try {
       const payload = {
@@ -177,6 +193,7 @@ export default function NewsFormClient({
         dateLabel: values.dateLabel.trim(),
         publishedAt: values.publishedAt ? new Date(values.publishedAt).toISOString() : null,
         coverImageId: values.coverImageId,
+        tags: values.tags,
         blocks: values.blocks,
         body: blocksToPlainBody(values.blocks),
       };
@@ -243,13 +260,19 @@ export default function NewsFormClient({
         }
       />
 
-      <form onSubmit={onSubmit} className="space-y-5">
+      <form onSubmit={onSubmit} noValidate className="space-y-5">
         <FormSection title="اطلاعات اصلی" description="عنوان، اسلاگ و خلاصهٔ کوتاه.">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="عنوان" htmlFor="news-title" className="sm:col-span-2">
+            <Field
+              label="عنوان"
+              htmlFor="news-title"
+              className="sm:col-span-2"
+              error={fieldErrors.title}
+            >
               <Input
                 id="news-title"
                 value={values.title}
+                error={!!fieldErrors.title}
                 onChange={(e) => {
                   const title = e.target.value;
                   patch({
@@ -257,20 +280,19 @@ export default function NewsFormClient({
                     slug: slugTouched ? values.slug : slugifyFa(title),
                   });
                 }}
-                required
               />
             </Field>
-            <Field label="اسلاگ" htmlFor="news-slug">
+            <Field label="اسلاگ" htmlFor="news-slug" error={fieldErrors.slug}>
               <Input
                 id="news-slug"
                 value={values.slug}
+                error={!!fieldErrors.slug}
                 onChange={(e) => {
                   setSlugTouched(true);
                   patch({ slug: e.target.value });
                 }}
                 dir="ltr"
                 className="text-start"
-                required
               />
             </Field>
             <Field label="نویسنده" htmlFor="news-author">
@@ -298,7 +320,7 @@ export default function NewsFormClient({
 
         <FormSection
           title="کاور"
-          description="تصویر شاخص خبر — مثل مقالات بینا، در فهرست و صفحهٔ جزئیات نمایش داده می‌شود."
+          description="تصویر شاخص خبر — در فهرست و صفحهٔ جزئیات نمایش داده می‌شود."
         >
           <ImageAssetField
             label="تصویر کاور"
@@ -306,6 +328,8 @@ export default function NewsFormClient({
             imageId={values.coverImageId}
             imageUrl={values.cover}
             aspectClass="aspect-[16/10]"
+            previewClassName="max-w-xs"
+            error={fieldErrors.cover}
             onChange={({ id, url }) => patch({ coverImageId: id, cover: url })}
           />
         </FormSection>
@@ -320,6 +344,7 @@ export default function NewsFormClient({
               value={values.category}
               options={categoryOptions}
               columns={2}
+              error={fieldErrors.category}
               onChange={(category) => patch({ category })}
             />
           ) : (
@@ -339,31 +364,43 @@ export default function NewsFormClient({
             onChange={(status) => patch({ status: status as ContentStatus })}
           />
 
+          <Field
+            label="برچسب‌ها"
+            htmlFor="news-tags"
+            hint="هر برچسب را بنویسید و Enter بزنید."
+          >
+            <TagInput
+              id="news-tags"
+              value={values.tags ?? []}
+              onChange={(tags) => patch({ tags })}
+            />
+          </Field>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <Field
               label="تاریخ انتشار (نمایشی)"
               htmlFor="news-date-label"
-              hint="مثلاً ۱۴۰۳/۰۵/۰۲ — روی کارت و صفحهٔ خبر"
+              hint="تقویم شمسی — روی کارت و صفحهٔ خبر"
             >
-              <Input
+              <PersianDatePicker
                 id="news-date-label"
+                mode="date"
                 value={values.dateLabel}
-                onChange={(e) => patch({ dateLabel: e.target.value })}
+                onChange={(dateLabel) => patch({ dateLabel })}
                 placeholder="۱۴۰۳/۰۵/۰۲"
               />
             </Field>
             <Field
               label="زمان انتشار (سیستمی)"
               htmlFor="news-published-at"
-              hint="برای مرتب‌سازی و آرشیو"
+              hint="تقویم شمسی با ساعت — برای مرتب‌سازی و آرشیو"
             >
-              <Input
+              <PersianDatePicker
                 id="news-published-at"
-                type="datetime-local"
+                mode="datetime"
                 value={values.publishedAt}
-                onChange={(e) => patch({ publishedAt: e.target.value })}
-                dir="ltr"
-                className="text-start"
+                onChange={(publishedAt) => patch({ publishedAt })}
+                placeholder="۱۴۰۳/۰۵/۰۲ ۱۲:۳۰"
               />
             </Field>
           </div>

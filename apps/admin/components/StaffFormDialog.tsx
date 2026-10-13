@@ -81,6 +81,12 @@ export default function StaffFormDialog({
   ]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{
+    username?: string;
+    password?: string;
+    passwordConfirm?: string;
+    permissions?: string;
+  }>({});
 
   useEffect(() => {
     if (!open) return;
@@ -106,6 +112,7 @@ export default function StaffFormDialog({
         : [...STAFF_PERMISSION_KEYS],
     );
     setError(null);
+    setFieldErrors({});
   }, [open, staff]);
 
   useEffect(() => {
@@ -130,34 +137,31 @@ export default function StaffFormDialog({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!isEdit && (!username.trim() || !password)) {
-      setError("نام کاربری و رمز عبور الزامی است.");
-      return;
-    }
+    const nextErrors: typeof fieldErrors = {};
     if (!isEdit) {
-      const usernameError = validateStaffUsername(username);
-      if (usernameError) {
-        setError(usernameError);
-        return;
+      if (!username.trim()) nextErrors.username = "این فیلد الزامی است.";
+      else {
+        const usernameError = validateStaffUsername(username);
+        if (usernameError) nextErrors.username = usernameError;
       }
+      if (!password) nextErrors.password = "این فیلد الزامی است.";
+      if (!passwordConfirm) nextErrors.passwordConfirm = "این فیلد الزامی است.";
     }
     if (password || passwordConfirm) {
       if (password !== passwordConfirm) {
-        setError("رمز عبور و تکرار آن یکسان نیست.");
-        return;
-      }
-      const passwordError = validateStaffPassword(password, requirePasswordComplexity);
-      if (passwordError) {
-        setError(passwordError);
-        return;
+        nextErrors.passwordConfirm = "رمز عبور و تکرار آن یکسان نیست.";
+      } else if (password) {
+        const passwordError = validateStaffPassword(password, requirePasswordComplexity);
+        if (passwordError) nextErrors.password = passwordError;
       }
     }
     if (!isSuperuser && permissions.length === 0) {
-      setError("حداقل یک بخش دسترسی را انتخاب کنید.");
-      return;
+      nextErrors.permissions = "حداقل یک بخش دسترسی را انتخاب کنید.";
     }
-    setSaving(true);
+    setFieldErrors(nextErrors);
     setError(null);
+    if (Object.values(nextErrors).some(Boolean)) return;
+    setSaving(true);
     try {
       await onSubmit({
         username: isEdit ? undefined : username.trim(),
@@ -216,7 +220,11 @@ export default function StaffFormDialog({
           </button>
         </div>
 
-        <form onSubmit={(e) => void handleSubmit(e)} className="flex min-h-0 flex-1 flex-col">
+        <form
+          onSubmit={(e) => void handleSubmit(e)}
+          noValidate
+          className="flex min-h-0 flex-1 flex-col"
+        >
           <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5">
             <section className="rounded-2xl border border-ink/10 bg-cream/30 p-4 dark:bg-cream/10">
               <div className="grid gap-3 sm:grid-cols-2">
@@ -254,53 +262,73 @@ export default function StaffFormDialog({
 
             <section className="space-y-3">
               <p className="text-xs font-semibold text-ink-muted">حساب ورود</p>
-              <Field label="نام کاربری" htmlFor="staff-user">
+              <Field
+                label="نام کاربری"
+                htmlFor="staff-user"
+                error={fieldErrors.username}
+              >
                 <Input
                   id="staff-user"
                   value={username}
-                  required={!isEdit}
+                  error={!!fieldErrors.username}
                   disabled={isEdit}
                   dir="ltr"
                   className="text-start"
                   icon={<User className="h-4 w-4" aria-hidden />}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    setFieldErrors((prev) => ({ ...prev, username: undefined }));
+                  }}
                 />
               </Field>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Field
                   label={isEdit ? "رمز جدید (اختیاری)" : "رمز عبور"}
                   htmlFor="staff-pass"
+                  error={fieldErrors.password}
                   hint={
-                    requirePasswordComplexity
-                      ? "حداقل ۱۰ کاراکتر، حروف بزرگ و کوچک و عدد"
-                      : "حداقل ۸ کاراکتر"
+                    fieldErrors.password
+                      ? undefined
+                      : requirePasswordComplexity
+                        ? "حداقل ۱۰ کاراکتر، حروف بزرگ و کوچک و عدد"
+                        : "حداقل ۸ کاراکتر"
                   }
                 >
                   <Input
                     id="staff-pass"
                     type="password"
                     value={password}
-                    required={!isEdit}
+                    error={!!fieldErrors.password}
                     dir="ltr"
                     className="text-start"
                     icon={<KeyRound className="h-4 w-4" aria-hidden />}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, password: undefined }));
+                    }}
                     autoComplete="new-password"
                   />
                 </Field>
                 <Field
                   label={isEdit ? "تکرار رمز جدید" : "تکرار رمز عبور"}
                   htmlFor="staff-pass-confirm"
+                  error={fieldErrors.passwordConfirm}
                 >
                   <Input
                     id="staff-pass-confirm"
                     type="password"
                     value={passwordConfirm}
-                    required={!isEdit}
+                    error={!!fieldErrors.passwordConfirm}
                     dir="ltr"
                     className="text-start"
                     icon={<KeyRound className="h-4 w-4" aria-hidden />}
-                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                    onChange={(e) => {
+                      setPasswordConfirm(e.target.value);
+                      setFieldErrors((prev) => ({
+                        ...prev,
+                        passwordConfirm: undefined,
+                      }));
+                    }}
                     autoComplete="new-password"
                   />
                 </Field>
@@ -351,7 +379,11 @@ export default function StaffFormDialog({
                   این کاربر به همه منوها دسترسی دارد.
                 </p>
               ) : (
-                <div className="space-y-2">
+                <div
+                  className={`space-y-2 rounded-2xl ${
+                    fieldErrors.permissions ? "ring-2 ring-red-400/70" : ""
+                  }`}
+                >
                   <p className="text-xs text-ink-muted">
                     {toPersianDigits(permissions.length)} بخش انتخاب شده — فقط همین
                     بخش‌ها در منو دیده می‌شود.
@@ -371,11 +403,22 @@ export default function StaffFormDialog({
                             </span>
                           }
                           checked={permissions.includes(key)}
-                          onChange={() => togglePermission(key)}
+                          onChange={() => {
+                            togglePermission(key);
+                            setFieldErrors((prev) => ({
+                              ...prev,
+                              permissions: undefined,
+                            }));
+                          }}
                         />
                       );
                     })}
                   </div>
+                  {fieldErrors.permissions ? (
+                    <p className="text-xs font-medium text-red-600" role="alert">
+                      {fieldErrors.permissions}
+                    </p>
+                  ) : null}
                 </div>
               )}
             </section>

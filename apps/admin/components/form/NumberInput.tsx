@@ -15,6 +15,7 @@ type NumberInputProps = {
   id?: string;
   className?: string;
   placeholder?: string;
+  error?: boolean;
 };
 
 function clamp(value: number, min: number, max?: number) {
@@ -41,6 +42,7 @@ export function NumberInput({
   id,
   className = "",
   placeholder,
+  error = false,
 }: NumberInputProps) {
   const current = value ?? min;
   const decimalStep = step % 1 !== 0;
@@ -82,7 +84,11 @@ export function NumberInput({
 
   return (
     <div
-      className={`flex w-full items-stretch overflow-hidden rounded-xl border border-ink/10 bg-cream/30 ${className}`.trim()}
+      className={`flex w-full items-stretch overflow-hidden rounded-xl border bg-cream/30 ${
+        error
+          ? "border-red-500 bg-red-50/50 dark:bg-red-950/20"
+          : "border-ink/10"
+      } ${className}`.trim()}
     >
       <button
         type="button"

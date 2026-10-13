@@ -18,6 +18,7 @@ import {
 } from "@/lib/api/news";
 import { slugifyFa } from "@/lib/newsBlocks";
 import { toPersianDigits } from "@/lib/digits";
+import { requireTrimmed } from "@/lib/formValidation";
 
 export default function NewsCategoriesClient() {
   const { accessToken } = useAuth();
@@ -32,6 +33,10 @@ export default function NewsCategoriesClient() {
   const [busy, setBusy] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<AdminNewsCategory | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{
+    title?: string;
+    slug?: string;
+  }>({});
 
   const reload = useCallback(async () => {
     if (!accessToken) return;
@@ -55,6 +60,7 @@ export default function NewsCategoriesClient() {
     setSlug("");
     setSlugTouched(false);
     setDescription("");
+    setFieldErrors({});
     setFormOpen(true);
   }
 
@@ -64,16 +70,19 @@ export default function NewsCategoriesClient() {
     setSlug(row.slug);
     setSlugTouched(true);
     setDescription(row.description ?? "");
+    setFieldErrors({});
     setFormOpen(true);
   }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!accessToken) return;
-    if (!title.trim() || !slug.trim()) {
-      toast.error("عنوان و اسلاگ الزامی است");
-      return;
-    }
+    const next = {
+      title: requireTrimmed(title),
+      slug: requireTrimmed(slug),
+    };
+    setFieldErrors(next);
+    if (next.title || next.slug) return;
     setBusy(true);
     try {
       await apiSaveNewsCategory(
@@ -137,30 +146,32 @@ export default function NewsCategoriesClient() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <form onSubmit={onSubmit} className="space-y-4">
-                <Field label="عنوان" htmlFor="cat-title">
+              <form onSubmit={onSubmit} noValidate className="space-y-4">
+                <Field label="عنوان" htmlFor="cat-title" error={fieldErrors.title}>
                   <Input
                     id="cat-title"
                     value={title}
+                    error={!!fieldErrors.title}
                     onChange={(e) => {
                       const next = e.target.value;
                       setTitle(next);
                       if (!slugTouched) setSlug(slugifyFa(next));
+                      setFieldErrors((prev) => ({ ...prev, title: undefined }));
                     }}
-                    required
                   />
                 </Field>
-                <Field label="اسلاگ" htmlFor="cat-slug">
+                <Field label="اسلاگ" htmlFor="cat-slug" error={fieldErrors.slug}>
                   <Input
                     id="cat-slug"
                     value={slug}
+                    error={!!fieldErrors.slug}
                     onChange={(e) => {
                       setSlugTouched(true);
                       setSlug(e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, slug: undefined }));
                     }}
                     dir="ltr"
                     className="text-start"
-                    required
                   />
                 </Field>
                 <Field label="توضیح" htmlFor="cat-desc">

@@ -7,4 +7,6 @@ export { NumberInput } from "./NumberInput";
 export { PasswordInput } from "./PasswordInput";
 export { FormSection } from "./FormSection";
 export { FormAccordion, FormAccordionItem } from "./FormAccordion";
+export { PersianDatePicker } from "./PersianDatePicker";
+export { TagInput } from "./TagInput";
 export { default as NewsBodyEditor } from "./NewsBodyEditor";

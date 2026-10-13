@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
+  ArrowLeft,
   Camera,
   Clapperboard,
   FolderKanban,
@@ -121,6 +122,9 @@ function MediaTile({
 
 export function NewsPreview() {
   const items = mockNews.slice(0, 3);
+  const [featured, ...rest] = items;
+
+  if (!featured) return null;
 
   return (
     <FadeIn>
@@ -140,34 +144,69 @@ export function NewsPreview() {
               </Link>
             }
           />
-          <div className="grid gap-4 md:grid-cols-3">
-            {items.map((item) => (
-              <Link
-                key={item.id}
-                href={`/news/${item.slug}`}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-sm transition hover:-translate-y-0.5 hover:border-pine/35 hover:shadow-card"
-              >
-                <ArticleCover
-                  article={newsAsArticle(item)}
-                  className="aspect-[16/10]"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                />
-                <div className="flex flex-1 flex-col p-5">
-                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-ink-muted">
-                    <Badge tone={item.status === "coming-soon" ? "placeholder" : "pine"}>
-                      {item.status === "coming-soon" ? "به‌زودی" : item.category ?? "خبر"}
-                    </Badge>
-                    {item.dateLabel ? <span>{item.dateLabel}</span> : null}
-                  </div>
-                  <h3 className="mt-3 text-lg font-medium leading-8 group-hover:text-pine">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 line-clamp-3 flex-1 text-sm leading-7 text-ink-muted">
-                    {item.description}
-                  </p>
+          <div className="grid gap-5 lg:grid-cols-12 lg:gap-6">
+            <Link
+              href={`/news/${featured.slug}`}
+              className="group flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-sm transition hover:-translate-y-0.5 hover:border-pine/35 hover:shadow-card lg:col-span-7"
+            >
+              <ArticleCover
+                article={newsAsArticle(featured)}
+                className="aspect-[16/10] lg:aspect-[16/9]"
+                sizes="(max-width: 1024px) 100vw, 58vw"
+              />
+              <div className="flex flex-1 flex-col p-5 md:p-6">
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-ink-muted">
+                  <Badge
+                    tone={featured.status === "coming-soon" ? "placeholder" : "pine"}
+                  >
+                    {featured.status === "coming-soon"
+                      ? "به‌زودی"
+                      : featured.category ?? "خبر"}
+                  </Badge>
+                  {featured.dateLabel ? <span>{featured.dateLabel}</span> : null}
                 </div>
-              </Link>
-            ))}
+                <h3 className="mt-3 text-xl font-medium leading-9 md:text-2xl group-hover:text-pine">
+                  {featured.title}
+                </h3>
+                <p className="mt-3 line-clamp-3 text-sm leading-7 text-ink-muted md:text-[15px]">
+                  {featured.description}
+                </p>
+              </div>
+            </Link>
+
+            <div className="flex flex-col gap-4 lg:col-span-5">
+              {rest.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/news/${item.slug}`}
+                  className="group flex flex-1 gap-4 overflow-hidden rounded-2xl border border-ink/10 bg-surface p-3 shadow-sm transition hover:border-pine/35 hover:shadow-card sm:p-4"
+                >
+                  <ArticleCover
+                    article={newsAsArticle(item)}
+                    className="aspect-square w-24 shrink-0 rounded-xl sm:w-28"
+                    sizes="112px"
+                  />
+                  <div className="flex min-w-0 flex-1 flex-col justify-center py-0.5">
+                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-ink-muted">
+                      <Badge
+                        tone={item.status === "coming-soon" ? "placeholder" : "pine"}
+                      >
+                        {item.status === "coming-soon"
+                          ? "به‌زودی"
+                          : item.category ?? "خبر"}
+                      </Badge>
+                      {item.dateLabel ? <span>{item.dateLabel}</span> : null}
+                    </div>
+                    <h3 className="mt-2 text-base font-medium leading-7 group-hover:text-pine">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1 line-clamp-2 text-xs leading-6 text-ink-muted sm:text-sm sm:leading-7">
+                      {item.description}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -177,6 +216,9 @@ export function NewsPreview() {
 
 export function ProjectsPreview() {
   const items = mockProjects.slice(0, 3);
+  const [flagship, ...secondary] = items;
+
+  if (!flagship) return null;
 
   return (
     <FadeIn>
@@ -191,38 +233,71 @@ export function ProjectsPreview() {
             </Link>
           }
         />
-        <div className="grid gap-4 md:grid-cols-3">
-          {items.map((project) => (
-            <Link
-              key={project.id}
-              href={project.href ?? "/projects"}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-sm transition hover:-translate-y-0.5 hover:border-pine/40 hover:shadow-card"
-            >
-              {project.heroImage ? (
-                <CardCover
-                  src={project.heroImage.src}
-                  alt={project.heroImage.alt}
-                  className="aspect-[16/10]"
-                />
-              ) : (
-                <div className="flex aspect-[16/10] items-center justify-center bg-mint-soft">
-                  <IconBadge icon={FolderKanban} />
-                </div>
-              )}
-              <div className="flex flex-1 flex-col p-5">
-                <div className="flex items-center gap-2">
-                  {project.phase ? <Badge tone="bronze">{project.phase}</Badge> : null}
-                </div>
-                <h3 className="mt-3 text-lg font-medium group-hover:text-pine">
-                  {project.title}
-                </h3>
-                <p className="mt-2 line-clamp-3 text-sm leading-7 text-ink-muted">
-                  {project.description}
-                </p>
+
+        <Link
+          href={flagship.href ?? "/projects"}
+          className="group grid overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-sm transition hover:border-pine/40 hover:shadow-card md:grid-cols-12"
+        >
+          <div className="relative md:col-span-5">
+            {flagship.heroImage ? (
+              <CardCover
+                src={flagship.heroImage.src}
+                alt={flagship.heroImage.alt}
+                className="aspect-[4/3] md:aspect-auto md:h-full md:min-h-[17rem]"
+              />
+            ) : (
+              <div className="flex aspect-[4/3] items-center justify-center bg-mint-soft md:aspect-auto md:h-full md:min-h-[17rem]">
+                <IconBadge icon={FolderKanban} size="lg" />
               </div>
-            </Link>
-          ))}
-        </div>
+            )}
+          </div>
+          <div className="flex flex-col justify-center p-6 md:col-span-7 md:p-8 lg:p-10">
+            {flagship.phase ? <Badge tone="bronze">{flagship.phase}</Badge> : null}
+            <h3 className="mt-4 text-2xl font-medium leading-10 md:text-3xl group-hover:text-pine">
+              {flagship.title}
+            </h3>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-ink-muted md:text-[15px] md:leading-8">
+              {flagship.description}
+            </p>
+            <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-pine">
+              مشاهده پروژه
+              <ArrowLeft className="size-4 transition group-hover:-translate-x-0.5" aria-hidden />
+            </span>
+          </div>
+        </Link>
+
+        {secondary.length > 0 ? (
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            {secondary.map((project) => (
+              <Link
+                key={project.id}
+                href={project.href ?? "/projects"}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-sm transition hover:-translate-y-0.5 hover:border-pine/40 hover:shadow-card"
+              >
+                {project.heroImage ? (
+                  <CardCover
+                    src={project.heroImage.src}
+                    alt={project.heroImage.alt}
+                    className="aspect-[21/9]"
+                  />
+                ) : (
+                  <div className="flex aspect-[21/9] items-center justify-center bg-mint-soft">
+                    <IconBadge icon={FolderKanban} />
+                  </div>
+                )}
+                <div className="flex flex-1 flex-col p-5">
+                  {project.phase ? <Badge tone="bronze">{project.phase}</Badge> : null}
+                  <h3 className="mt-3 text-lg font-medium group-hover:text-pine">
+                    {project.title}
+                  </h3>
+                  <p className="mt-2 line-clamp-2 text-sm leading-7 text-ink-muted">
+                    {project.description}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : null}
       </section>
     </FadeIn>
   );
@@ -279,55 +354,96 @@ export function ArchiveHighlights() {
 
 export function MagazinePreview() {
   const articles = mockArticles.slice(0, 3);
+  const [lead, ...rail] = articles;
+
+  if (!lead) return null;
 
   return (
     <FadeIn>
-      <section className="content-shell section-pad">
-        <SectionHeading
-          eyebrow="مقالات"
-          title="خواندنی‌های تحریریه"
-          description="یادداشت‌هایی دربارهٔ معلم البرز، بنیان‌گذاری شریف، و میراث آموزش در ایران."
-          action={
+      <section className="border-y border-ink/5 bg-[linear-gradient(180deg,rgb(var(--paper)),rgb(var(--accent-soft)/0.28))]">
+        <div className="content-shell section-pad">
+          <SectionHeading
+            eyebrow="مقالات"
+            title="خواندنی‌های تحریریه"
+            description="یادداشت‌هایی دربارهٔ معلم البرز، بنیان‌گذاری شریف، و میراث آموزش در ایران."
+            action={
+              <Link
+                href="/magazine"
+                className="inline-flex items-center gap-2 text-sm font-medium text-pine hover:underline"
+              >
+                <Newspaper className="size-4" aria-hidden />
+                همه مقالات
+              </Link>
+            }
+          />
+
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
             <Link
-              href="/magazine"
-              className="inline-flex items-center gap-2 text-sm font-medium text-pine hover:underline"
-            >
-              <Newspaper className="size-4" aria-hidden />
-              همه مقالات
-            </Link>
-          }
-        />
-        <div className="grid gap-4 md:grid-cols-3">
-          {articles.map((article) => (
-            <Link
-              key={article.id}
-              href={`/magazine/${article.slug}`}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-sm transition-colors hover:border-pine/40"
+              href={`/magazine/${lead.slug}`}
+              className="group flex flex-col lg:col-span-7"
             >
               <ArticleCover
-                article={article}
-                className="aspect-[16/10]"
-                sizes="(max-width: 768px) 100vw, 33vw"
+                article={lead}
+                className="aspect-[16/10] rounded-2xl"
+                sizes="(max-width: 1024px) 100vw, 55vw"
               />
-              <div className="flex flex-1 flex-col p-5 md:p-6">
-                <div className="flex items-center gap-2 text-xs text-bronze">
-                  <Newspaper className="size-3.5" aria-hidden />
-                  {article.category}
+              <div className="mt-5 border-s-2 border-pine/40 ps-4 md:mt-6 md:ps-5">
+                <div className="flex flex-wrap items-center gap-3 text-xs text-bronze">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Newspaper className="size-3.5" aria-hidden />
+                    {lead.category}
+                  </span>
+                  {lead.readingTimeMinutes ? (
+                    <span className="text-ink-muted">
+                      حدود {toPersianDigits(lead.readingTimeMinutes)} دقیقه مطالعه
+                    </span>
+                  ) : null}
                 </div>
-                <h3 className="mt-3 text-xl font-medium text-ink group-hover:text-pine">
-                  {article.title}
+                <h3 className="mt-3 text-2xl font-medium leading-10 text-ink md:text-3xl md:leading-[2.75rem] group-hover:text-pine">
+                  {lead.title}
                 </h3>
-                <p className="mt-3 line-clamp-3 text-sm leading-7 text-ink-muted">
-                  {article.description}
+                <p className="mt-3 max-w-2xl text-[15px] leading-8 text-ink-muted">
+                  {lead.description}
                 </p>
-                {article.readingTimeMinutes ? (
-                  <p className="mt-4 text-xs text-ink-muted">
-                    حدود {toPersianDigits(article.readingTimeMinutes)} دقیقه مطالعه
-                  </p>
-                ) : null}
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-pine">
+                  ادامه مطلب
+                  <ArrowLeft className="size-4 transition group-hover:-translate-x-0.5" aria-hidden />
+                </span>
               </div>
             </Link>
-          ))}
+
+            <div className="flex flex-col gap-6 lg:col-span-5 lg:justify-center">
+              {rail.map((article) => (
+                <Link
+                  key={article.id}
+                  href={`/magazine/${article.slug}`}
+                  className="group grid grid-cols-[7.5rem_1fr] gap-4 border-b border-ink/10 pb-6 last:border-b-0 last:pb-0 sm:grid-cols-[9rem_1fr]"
+                >
+                  <ArticleCover
+                    article={article}
+                    className="aspect-[4/3] rounded-xl"
+                    sizes="144px"
+                  />
+                  <div className="min-w-0 self-center">
+                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-bronze">
+                      <span>{article.category}</span>
+                      {article.readingTimeMinutes ? (
+                        <span className="text-ink-muted">
+                          {toPersianDigits(article.readingTimeMinutes)} دقیقه
+                        </span>
+                      ) : null}
+                    </div>
+                    <h3 className="mt-2 text-base font-medium leading-7 text-ink group-hover:text-pine sm:text-lg sm:leading-8">
+                      {article.title}
+                    </h3>
+                    <p className="mt-1 line-clamp-2 text-xs leading-6 text-ink-muted sm:text-sm sm:leading-7">
+                      {article.description}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
     </FadeIn>

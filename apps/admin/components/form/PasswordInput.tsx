@@ -2,13 +2,17 @@
 
 import { useState, type InputHTMLAttributes } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { inputClassName } from "./Input";
+import { controlClassName } from "./Input";
 
-type PasswordInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type">;
+type PasswordInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
+  error?: boolean;
+};
 
 export function PasswordInput({
   className = "",
   id,
+  error = false,
+  required: _required,
   ...props
 }: PasswordInputProps) {
   const [visible, setVisible] = useState(false);
@@ -19,8 +23,10 @@ export function PasswordInput({
         id={id}
         type={visible ? "text" : "password"}
         dir="ltr"
-        className={`${inputClassName} pr-11 text-start ${className}`.trim()}
         {...props}
+        required={false}
+        aria-invalid={error || undefined}
+        className={controlClassName(error, `pr-11 text-start ${className}`)}
       />
       <button
         type="button"

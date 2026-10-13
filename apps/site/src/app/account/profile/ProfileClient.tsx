@@ -12,6 +12,11 @@ import { toEnglishDigits, toPersianDigits } from "@/lib/utils/digits";
 export default function ProfileClient() {
   const { user, updateProfile } = useAuth();
   const [saved, setSaved] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+  }>({});
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -48,8 +53,20 @@ export default function ProfileClient() {
 
       <form
         className="w-full space-y-4 rounded-2xl border border-ink/10 bg-surface p-5 shadow-sm sm:p-6"
+        noValidate
         onSubmit={(event) => {
           event.preventDefault();
+          const next = {
+            firstName: form.firstName.trim() ? undefined : "این فیلد الزامی است.",
+            lastName: form.lastName.trim() ? undefined : "این فیلد الزامی است.",
+            email: !form.email.trim()
+              ? "این فیلد الزامی است."
+              : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
+                ? "ایمیل معتبر وارد کنید."
+                : undefined,
+          };
+          setFieldErrors(next);
+          if (next.firstName || next.lastName || next.email) return;
           void updateProfile({
             ...form,
             nationalId: toEnglishDigits(form.nationalId).replace(/\D/g, ""),
@@ -63,12 +80,20 @@ export default function ProfileClient() {
           <Field
             label="نام"
             value={form.firstName}
-            onChange={(firstName) => setForm((f) => ({ ...f, firstName }))}
+            error={fieldErrors.firstName}
+            onChange={(firstName) => {
+              setForm((f) => ({ ...f, firstName }));
+              setFieldErrors((prev) => ({ ...prev, firstName: undefined }));
+            }}
           />
           <Field
             label="نام خانوادگی"
             value={form.lastName}
-            onChange={(lastName) => setForm((f) => ({ ...f, lastName }))}
+            error={fieldErrors.lastName}
+            onChange={(lastName) => {
+              setForm((f) => ({ ...f, lastName }));
+              setFieldErrors((prev) => ({ ...prev, lastName: undefined }));
+            }}
           />
         </div>
         <Field
@@ -84,7 +109,11 @@ export default function ProfileClient() {
         <Field
           label="ایمیل"
           value={form.email}
-          onChange={(email) => setForm((f) => ({ ...f, email }))}
+          error={fieldErrors.email}
+          onChange={(email) => {
+            setForm((f) => ({ ...f, email }));
+            setFieldErrors((prev) => ({ ...prev, email: undefined }));
+          }}
           type="email"
         />
         <Field
@@ -137,12 +166,14 @@ function Field({
   onChange,
   type = "text",
   disabled,
+  error,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   type?: string;
   disabled?: boolean;
+  error?: string;
 }) {
   return (
     <div>
@@ -151,9 +182,19 @@ function Field({
         type={type}
         value={value}
         disabled={disabled}
+        aria-invalid={error ? true : undefined}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-2 w-full rounded-xl border border-ink/10 bg-paper px-4 py-3 text-sm focus:border-pine/40 focus:outline-none focus:ring-2 focus:ring-pine/20 disabled:opacity-60"
+        className={`mt-2 w-full rounded-xl border bg-paper px-4 py-3 text-sm focus:outline-none focus:ring-2 disabled:opacity-60 ${
+          error
+            ? "border-red-500 bg-red-50/40 focus:border-red-500 focus:ring-red-200"
+            : "border-ink/10 focus:border-pine/40 focus:ring-pine/20"
+        }`}
       />
+      {error ? (
+        <p className="mt-1.5 text-xs font-medium text-red-600" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

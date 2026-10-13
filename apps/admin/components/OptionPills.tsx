@@ -16,6 +16,7 @@ export default function OptionPills<T extends string>({
   options,
   onChange,
   columns = "auto",
+  error,
 }: {
   label?: string;
   value: T;
@@ -23,6 +24,7 @@ export default function OptionPills<T extends string>({
   onChange: (value: T) => void;
   /** auto wraps; 2/3 force a denser grid */
   columns?: "auto" | 2 | 3;
+  error?: string | null;
 }) {
   return (
     <div className="space-y-2">
@@ -31,13 +33,15 @@ export default function OptionPills<T extends string>({
       ) : null}
       <div
         className={cn(
-          "grid gap-2",
+          "grid gap-2 rounded-2xl",
+          error && "ring-2 ring-red-400/70",
           columns === 2 && "grid-cols-2",
           columns === 3 && "grid-cols-2 sm:grid-cols-3",
           columns === "auto" && "grid-cols-2 sm:grid-cols-3",
         )}
         role="radiogroup"
         aria-label={label}
+        aria-invalid={error ? true : undefined}
       >
         {options.map((option) => {
           const active = option.value === value;
@@ -81,6 +85,11 @@ export default function OptionPills<T extends string>({
           );
         })}
       </div>
+      {error ? (
+        <p className="flex items-start gap-1.5 text-xs font-medium text-red-600 dark:text-red-400" role="alert">
+          <span>{error}</span>
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -14,8 +14,11 @@ type ImageAssetFieldProps = {
   imageId: string | null;
   imageUrl: string;
   aspectClass?: string;
+  /** Constrain preview width (e.g. max-w-xs for compact covers). */
+  previewClassName?: string;
   objectFit?: "cover" | "contain";
   removeDescription?: string;
+  error?: string | null;
   onChange: (next: { id: string | null; url: string }) => void;
 };
 
@@ -26,13 +29,15 @@ export default function ImageAssetField({
   imageId: _imageId,
   imageUrl,
   aspectClass = "aspect-[16/9]",
+  previewClassName = "",
   objectFit = "cover",
   removeDescription = "این تصویر از خبر برداشته می‌شود.",
+  error,
   onChange,
 }: ImageAssetFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [confirmRemove, setConfirmRemove] = useState(false);
   const preview = mediaAssetUrl(imageUrl);
   const fit = kind === "logo" ? "contain" : objectFit;
@@ -41,12 +46,12 @@ export default function ImageAssetField({
     const file = fileList?.[0];
     if (!file) return;
     setUploading(true);
-    setError(null);
+    setUploadError(null);
     try {
       const asset = await uploadMedia(file, kind);
       onChange({ id: asset.id, url: asset.url });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "آپلود ناموفق");
+      setUploadError(err instanceof Error ? err.message : "آپلود ناموفق");
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -96,7 +101,9 @@ export default function ImageAssetField({
       />
 
       <div
-        className={`relative overflow-hidden rounded-2xl border border-dashed border-ink/15 bg-cream/50 ${aspectClass}`}
+        className={`relative overflow-hidden rounded-2xl border border-dashed bg-cream/50 ${
+          error ? "border-red-500 ring-2 ring-red-400/50" : "border-ink/15"
+        } ${aspectClass} ${previewClassName}`.trim()}
       >
         {preview ? (
           <Image
@@ -119,7 +126,12 @@ export default function ImageAssetField({
           </button>
         )}
       </div>
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      {uploadError ? <p className="text-xs text-red-600">{uploadError}</p> : null}
+      {error ? (
+        <p className="flex items-start gap-1.5 text-xs font-medium text-red-600 dark:text-red-400" role="alert">
+          {error}
+        </p>
+      ) : null}
 
       <ConfirmDialog
         open={confirmRemove}

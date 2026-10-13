@@ -1,15 +1,20 @@
 import { forwardRef, type TextareaHTMLAttributes } from "react";
-import { inputClassName } from "./Input";
+import { controlClassName } from "./Input";
 
-export const Textarea = forwardRef<
-  HTMLTextAreaElement,
-  TextareaHTMLAttributes<HTMLTextAreaElement>
->(function Textarea({ className = "", ...props }, ref) {
-  return (
-    <textarea
-      ref={ref}
-      className={`${inputClassName} min-h-[6rem] resize-y ${className}`.trim()}
-      {...props}
-    />
-  );
-});
+type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  error?: boolean;
+};
+
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+  function Textarea({ className = "", error = false, required: _required, ...props }, ref) {
+    return (
+      <textarea
+        ref={ref}
+        {...props}
+        required={false}
+        aria-invalid={error || undefined}
+        className={controlClassName(error, `min-h-[6rem] resize-y ${className}`)}
+      />
+    );
+  },
+);

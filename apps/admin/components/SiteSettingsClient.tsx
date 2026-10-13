@@ -127,6 +127,10 @@ export default function SiteSettingsClient() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{
+    nameFa?: string;
+    nameEn?: string;
+  }>({});
 
   useEffect(() => {
     if (!accessToken) return;
@@ -179,10 +183,12 @@ export default function SiteSettingsClient() {
 
   async function save() {
     if (!accessToken || !form) return;
-    if (!form.nameFa.trim() || !form.nameEn.trim()) {
-      toast.error("نام فارسی و انگلیسی الزامی است.");
-      return;
-    }
+    const nextErrors = {
+      nameFa: form.nameFa.trim() ? undefined : "این فیلد الزامی است.",
+      nameEn: form.nameEn.trim() ? undefined : "این فیلد الزامی است.",
+    };
+    setFieldErrors(nextErrors);
+    if (nextErrors.nameFa || nextErrors.nameEn) return;
     setSaving(true);
     try {
       const saved = await updateSiteSettings(accessToken, form);
@@ -383,22 +389,36 @@ export default function SiteSettingsClient() {
               icon={Building2}
             >
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="نام فارسی" htmlFor="name-fa">
+                <Field
+                  label="نام فارسی"
+                  htmlFor="name-fa"
+                  error={fieldErrors.nameFa}
+                >
                   <Input
                     id="name-fa"
                     value={form.nameFa}
-                    onChange={(e) => patch("nameFa", e.target.value)}
-                    required
+                    error={!!fieldErrors.nameFa}
+                    onChange={(e) => {
+                      patch("nameFa", e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, nameFa: undefined }));
+                    }}
                   />
                 </Field>
-                <Field label="نام انگلیسی" htmlFor="name-en">
+                <Field
+                  label="نام انگلیسی"
+                  htmlFor="name-en"
+                  error={fieldErrors.nameEn}
+                >
                   <Input
                     id="name-en"
                     value={form.nameEn}
-                    onChange={(e) => patch("nameEn", e.target.value)}
+                    error={!!fieldErrors.nameEn}
+                    onChange={(e) => {
+                      patch("nameEn", e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, nameEn: undefined }));
+                    }}
                     dir="ltr"
                     className="text-start"
-                    required
                   />
                 </Field>
                 <Field label="شعار (فارسی)" htmlFor="tagline-fa" className="sm:col-span-2">

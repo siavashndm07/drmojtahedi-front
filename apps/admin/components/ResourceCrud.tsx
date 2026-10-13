@@ -24,6 +24,7 @@ import { Field, Input, Textarea } from "@/components/form";
 import { useAuth } from "@/lib/auth";
 import { isApiEnabled } from "@/lib/api/client";
 import { toPersianDigits } from "@/lib/digits";
+import { REQUIRED_FIELD, requireTrimmed } from "@/lib/formValidation";
 
 type FieldDef = {
   key: string;
@@ -97,6 +98,7 @@ export function ResourceCrud<
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [editingId, setEditingId] = useState<string | number | null>(null);
   const [busy, setBusy] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<T | null>(null);
@@ -147,6 +149,7 @@ export function ResourceCrud<
   function openCreate() {
     setEditingId(null);
     setForm(emptyForm);
+    setFieldErrors({});
     setFormOpen(true);
   }
 
@@ -158,12 +161,21 @@ export function ResourceCrud<
       next[key] = value == null ? "" : String(value);
     }
     setForm(next);
+    setFieldErrors({});
     setFormOpen(true);
   }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     if (!accessToken) return;
+    const nextErrors: Record<string, string> = {};
+    for (const field of fields) {
+      if (!field.required) continue;
+      const message = requireTrimmed(form[field.key], REQUIRED_FIELD);
+      if (message) nextErrors[field.key] = message;
+    }
+    setFieldErrors(nextErrors);
+    if (Object.keys(nextErrors).length) return;
     setBusy(true);
     try {
       await save(accessToken, form, editingId ?? undefined);
@@ -171,6 +183,7 @@ export function ResourceCrud<
       setFormOpen(false);
       setEditingId(null);
       setForm(emptyForm);
+      setFieldErrors({});
       await reload();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "ذخیره ناموفق");
@@ -227,7 +240,7 @@ export function ResourceCrud<
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <form onSubmit={onSubmit} className="space-y-4">
+              <form onSubmit={onSubmit} noValidate className="space-y-4">
                 {fields.map((field) =>
                   field.type === "pills" ? (
                     <OptionPills
@@ -236,33 +249,50 @@ export function ResourceCrud<
                       value={(form[field.key] as string) || (field.options?.[0]?.value ?? "")}
                       options={field.options ?? []}
                       columns={field.columns ?? "auto"}
-                      onChange={(next) =>
-                        setForm((f) => ({ ...f, [field.key]: next }))
-                      }
+                      error={fieldErrors[field.key]}
+                      onChange={(next) => {
+                        setForm((f) => ({ ...f, [field.key]: next }));
+                        setFieldErrors((prev) => {
+                          const copy = { ...prev };
+                          delete copy[field.key];
+                          return copy;
+                        });
+                      }}
                     />
                   ) : (
                     <Field
                       key={field.key}
                       label={field.label}
                       htmlFor={`field-${field.key}`}
+                      error={fieldErrors[field.key]}
                     >
                       {field.type === "textarea" ? (
                         <Textarea
                           id={`field-${field.key}`}
                           value={form[field.key] ?? ""}
-                          onChange={(e) =>
-                            setForm((f) => ({ ...f, [field.key]: e.target.value }))
-                          }
-                          required={field.required}
+                          error={!!fieldErrors[field.key]}
+                          onChange={(e) => {
+                            setForm((f) => ({ ...f, [field.key]: e.target.value }));
+                            setFieldErrors((prev) => {
+                              const copy = { ...prev };
+                              delete copy[field.key];
+                              return copy;
+                            });
+                          }}
                         />
                       ) : (
                         <Input
                           id={`field-${field.key}`}
                           value={form[field.key] ?? ""}
-                          onChange={(e) =>
-                            setForm((f) => ({ ...f, [field.key]: e.target.value }))
-                          }
-                          required={field.required}
+                          error={!!fieldErrors[field.key]}
+                          onChange={(e) => {
+                            setForm((f) => ({ ...f, [field.key]: e.target.value }));
+                            setFieldErrors((prev) => {
+                              const copy = { ...prev };
+                              delete copy[field.key];
+                              return copy;
+                            });
+                          }}
                         />
                       )}
                     </Field>

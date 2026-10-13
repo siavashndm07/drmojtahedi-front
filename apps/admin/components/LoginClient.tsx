@@ -24,11 +24,21 @@ function LoginForm() {
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("admin123456");
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{
+    username?: string;
+    password?: string;
+  }>({});
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    const next = {
+      username: username.trim() ? undefined : "این فیلد الزامی است.",
+      password: password ? undefined : "این فیلد الزامی است.",
+    };
+    setFieldErrors(next);
+    if (next.username || next.password) return;
     setLoading(true);
     try {
       await login(username.trim(), password);
@@ -63,26 +73,40 @@ function LoginForm() {
           </div>
         ) : null}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Field label="نام کاربری" htmlFor="admin-username">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
+          <Field
+            label="نام کاربری"
+            htmlFor="admin-username"
+            error={fieldErrors.username}
+          >
             <Input
               id="admin-username"
               autoComplete="username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              error={!!fieldErrors.username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setFieldErrors((prev) => ({ ...prev, username: undefined }));
+              }}
               placeholder="نام‌کاربری"
               dir="ltr"
               className="text-start"
-              required
             />
           </Field>
-          <Field label="رمز عبور" htmlFor="admin-password">
+          <Field
+            label="رمز عبور"
+            htmlFor="admin-password"
+            error={fieldErrors.password}
+          >
             <PasswordInput
               id="admin-password"
               autoComplete="current-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              error={!!fieldErrors.password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setFieldErrors((prev) => ({ ...prev, password: undefined }));
+              }}
             />
           </Field>
 

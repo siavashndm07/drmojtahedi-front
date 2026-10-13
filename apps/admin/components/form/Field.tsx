@@ -1,5 +1,25 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
 
+function ErrorCaption({ message }: { message: string }) {
+  return (
+    <p className="flex items-start gap-1.5 text-xs font-medium text-red-600 dark:text-red-400" role="alert">
+      <svg
+        viewBox="0 0 20 20"
+        className="mt-0.5 h-3.5 w-3.5 shrink-0"
+        fill="currentColor"
+        aria-hidden
+      >
+        <path
+          fillRule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zm-.75-4.25a.75.75 0 011.5 0v.01a.75.75 0 01-1.5 0V13.75zM10 5.5a.75.75 0 00-.75.75v4a.75.75 0 001.5 0v-4A.75.75 0 0010 5.5z"
+          clipRule="evenodd"
+        />
+      </svg>
+      <span>{message}</span>
+    </p>
+  );
+}
+
 export function Field({
   label,
   htmlFor,
@@ -11,7 +31,7 @@ export function Field({
   label: string;
   htmlFor?: string;
   hint?: string;
-  error?: string;
+  error?: string | null;
   children: ReactNode;
   className?: string;
 }) {
@@ -22,7 +42,7 @@ export function Field({
       </label>
       {children}
       {error ? (
-        <p className="text-xs text-red-500">{error}</p>
+        <ErrorCaption message={error} />
       ) : hint ? (
         <p className="text-xs text-ink-muted">{hint}</p>
       ) : null}
@@ -57,13 +77,16 @@ export function FormCard({
 type CheckboxFieldProps = {
   label: string;
   hint?: string;
+  error?: string | null;
 } & InputHTMLAttributes<HTMLInputElement>;
 
 export function CheckboxField({
   label,
   hint,
+  error,
   className = "",
   id,
+  required: _required,
   ...props
 }: CheckboxFieldProps) {
   const fieldId = id ?? props.name;
@@ -76,12 +99,20 @@ export function CheckboxField({
         <input
           id={fieldId}
           type="checkbox"
-          className="h-4 w-4 rounded border-ink/20 text-pine focus:ring-pine"
+          required={false}
+          aria-invalid={error ? true : undefined}
+          className={`h-4 w-4 rounded border-ink/20 text-pine focus:ring-pine ${
+            error ? "border-red-500" : ""
+          }`}
           {...props}
         />
         {label}
       </label>
-      {hint ? <p className="text-xs text-ink-muted">{hint}</p> : null}
+      {error ? (
+        <ErrorCaption message={error} />
+      ) : hint ? (
+        <p className="text-xs text-ink-muted">{hint}</p>
+      ) : null}
     </div>
   );
 }

@@ -2,9 +2,15 @@
 
 import { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import {
+  FormField,
+  TextArea,
+  TextBox,
+} from "@/components/forms/FormPrimitives";
 import { SelectListbox } from "@/components/forms/SelectListbox";
 import { submitContribution } from "@/lib/api/engagement";
 import { isApiEnabled } from "@/lib/api/config";
+import { cn } from "@/lib/utils/cn";
 
 const STORAGE_KEY = "drmojtahedi-contributions";
 
@@ -17,6 +23,10 @@ const TYPES = [
   { value: "other", label: "سایر" },
 ];
 
+type FieldErrors = Partial<
+  Record<"name" | "title" | "body" | "contact", string>
+>;
+
 export function ContributeForm() {
   const [type, setType] = useState("memory");
   const [name, setName] = useState("");
@@ -26,19 +36,22 @@ export function ContributeForm() {
   const [body, setBody] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-    setError(null);
-    if (!name.trim() || !title.trim() || !body.trim()) {
-      setError("نام، عنوان و توضیح الزامی است.");
-      return;
-    }
+    setSubmitError(null);
+    const next: FieldErrors = {};
+    if (!name.trim()) next.name = "این فیلد الزامی است.";
+    if (!title.trim()) next.title = "این فیلد الزامی است.";
+    if (!body.trim()) next.body = "این فیلد الزامی است.";
     if (!phone.trim() && !email.trim()) {
-      setError("حداقل یکی از تلفن یا ایمیل را وارد کنید.");
-      return;
+      next.contact = "حداقل یکی از تلفن یا ایمیل را وارد کنید.";
     }
+    setFieldErrors(next);
+    if (Object.keys(next).length) return;
+
     setBusy(true);
     try {
       const payload = {
@@ -58,7 +71,7 @@ export function ContributeForm() {
       }
       setDone(true);
     } catch {
-      setError("ارسال ناموفق بود. دوباره تلاش کنید.");
+      setSubmitError("ارسال ناموفق بود. دوباره تلاش کنید.");
     } finally {
       setBusy(false);
     }
@@ -80,11 +93,12 @@ export function ContributeForm() {
     );
   }
 
-  const field =
-    "w-full rounded-xl border border-ink/10 bg-cream/40 px-4 py-3 text-sm outline-none focus:border-pine/40 dark:bg-ink/5";
-
   return (
-    <form onSubmit={onSubmit} className="space-y-5 rounded-2xl border border-ink/10 bg-surface p-6 shadow-sm md:p-8">
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      className="space-y-5 rounded-2xl border border-ink/10 bg-surface p-6 shadow-sm md:p-8"
+    >
       <SelectListbox
         label="نوع ارسال"
         value={type}
@@ -93,52 +107,77 @@ export function ContributeForm() {
         placeholder="انتخاب کنید"
       />
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block text-sm">
-          <span className="mb-1.5 block font-medium text-ink">نام و نام خانوادگی</span>
-          <input className={field} value={name} onChange={(e) => setName(e.target.value)} required />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1.5 block font-medium text-ink">تلفن</span>
-          <input
-            className={field}
+        <FormField id="contribute-name" label="نام و نام خانوادگی" error={fieldErrors.name}>
+          <TextBox
+            id="contribute-name"
+            value={name}
+            error={fieldErrors.name}
+            onChange={(e) => {
+              setName(e.target.value);
+              setFieldErrors((prev) => ({ ...prev, name: undefined }));
+            }}
+          />
+        </FormField>
+        <FormField id="contribute-phone" label="تلفن" error={fieldErrors.contact}>
+          <TextBox
+            id="contribute-phone"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            error={fieldErrors.contact}
+            onChange={(e) => {
+              setPhone(e.target.value);
+              setFieldErrors((prev) => ({ ...prev, contact: undefined }));
+            }}
             inputMode="tel"
             dir="ltr"
           />
-        </label>
+        </FormField>
       </div>
-      <label className="block text-sm">
-        <span className="mb-1.5 block font-medium text-ink">ایمیل</span>
-        <input
+      <FormField id="contribute-email" label="ایمیل" error={fieldErrors.contact && !phone.trim() ? fieldErrors.contact : null}>
+        <TextBox
+          id="contribute-email"
           type="email"
-          className={field}
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          error={fieldErrors.contact}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setFieldErrors((prev) => ({ ...prev, contact: undefined }));
+          }}
           dir="ltr"
         />
-      </label>
-      <label className="block text-sm">
-        <span className="mb-1.5 block font-medium text-ink">عنوان</span>
-        <input className={field} value={title} onChange={(e) => setTitle(e.target.value)} required />
-      </label>
-      <label className="block text-sm">
-        <span className="mb-1.5 block font-medium text-ink">شرح خاطره یا سند</span>
-        <textarea
-          className={`${field} min-h-36 resize-y`}
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          required
+      </FormField>
+      <FormField id="contribute-title" label="عنوان" error={fieldErrors.title}>
+        <TextBox
+          id="contribute-title"
+          value={title}
+          error={fieldErrors.title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            setFieldErrors((prev) => ({ ...prev, title: undefined }));
+          }}
         />
-      </label>
+      </FormField>
+      <FormField id="contribute-body" label="شرح خاطره یا سند" error={fieldErrors.body}>
+        <TextArea
+          id="contribute-body"
+          value={body}
+          error={fieldErrors.body}
+          onChange={(e) => {
+            setBody(e.target.value);
+            setFieldErrors((prev) => ({ ...prev, body: undefined }));
+          }}
+          className="min-h-36"
+        />
+      </FormField>
       <p className="text-xs leading-6 text-ink-muted">
         فایل پیوست در نسخه‌های بعدی فعال می‌شود. فعلاً شرح و اطلاعات تماس کافی است.
       </p>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {submitError ? <p className="text-sm text-red-600">{submitError}</p> : null}
       <button
         type="submit"
         disabled={busy}
-        className="inline-flex items-center justify-center gap-2 rounded-xl bg-pine px-6 py-3 text-sm font-semibold text-white hover:bg-pine-dark disabled:opacity-60"
+        className={cn(
+          "inline-flex items-center justify-center gap-2 rounded-xl bg-pine px-6 py-3 text-sm font-semibold text-white hover:bg-pine-dark disabled:opacity-60",
+        )}
       >
         {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
         ارسال برای بررسی

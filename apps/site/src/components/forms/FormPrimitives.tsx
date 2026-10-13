@@ -99,6 +99,7 @@ export const TextBox = forwardRef<HTMLInputElement, TextBoxProps>(
       leftIcon,
       rightIcon,
       disabled,
+      required: _required,
       ...rest
     },
     ref,
@@ -137,6 +138,7 @@ export const TextBox = forwardRef<HTMLInputElement, TextBoxProps>(
           {...rest}
           type={type}
           disabled={disabled}
+          required={false}
           onKeyDown={handleKeyDown}
           className={cn(
             fieldBase,
@@ -166,12 +168,24 @@ export type TextAreaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
 };
 
 export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
-  ({ className, error, size = "md", rows = 4, disabled, ...rest }, ref) => (
+  (
+    {
+      className,
+      error,
+      size = "md",
+      rows = 4,
+      disabled,
+      required: _required,
+      ...rest
+    },
+    ref,
+  ) => (
     <textarea
       ref={ref}
       {...rest}
       rows={rows}
       disabled={disabled}
+      required={false}
       className={cn(
         fieldBase,
         "resize-y",
@@ -360,6 +374,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       disabled,
       variant = "default",
       id,
+      required: _required,
       ...rest
     },
     ref,
@@ -377,7 +392,9 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             isCard &&
               (checked
                 ? "border-pine/40 bg-mint-soft/80 dark:border-pine/40 dark:bg-mint"
-                : "border-ink/10 bg-surface hover:border-pine/25 dark:hover:bg-mint/40"),
+                : error
+                  ? "border-danger/50 bg-danger/5"
+                  : "border-ink/10 bg-surface hover:border-pine/25 dark:hover:bg-mint/40"),
             !isCard && "items-center",
             disabled && "cursor-not-allowed opacity-50",
           )}
@@ -389,6 +406,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             checked={checked}
             disabled={disabled}
             {...rest}
+            required={false}
             className="peer sr-only"
             aria-invalid={!!error}
           />

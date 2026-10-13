@@ -24,6 +24,7 @@ export type AdminNews = {
   cover?: string;
   coverImageId?: string | null;
   heroImage?: { id?: string | null; src: string; alt?: string } | null;
+  tags?: string[];
   created_at?: string;
   updated_at?: string;
 };
@@ -41,6 +42,7 @@ export type NewsPayload = {
   publishedAt?: string | null;
   coverTone?: string;
   coverImageId?: string | null;
+  tags?: string[];
 };
 
 export type AdminNewsCategory = {

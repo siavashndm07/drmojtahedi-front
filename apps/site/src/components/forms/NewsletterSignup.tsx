@@ -68,8 +68,9 @@ export function NewsletterSignup({
   return (
     <form
       onSubmit={onSubmit}
+      noValidate
       className={cn(
-        "flex max-w-md flex-col gap-2 sm:flex-row",
+        "flex max-w-md flex-col gap-2 sm:flex-row sm:flex-wrap",
         className,
       )}
     >
@@ -81,14 +82,25 @@ export function NewsletterSignup({
         type="email"
         name="email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          setError(null);
+        }}
         placeholder="ایمیل برای خبرنامه"
         autoComplete="email"
-        className={
+        aria-invalid={error ? true : undefined}
+        className={cn(
           isFooter
-            ? "w-full rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white shadow-sm placeholder:text-white/50 focus:border-white focus:outline-none focus:ring-2 focus:ring-white/30"
-            : "w-full rounded-xl border border-ink/10 bg-surface px-4 py-3 text-sm shadow-sm focus:border-pine/40 focus:outline-none focus:ring-2 focus:ring-pine/20"
-        }
+            ? "w-full rounded-lg border bg-white/10 px-4 py-2.5 text-sm text-white shadow-sm placeholder:text-white/50 focus:outline-none focus:ring-2 sm:flex-1"
+            : "w-full rounded-xl border bg-surface px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 sm:flex-1",
+          error
+            ? isFooter
+              ? "border-red-300 focus:border-red-200 focus:ring-red-200/40"
+              : "border-red-500 bg-red-50/40 focus:border-red-500 focus:ring-red-200"
+            : isFooter
+              ? "border-white/20 focus:border-white focus:ring-white/30"
+              : "border-ink/10 focus:border-pine/40 focus:ring-pine/20",
+        )}
       />
       <button
         type="submit"
@@ -103,7 +115,13 @@ export function NewsletterSignup({
         عضویت
       </button>
       {error ? (
-        <p className={cn("text-xs sm:col-span-2", isFooter ? "text-red-200" : "text-red-600")}>
+        <p
+          className={cn(
+            "w-full text-xs font-medium",
+            isFooter ? "text-red-200" : "text-red-600",
+          )}
+          role="alert"
+        >
           {error}
         </p>
       ) : null}

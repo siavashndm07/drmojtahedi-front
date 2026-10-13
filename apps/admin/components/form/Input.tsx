@@ -6,18 +6,29 @@ import { toEnglishDigits, toPersianDigits } from "@/lib/digits";
 export const inputClassName =
   "w-full rounded-xl border border-ink/10 bg-cream/30 px-4 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-muted/70 focus:border-pine/40 focus:ring-2 focus:ring-mint-soft disabled:cursor-not-allowed disabled:opacity-60 dark:bg-surface/80";
 
+export const inputErrorClassName =
+  "border-red-500 bg-red-50/50 focus:border-red-500 focus:ring-red-200 dark:border-red-500/80 dark:bg-red-950/20 dark:focus:ring-red-900/40";
+
+export function controlClassName(error?: boolean, className = "") {
+  return `${inputClassName} ${error ? inputErrorClassName : ""} ${className}`.trim();
+}
+
 type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   icon?: ReactNode;
   persianDigits?: boolean;
+  /** Red border when validation failed */
+  error?: boolean;
 };
 
 export function Input({
   className = "",
   icon,
   persianDigits = false,
+  error = false,
   value,
   defaultValue,
   onChange,
+  required: _required,
   ...props
 }: InputProps) {
   const displayValue =
@@ -44,7 +55,9 @@ export function Input({
   const input = (
     <input
       {...props}
-      className={`${inputClassName} ${icon ? "pr-10" : ""} ${className}`.trim()}
+      required={false}
+      aria-invalid={error || undefined}
+      className={controlClassName(error, `${icon ? "pr-10" : ""} ${className}`)}
       value={displayValue}
       defaultValue={displayDefault}
       onChange={handleChange}
