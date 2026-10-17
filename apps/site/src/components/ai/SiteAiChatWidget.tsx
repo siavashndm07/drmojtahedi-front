@@ -374,7 +374,7 @@ function RobotLauncher({
       }}
       aria-expanded={open}
       aria-label={
-        open ? "بستن دستیار" : "باز کردن دستیار بنیاد"
+        open ? "بستن دستیار" : "باز کردن دستیار دکتر مجتهدی"
       }
       className={[
         "pointer-events-auto",
@@ -508,16 +508,15 @@ function RobotLauncher({
             </span>
           ) : null}
 
-          {/* Head */}
+          {/* Head — silver hair and round glasses, still a robot */}
           <span
             className={[
-              "absolute left-1/2 top-3",
-              "h-[52px] w-[66px]",
+              "absolute left-1/2 top-2.5",
+              "h-[54px] w-[58px]",
               "-translate-x-1/2",
               "rounded-[20px]",
-              "border-2 border-pine/15",
-              "bg-gradient-to-br",
-              "from-white via-mint-soft to-mint",
+              "border-2 border-white/70",
+              "bg-gradient-to-b from-white via-zinc-100 to-zinc-300",
               "transition-all duration-300",
               hovered && !touchDevice
                 ? "-translate-y-1 shadow-[0_12px_30px_rgba(36,102,97,0.30)]"
@@ -531,12 +530,11 @@ function RobotLauncher({
                     : "",
             ].join(" ")}
           >
-            {/* Ears */}
-            <span className="absolute -left-[6px] top-4 h-5 w-1.5 rounded-full bg-pine/50" />
-            <span className="absolute -right-[6px] top-4 h-5 w-1.5 rounded-full bg-pine/50" />
+            <span className="absolute -left-[2px] top-3 h-3 w-[7px] rounded-full bg-zinc-200" />
+            <span className="absolute -right-[2px] top-3 h-3 w-[7px] rounded-full bg-zinc-200" />
 
             {/* Face */}
-            <span className="absolute inset-[5px] overflow-hidden rounded-[14px] bg-gradient-to-b from-ink to-[#0b1a1a]">
+            <span className="absolute inset-x-[5px] bottom-[4px] top-[11px] overflow-hidden rounded-[12px] bg-gradient-to-b from-[#3d3530] to-[#161311]">
               {/* Forehead shine */}
               <span className="absolute left-2 top-1 h-2 w-7 rounded-full bg-white/8" />
 
@@ -558,9 +556,14 @@ function RobotLauncher({
                 ].join(" ")}
               />
 
+              {/* Round spectacles */}
+              <span className="pointer-events-none absolute left-[5px] top-[6px] z-20 h-[15px] w-[15px] rounded-full border border-[#f3e6c8]/90" />
+              <span className="pointer-events-none absolute right-[5px] top-[6px] z-20 h-[15px] w-[15px] rounded-full border border-[#f3e6c8]/90" />
+              <span className="pointer-events-none absolute left-1/2 top-[12px] z-20 h-px w-[7px] -translate-x-1/2 bg-[#f3e6c8]/90" />
+
               {/* Left eye */}
               <span
-                className="absolute left-[12px] top-[11px] transition-transform duration-100"
+                className="absolute left-[8px] top-[9px] z-10 transition-transform duration-100"
                 style={eyeStyle}
               >
                 <span
@@ -589,7 +592,7 @@ function RobotLauncher({
 
               {/* Right eye */}
               <span
-                className="absolute right-[12px] top-[11px] transition-transform duration-100"
+                className="absolute right-[8px] top-[9px] z-10 transition-transform duration-100"
                 style={eyeStyle}
               >
                 <span
@@ -694,9 +697,11 @@ function RobotLauncher({
             </span>
           </span>
 
-          {/* Body */}
-          <span className="absolute bottom-0 left-1/2 h-[17px] w-[42px] -translate-x-1/2 rounded-b-[12px] rounded-t-[7px] bg-pine shadow-[0_5px_12px_rgba(36,102,97,0.25)]">
-            <span className="absolute left-1/2 top-[5px] h-[3px] w-[14px] -translate-x-1/2 rounded-full bg-mint/70" />
+          {/* Suit */}
+          <span className="absolute bottom-0 left-1/2 h-[16px] w-[40px] -translate-x-1/2 rounded-b-[12px] rounded-t-[6px] bg-[#1c2422] shadow-[0_5px_12px_rgba(36,102,97,0.25)]">
+            <span className="absolute left-[11px] top-0 h-[7px] w-[8px] rounded-br-[6px] bg-white/90" />
+            <span className="absolute right-[11px] top-0 h-[7px] w-[8px] rounded-bl-[6px] bg-white/90" />
+            <span className="absolute left-1/2 top-[2px] h-[11px] w-[5px] -translate-x-1/2 rounded-b-[3px] bg-pine" />
           </span>
 
           {/* Arms */}
@@ -748,7 +753,7 @@ function RobotLauncher({
             "animate-ai-tooltip",
           ].join(" ")}
         >
-          دستیار بنیاد
+          دستیار دکتر مجتهدی
         </span>
       ) : null}
 
@@ -1171,7 +1176,7 @@ export default function SiteAiChatWidget() {
                   aria-hidden="true"
                 />
 
-                <span>دستیار بنیاد</span>
+                <span>دستیار دکتر مجتهدی</span>
 
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald-700">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
