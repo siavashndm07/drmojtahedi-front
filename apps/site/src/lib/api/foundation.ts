@@ -45,8 +45,14 @@ export async function listBooks(): Promise<LibraryItem[]> {
 }
 
 export async function getBook(slug: string): Promise<LibraryItem | null> {
-  const books = await listBooks();
-  return books.find((b) => b.slug === slug) ?? null;
+  if (!isApiEnabled()) {
+    return mockBooks.find((b) => b.slug === slug) ?? null;
+  }
+  try {
+    return await apiGet<LibraryItem>(`/library/books/${slug}/`);
+  } catch {
+    return null;
+  }
 }
 
 export async function listProjects(): Promise<FoundationProject[]> {

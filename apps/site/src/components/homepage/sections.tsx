@@ -23,7 +23,7 @@ import {
   mockSponsors,
 } from "@/lib/mock";
 import { COVER_IMAGES } from "@/lib/mock/covers";
-import type { Article, NewsItem } from "@/lib/types";
+import type { Article, FoundationProject, NewsItem, Sponsor } from "@/lib/types";
 import { toPersianDigits } from "@/lib/utils/digits";
 import { cn } from "@/lib/utils/cn";
 
@@ -120,8 +120,8 @@ function MediaTile({
   );
 }
 
-export function NewsPreview() {
-  const items = mockNews.slice(0, 3);
+export function NewsPreview({ items: itemsProp }: { items?: NewsItem[] }) {
+  const items = (itemsProp?.length ? itemsProp : mockNews).slice(0, 3);
   const [featured, ...rest] = items;
 
   if (!featured) return null;
@@ -214,8 +214,12 @@ export function NewsPreview() {
   );
 }
 
-export function ProjectsPreview() {
-  const items = mockProjects.slice(0, 3);
+export function ProjectsPreview({
+  items: itemsProp,
+}: {
+  items?: FoundationProject[];
+}) {
+  const items = (itemsProp ?? mockProjects).slice(0, 3);
   const [flagship, ...secondary] = items;
 
   if (!flagship) return null;
@@ -352,8 +356,12 @@ export function ArchiveHighlights() {
   );
 }
 
-export function MagazinePreview() {
-  const articles = mockArticles.slice(0, 3);
+export function MagazinePreview({
+  articles: articlesProp,
+}: {
+  articles?: Article[];
+}) {
+  const articles = (articlesProp?.length ? articlesProp : mockArticles).slice(0, 3);
   const [lead, ...rail] = articles;
 
   if (!lead) return null;
@@ -475,7 +483,8 @@ export function PartnersPreview() {
   );
 }
 
-export function SponsorsPreview() {
+export function SponsorsPreview({ items: itemsProp }: { items?: Sponsor[] }) {
+  const items = (itemsProp ?? mockSponsors).slice(0, 7);
   return (
     <FadeIn>
       <section className="content-shell section-pad !pb-4">
@@ -490,7 +499,7 @@ export function SponsorsPreview() {
           </Link>
         </div>
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
-          {mockSponsors.map((sponsor) => (
+          {items.map((sponsor) => (
             <li key={sponsor.id}>
               <Link
                 href={`/sponsors/${sponsor.slug}`}

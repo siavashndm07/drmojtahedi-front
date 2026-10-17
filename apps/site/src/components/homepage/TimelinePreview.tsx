@@ -12,6 +12,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { FadeIn } from "@/components/shared/FadeIn";
 import { mockTimeline } from "@/lib/mock";
+import type { TimelineEvent } from "@/lib/types";
 import { toPersianDigits, toPersianIndex } from "@/lib/utils/digits";
 import { cn } from "@/lib/utils/cn";
 
@@ -24,8 +25,15 @@ const categoryIcons: Record<string, LucideIcon> = {
   میراث: Sparkles,
 };
 
-export function TimelinePreview() {
-  const items = mockTimeline.slice(0, 5);
+function normalizeTimeline(items: TimelineEvent[]): TimelineEvent[] {
+  return items.map((item) => ({
+    ...item,
+    id: String(item.id),
+  }));
+}
+
+export function TimelinePreview({ items: itemsProp }: { items?: TimelineEvent[] }) {
+  const items = normalizeTimeline((itemsProp ?? mockTimeline).slice(0, 5));
   const [activeId, setActiveId] = useState(items[0]?.id ?? "");
   const active = items.find((item) => item.id === activeId) ?? items[0];
   const activeIndex = Math.max(

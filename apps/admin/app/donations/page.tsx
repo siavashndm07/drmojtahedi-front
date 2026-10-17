@@ -1,11 +1,7 @@
-import PlaceholderPage from "@/components/PlaceholderPage";
+"use client";
 
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="کمک‌ها"
-      description="سوابق کمک بلاعوض."
-      notes={["فهرست DonationRecord", "بدون ماژول پرداخت فروشگاهی بینا"]}
-    />
-  );
+import DonationsListClient from "@/components/DonationsListClient";
+
+export default function DonationsAdminPage() {
+  return <DonationsListClient />;
 }

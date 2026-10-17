@@ -35,9 +35,9 @@ export default function OptionPills<T extends string>({
         className={cn(
           "grid gap-2 rounded-2xl",
           error && "ring-2 ring-red-400/70",
-          columns === 2 && "grid-cols-2",
-          columns === 3 && "grid-cols-2 sm:grid-cols-3",
-          columns === "auto" && "grid-cols-2 sm:grid-cols-3",
+          columns === 2 && "grid-cols-4",
+          columns === 3 && "grid-cols-4 sm:grid-cols-3",
+          columns === "auto" && "grid-cols-4 sm:grid-cols-3",
         )}
         role="radiogroup"
         aria-label={label}

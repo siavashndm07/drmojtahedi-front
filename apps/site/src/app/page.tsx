@@ -10,6 +10,10 @@ import {
   SponsorsPreview,
   SupportCTA,
 } from "@/components/homepage/sections";
+import { listProjects, listSponsors } from "@/lib/api/foundation";
+import { listArticles } from "@/lib/api/magazine";
+import { listNews } from "@/lib/api/news";
+import { listTimeline } from "@/lib/api/people";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -17,16 +21,24 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/",
 });
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [news, articles, timeline, projects, sponsors] = await Promise.all([
+    listNews(),
+    listArticles(),
+    listTimeline(),
+    listProjects(),
+    listSponsors(),
+  ]);
+
   return (
     <>
       <HomeHeroSlider />
-      <TimelinePreview />
-      <NewsPreview />
-      <ProjectsPreview />
+      <TimelinePreview items={timeline} />
+      <NewsPreview items={news} />
+      <ProjectsPreview items={projects} />
       <ArchiveHighlights />
-      <MagazinePreview />
-      <SponsorsPreview />
+      <MagazinePreview articles={articles} />
+      <SponsorsPreview items={sponsors} />
       <PartnersPreview />
       <SupportCTA />
     </>

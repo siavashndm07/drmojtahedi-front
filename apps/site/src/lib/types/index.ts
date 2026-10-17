@@ -164,8 +164,10 @@ export type NewsItem = EntityBase & {
   publishedAt?: string | null;
   category?: string;
   author?: string;
+  tags?: string[];
   coverTone?: "pine" | "ink" | "bronze";
   heroImage?: MediaAsset;
+  cover?: string;
   body?: string;
   blocks?: ArticleBodyBlock[];
 };
@@ -174,6 +176,9 @@ export type LibraryItem = EntityBase & {
   author?: string;
   year?: string;
   itemType?: "book" | "article" | "research" | "thesis" | "publication" | "document";
+  tags?: string[];
+  heroImage?: MediaAsset;
+  cover?: string;
 };
 
 export type OralHistoryInterview = EntityBase & {

@@ -48,6 +48,11 @@ export type Sponsor = {
   kind: string;
   description?: string;
   logo_label?: string;
+  logoLabel?: string;
+  coverImageId?: string | null;
+  logoImageId?: string | null;
+  coverImage?: { id?: string; src: string; alt?: string } | null;
+  logoImage?: { id?: string; src: string; alt?: string } | null;
   status: ContentStatus;
 };
 
@@ -212,7 +217,13 @@ export async function apiListSponsors(token: string) {
 
 export async function apiSaveSponsor(
   token: string,
-  payload: Partial<Sponsor> & { title: string; slug: string; kind: string },
+  payload: Partial<Sponsor> & {
+    title: string;
+    slug: string;
+    kind: string;
+    coverImageId?: string | null;
+    logoImageId?: string | null;
+  },
   id?: string | number,
 ) {
   if (id) {
@@ -248,4 +259,230 @@ export async function apiListContributions(token: string) {
       { token },
     ),
   );
+}
+
+export type Place = {
+  id: number | string;
+  slug: string;
+  title: string;
+  description?: string;
+  location?: string;
+  lat?: number | null;
+  lng?: number | null;
+  historical_significance?: string;
+  status: ContentStatus;
+};
+
+export type TimelineEvent = {
+  id: number | string;
+  year: string;
+  title: string;
+  description?: string;
+  location?: string;
+  category?: string;
+  source?: string;
+  status: ContentStatus;
+};
+
+export type Project = {
+  id: number | string;
+  slug: string;
+  title: string;
+  description?: string;
+  phase?: string;
+  location?: string;
+  href?: string;
+  status: ContentStatus;
+};
+
+export type OrganMember = {
+  id: number | string;
+  name: string;
+  role: string;
+  group: string;
+  location?: string;
+  note?: string;
+  status: ContentStatus;
+};
+
+export type OralHistory = {
+  id: number | string;
+  slug: string;
+  title: string;
+  description?: string;
+  subtitle?: string;
+  year?: string;
+  duration_label?: string;
+  narrator?: string;
+  collection?: string;
+  transcript_excerpt?: string;
+  audio_src?: string;
+  related_href?: string;
+  related_label?: string;
+  status: ContentStatus;
+};
+
+export type MediaAssetRow = {
+  id: string;
+  kind: string;
+  url: string;
+  altText?: string;
+  createdAt?: string;
+  src?: string;
+  alt?: string;
+};
+
+export type DonationRow = {
+  id: number | string;
+  amount: number;
+  donor_name?: string;
+  donorName?: string;
+  phone?: string;
+  goal?: string;
+  status?: string;
+  created_at?: string;
+};
+
+export type MemberRow = {
+  id: number | string;
+  phone: string;
+  firstName?: string;
+  lastName?: string;
+  first_name?: string;
+  last_name?: string;
+  education?: string;
+  city?: string;
+  membershipType?: string;
+  membership_type?: string;
+  created_at?: string;
+};
+
+function crudHelpers<T>(basePath: string) {
+  return {
+    list: async (token: string) =>
+      unwrapList(await apiFetch<T[] | Paginated<T>>(basePath, { token })),
+    save: async (token: string, payload: Record<string, unknown>, id?: string | number) => {
+      if (id) {
+        return apiFetch<T>(`${basePath}${id}/`, {
+          method: "PATCH",
+          token,
+          body: JSON.stringify(payload),
+        });
+      }
+      return apiFetch<T>(basePath, {
+        method: "POST",
+        token,
+        body: JSON.stringify(payload),
+      });
+    },
+    remove: async (token: string, id: string | number) =>
+      apiFetch(`${basePath}${id}/`, { method: "DELETE", token }),
+  };
+}
+
+const placesApi = crudHelpers<Place>("/admin/places/");
+const timelineApi = crudHelpers<TimelineEvent>("/admin/timeline/");
+const projectsApi = crudHelpers<Project>("/admin/projects/");
+const organsApi = crudHelpers<OrganMember>("/admin/organs/");
+const oralHistoryApi = crudHelpers<OralHistory>("/admin/oral-history/");
+
+export const apiListPlaces = placesApi.list;
+export async function apiSavePlace(
+  token: string,
+  payload: Record<string, string>,
+  id?: string | number,
+) {
+  const body: Record<string, unknown> = { ...payload };
+  for (const key of ["lat", "lng"] as const) {
+    const raw = payload[key]?.trim() ?? "";
+    body[key] = raw === "" ? null : Number(raw);
+  }
+  return placesApi.save(token, body, id);
+}
+export const apiDeletePlace = placesApi.remove;
+
+export const apiListTimeline = timelineApi.list;
+export const apiSaveTimeline = timelineApi.save;
+export const apiDeleteTimeline = timelineApi.remove;
+
+export const apiListProjects = projectsApi.list;
+export const apiSaveProject = projectsApi.save;
+export const apiDeleteProject = projectsApi.remove;
+
+export const apiListOrgans = organsApi.list;
+export const apiSaveOrgan = organsApi.save;
+export const apiDeleteOrgan = organsApi.remove;
+
+export const apiListOralHistory = oralHistoryApi.list;
+export const apiSaveOralHistory = oralHistoryApi.save;
+export const apiDeleteOralHistory = oralHistoryApi.remove;
+
+export async function apiListMedia(token: string) {
+  return unwrapList(
+    await apiFetch<MediaAssetRow[] | Paginated<MediaAssetRow>>("/admin/media/", {
+      token,
+    }),
+  );
+}
+
+export async function apiPatchMedia(
+  token: string,
+  id: string,
+  payload: { altText?: string },
+) {
+  return apiFetch<MediaAssetRow>(`/admin/media/${id}/`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function apiDeleteMedia(token: string, id: string) {
+  return apiFetch(`/admin/media/${id}/`, { method: "DELETE", token });
+}
+
+export async function apiListDonations(token: string) {
+  return unwrapList(
+    await apiFetch<DonationRow[] | Paginated<DonationRow>>("/admin/donations/", {
+      token,
+    }),
+  );
+}
+
+export async function apiPatchDonation(
+  token: string,
+  id: string | number,
+  payload: Partial<DonationRow>,
+) {
+  return apiFetch<DonationRow>(`/admin/donations/${id}/`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function apiDeleteDonation(token: string, id: string | number) {
+  return apiFetch(`/admin/donations/${id}/`, { method: "DELETE", token });
+}
+
+export async function apiListMembers(token: string) {
+  return unwrapList(
+    await apiFetch<MemberRow[] | Paginated<MemberRow>>("/admin/members/", { token }),
+  );
+}
+
+export async function apiPatchMember(
+  token: string,
+  id: string | number,
+  payload: Partial<MemberRow>,
+) {
+  return apiFetch<MemberRow>(`/admin/members/${id}/`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function apiDeleteMember(token: string, id: string | number) {
+  return apiFetch(`/admin/members/${id}/`, { method: "DELETE", token });
 }

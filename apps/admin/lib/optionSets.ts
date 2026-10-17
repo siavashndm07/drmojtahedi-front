@@ -42,6 +42,15 @@ export const ARCHIVE_TYPE_OPTIONS: OptionPill[] = [
   { value: "object", label: "شیء", icon: Package },
 ];
 
+export const BOOK_ITEM_TYPE_OPTIONS: OptionPill[] = [
+  { value: "book", label: "کتاب", icon: BookOpen },
+  { value: "article", label: "مقاله", icon: FileText },
+  { value: "research", label: "پژوهش", icon: GraduationCap },
+  { value: "thesis", label: "پایان‌نامه", icon: FileText },
+  { value: "publication", label: "انتشار", icon: Package },
+  { value: "document", label: "سند", icon: FileText },
+];
+
 export const SPONSOR_KIND_OPTIONS: OptionPill[] = [
   { value: "individual", label: "فردی", icon: UserRound, hint: "شخص حقیقی" },
   {
@@ -50,6 +59,19 @@ export const SPONSOR_KIND_OPTIONS: OptionPill[] = [
     icon: Building2,
     hint: "شرکت یا نهاد",
   },
+];
+
+export const ORGAN_GROUP_OPTIONS: OptionPill[] = [
+  { value: "boards", label: "هیئت‌ها", icon: Building2 },
+  { value: "members", label: "اعضا", icon: Users },
+  { value: "representatives", label: "نمایندگان", icon: UserRound },
+  { value: "other", label: "سایر", icon: LayoutGrid },
+];
+
+export const DONATION_STATUS_OPTIONS: OptionPill[] = [
+  { value: "pending", label: "در انتظار", icon: Clock3 },
+  { value: "confirmed", label: "تأییدشده", icon: Rocket },
+  { value: "cancelled", label: "لغوشده", icon: PencilLine },
 ];
 
 export const STATUS_FILTER_ICONS: Record<string, LucideIcon> = {

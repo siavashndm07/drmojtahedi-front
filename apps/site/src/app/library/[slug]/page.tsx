@@ -63,6 +63,11 @@ export default async function LibraryItemPage({ params }: Props) {
             <div className="flex flex-wrap gap-2">
               {book.itemType ? <Badge tone="pine">{book.itemType}</Badge> : null}
               {book.year ? <Badge tone="bronze">{book.year}</Badge> : null}
+              {book.tags?.map((tag) => (
+                <Badge key={tag} tone="pine">
+                  {tag}
+                </Badge>
+              ))}
             </div>
             {book.author ? (
               <p className="mt-4 text-sm text-ink-muted">نویسنده / گردآورنده: {book.author}</p>

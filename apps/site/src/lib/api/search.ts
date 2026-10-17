@@ -9,6 +9,10 @@ import {
   mockProjects,
   mockSponsors,
 } from "@/lib/mock";
+import { listBooks } from "@/lib/api/foundation";
+import { listArticles } from "@/lib/api/magazine";
+import { listNews } from "@/lib/api/news";
+import { isApiEnabled } from "@/lib/api/config";
 
 export type SearchFilters = {
   category?: SearchResultCategory;
@@ -31,13 +35,19 @@ function matches(haystack: string | undefined, needle: string): boolean {
 type IndexedResult = SearchResult & { blob: string };
 
 /**
- * Search abstraction — swap for Django / semantic search in admin later.
+ * Search abstraction — content types with admin CRUD use live API when enabled.
  */
 export async function search(
   query: string,
   filters: SearchFilters = {},
 ): Promise<SearchResult[]> {
   const q = normalize(query);
+  const [news, articles, books] = await Promise.all([
+    listNews().catch(() => (isApiEnabled() ? [] : mockNews)),
+    listArticles().catch(() => (isApiEnabled() ? [] : mockArticles)),
+    listBooks().catch(() => (isApiEnabled() ? [] : mockBooks)),
+  ]);
+
   const all: IndexedResult[] = [
     ...mockPeople.map((item) => ({
       id: item.id,
@@ -72,8 +82,8 @@ export async function search(
         .filter(Boolean)
         .join(" "),
     })),
-    ...mockNews.map((item) => ({
-      id: item.id,
+    ...news.map((item) => ({
+      id: String(item.id),
       title: item.title,
       excerpt: item.description,
       href: `/news/${item.slug}`,
@@ -83,8 +93,8 @@ export async function search(
         .filter(Boolean)
         .join(" "),
     })),
-    ...mockArticles.map((item) => ({
-      id: item.id,
+    ...articles.map((item) => ({
+      id: String(item.id),
       title: item.title,
       excerpt: item.description ?? item.subtitle,
       href: `/magazine/${item.slug}`,
@@ -94,8 +104,8 @@ export async function search(
         .filter(Boolean)
         .join(" "),
     })),
-    ...mockBooks.map((item) => ({
-      id: item.id,
+    ...books.map((item) => ({
+      id: String(item.id),
       title: item.title,
       excerpt: [item.author, item.description].filter(Boolean).join(" — "),
       href: `/library/${item.slug}`,

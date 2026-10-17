@@ -1,11 +1,7 @@
-import PlaceholderPage from "@/components/PlaceholderPage";
+"use client";
 
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="کتاب‌ها"
-      description="آیتم‌های کتابخانه دیجیتال."
-      notes={["CRUD کتاب‌ها از LibraryItem", "نویسنده، سال، نوع آیتم", "لینک /library در سایت"]}
-    />
-  );
+import BooksListClient from "@/components/BooksListClient";
+
+export default function BooksPage() {
+  return <BooksListClient />;
 }

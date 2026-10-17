@@ -1,11 +1,46 @@
-import PlaceholderPage from "@/components/PlaceholderPage";
+"use client";
 
-export default function Page() {
+import { ResourceCrud } from "@/components/ResourceCrud";
+import {
+  apiDeleteProject,
+  apiListProjects,
+  apiSaveProject,
+} from "@/lib/api/resources";
+import { PUBLISH_STATUS_OPTIONS } from "@/lib/optionSets";
+
+export default function ProjectsAdminPage() {
   return (
-    <PlaceholderPage
+    <ResourceCrud
       title="پروژه‌ها"
       description="پروژه‌های جاری بنیاد."
-      notes={["فاز، مکان، وضعیت انتشار", "لینک /projects سایت"]}
+      fields={[
+        { key: "title", label: "عنوان", required: true },
+        { key: "slug", label: "اسلاگ", required: true },
+        { key: "phase", label: "فاز" },
+        { key: "location", label: "مکان" },
+        { key: "href", label: "لینک" },
+        {
+          key: "status",
+          label: "وضعیت انتشار",
+          type: "pills",
+          options: PUBLISH_STATUS_OPTIONS,
+          required: true,
+          columns: 3,
+        },
+        { key: "description", label: "توضیح", type: "textarea" },
+      ]}
+      emptyForm={{
+        title: "",
+        slug: "",
+        phase: "",
+        location: "",
+        href: "",
+        status: "published",
+        description: "",
+      }}
+      list={apiListProjects}
+      save={(token, payload, id) => apiSaveProject(token, payload, id)}
+      remove={apiDeleteProject}
     />
   );
 }

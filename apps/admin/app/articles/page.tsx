@@ -1,15 +1,7 @@
-import PlaceholderPage from "@/components/PlaceholderPage";
+"use client";
 
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="مقالات"
-      description="مقالات مجله و تحریریه بنیاد."
-      notes={[
-        "فهرست + ویرایشگر بدنه مثل مقالات پنل بینا",
-        "دسته‌بندی و وضعیت انتشار",
-        "پیش‌نمایش لینک سایت عمومی /magazine",
-      ]}
-    />
-  );
+import ArticlesListClient from "@/components/ArticlesListClient";
+
+export default function ArticlesPage() {
+  return <ArticlesListClient />;
 }

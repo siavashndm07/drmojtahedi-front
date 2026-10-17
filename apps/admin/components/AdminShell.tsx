@@ -33,11 +33,15 @@ import ThemeToggle from "@/components/ThemeToggle";
 import RouteProgressBar from "@/components/RouteProgressBar";
 import { useAuth } from "@/lib/auth";
 
-type NavChild = {
+type NavLeaf = {
   key: string;
   label: string;
   href: string;
   icon: LucideIcon;
+};
+
+type NavChild = NavLeaf & {
+  children?: NavLeaf[];
 };
 
 type NavItem = {
@@ -60,14 +64,41 @@ const MENU: NavItem[] = [
     label: "محتوا",
     icon: BookOpen,
     children: [
-      { key: "news", label: "اخبار", href: "/news", icon: Newspaper },
       {
-        key: "news-categories",
-        label: "دسته‌های خبر",
-        href: "/news/categories",
-        icon: Tags,
+        key: "news-group",
+        label: "اخبار",
+        href: "/news",
+        icon: Newspaper,
+        children: [
+          { key: "news", label: "فهرست اخبار", href: "/news", icon: Newspaper },
+          {
+            key: "news-categories",
+            label: "دسته‌بندی اخبار",
+            href: "/news/categories",
+            icon: Tags,
+          },
+        ],
       },
-      { key: "articles", label: "مقالات", href: "/articles", icon: BookOpen },
+      {
+        key: "articles-group",
+        label: "مقالات",
+        href: "/articles",
+        icon: BookOpen,
+        children: [
+          {
+            key: "articles",
+            label: "فهرست مقالات",
+            href: "/articles",
+            icon: BookOpen,
+          },
+          {
+            key: "articles-categories",
+            label: "دسته‌بندی مقالات",
+            href: "/articles/categories",
+            icon: Tags,
+          },
+        ],
+      },
       { key: "books", label: "کتاب‌ها", href: "/books", icon: BookOpen },
     ],
   },
@@ -141,6 +172,23 @@ const MENU: NavItem[] = [
   },
 ];
 
+function collectLeaves(items: NavChild[]): NavLeaf[] {
+  const leaves: NavLeaf[] = [];
+  for (const child of items) {
+    if (child.children?.length) {
+      leaves.push(...child.children);
+    } else {
+      leaves.push(child);
+    }
+  }
+  return leaves;
+}
+
+function childContainsActive(child: NavChild, activeKey: string): boolean {
+  if (child.key === activeKey) return true;
+  return child.children?.some((leaf) => leaf.key === activeKey) ?? false;
+}
+
 const COLLAPSE_KEY = "dm-admin-sidebar-collapsed";
 const SUBMENU_KEY = "dm-admin-open-submenus";
 
@@ -164,9 +212,9 @@ function resolveActiveKey(pathname: string): string {
     if (item.href && pathMatches(pathname, item.href)) {
       matches.push({ key: item.key, href: item.href });
     }
-    for (const child of item.children ?? []) {
-      if (pathMatches(pathname, child.href)) {
-        matches.push({ key: child.key, href: child.href });
+    for (const leaf of collectLeaves(item.children ?? [])) {
+      if (pathMatches(pathname, leaf.href)) {
+        matches.push({ key: leaf.key, href: leaf.href });
       }
     }
   }
@@ -186,10 +234,21 @@ export default function AdminShell({ children }: { children: ReactNode }) {
         if (need && !hasPermission(need)) return null;
         return item;
       }
-      const children = (item.children ?? []).filter((child) => {
-        const need = permissionForPath(child.href);
-        return !need || hasPermission(need);
-      });
+      const children = (item.children ?? [])
+        .map((child) => {
+          if (child.children?.length) {
+            const nested = child.children.filter((leaf) => {
+              const need = permissionForPath(leaf.href);
+              return !need || hasPermission(need);
+            });
+            if (!nested.length) return null;
+            return { ...child, children: nested };
+          }
+          const need = permissionForPath(child.href);
+          if (need && !hasPermission(need)) return null;
+          return child;
+        })
+        .filter(Boolean) as NavChild[];
       if (!children.length) return null;
       return { ...item, children };
     }).filter(Boolean) as NavItem[];
@@ -210,11 +269,22 @@ export default function AdminShell({ children }: { children: ReactNode }) {
       if (!item.children?.length) {
         return labelHit ? [item] : [];
       }
-      const children = item.children.filter(
-        (child) =>
+      const children = item.children.flatMap((child) => {
+        const childHit =
           normalizeMenuSearch(child.label).includes(q) ||
-          normalizeMenuSearch(child.href).includes(q),
-      );
+          normalizeMenuSearch(child.href).includes(q);
+        if (child.children?.length) {
+          const nested = child.children.filter(
+            (leaf) =>
+              normalizeMenuSearch(leaf.label).includes(q) ||
+              normalizeMenuSearch(leaf.href).includes(q),
+          );
+          if (childHit || labelHit) return [child];
+          if (nested.length) return [{ ...child, children: nested }];
+          return [];
+        }
+        return childHit ? [child] : [];
+      });
       if (labelHit) return [{ ...item, children: item.children }];
       if (children.length) return [{ ...item, children }];
       return [];
@@ -269,17 +339,29 @@ export default function AdminShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (searching) {
-      setOpenSubmenus(
-        filteredMenu.filter((item) => item.children?.length).map((item) => item.key),
-      );
+      const keys = filteredMenu.flatMap((item) => {
+        const open = [item.key];
+        for (const child of item.children ?? []) {
+          if (child.children?.length) open.push(child.key);
+        }
+        return open;
+      });
+      setOpenSubmenus(keys);
       return;
     }
     for (const item of MENU) {
-      if (item.children?.some((c) => c.key === activeKey)) {
-        setOpenSubmenus((prev) =>
-          prev.includes(item.key) ? prev : [...prev, item.key],
-        );
-      }
+      const childHit = item.children?.some((c) => childContainsActive(c, activeKey));
+      if (!childHit) continue;
+      setOpenSubmenus((prev) => {
+        const next = new Set(prev);
+        next.add(item.key);
+        for (const child of item.children ?? []) {
+          if (childContainsActive(child, activeKey) && child.children?.length) {
+            next.add(child.key);
+          }
+        }
+        return [...next];
+      });
     }
   }, [activeKey, searching, filteredMenu]);
 
@@ -439,7 +521,9 @@ export default function AdminShell({ children }: { children: ReactNode }) {
               const Icon = item.icon;
               if (item.children) {
                 const open = searching || openSubmenus.includes(item.key);
-                const groupActive = item.children.some((c) => c.key === activeKey);
+                const groupActive = item.children.some((c) =>
+                  childContainsActive(c, activeKey),
+                );
                 return (
                   <li key={item.key}>
                     <button
@@ -470,12 +554,86 @@ export default function AdminShell({ children }: { children: ReactNode }) {
                     </button>
                     <div
                       className={`overflow-hidden transition-all duration-300 ${
-                        open && !collapsed ? "max-h-[48rem]" : "max-h-0"
+                        open && !collapsed ? "max-h-[64rem]" : "max-h-0"
                       }`}
                     >
                       <ul className="space-y-1 py-1 ps-2">
                         {item.children.map((child) => {
                           const ChildIcon = child.icon;
+                          if (child.children?.length) {
+                            const nestedOpen =
+                              searching || openSubmenus.includes(child.key);
+                            const nestedActive = childContainsActive(
+                              child,
+                              activeKey,
+                            );
+                            return (
+                              <li key={child.key}>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (!searching) toggleSubmenu(child.key);
+                                  }}
+                                  className={`flex w-full items-center gap-2.5 rounded-md p-2.5 text-sm transition ${
+                                    nestedOpen || nestedActive
+                                      ? "bg-cream font-semibold text-ink dark:bg-ink/10"
+                                      : "text-ink-muted hover:bg-cream hover:text-ink"
+                                  }`}
+                                >
+                                  <ChildIcon
+                                    className="h-4 w-4 shrink-0"
+                                    aria-hidden
+                                  />
+                                  <span className="flex-1 text-right">
+                                    {child.label}
+                                  </span>
+                                  <ChevronLeft
+                                    className={`h-3.5 w-3.5 transition ${
+                                      nestedOpen ? "-rotate-90" : ""
+                                    }`}
+                                    aria-hidden
+                                  />
+                                </button>
+                                <div
+                                  className={`overflow-hidden transition-all duration-300 ${
+                                    nestedOpen ? "max-h-48" : "max-h-0"
+                                  }`}
+                                >
+                                  <ul className="mt-1 space-y-0.5 border-r border-ink/10 pe-1 ps-3">
+                                    {child.children.map((leaf) => {
+                                      const LeafIcon = leaf.icon;
+                                      const active = activeKey === leaf.key;
+                                      return (
+                                        <li key={leaf.key}>
+                                          <Link
+                                            href={leaf.href}
+                                            onClick={() => {
+                                              setMenuQuery("");
+                                              if (isMobile) setCollapsed(true);
+                                            }}
+                                            className={`flex items-center gap-2.5 rounded-md p-2 text-[13px] transition ${
+                                              active
+                                                ? "border-r-4 border-pine bg-mint-soft font-semibold text-pine dark:bg-mint"
+                                                : "text-ink-muted hover:bg-cream hover:text-ink"
+                                            }`}
+                                          >
+                                            <LeafIcon
+                                              className="h-3.5 w-3.5 shrink-0"
+                                              aria-hidden
+                                            />
+                                            <span className="flex-1 text-right">
+                                              {leaf.label}
+                                            </span>
+                                          </Link>
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
+                                </div>
+                              </li>
+                            );
+                          }
+
                           const active = activeKey === child.key;
                           return (
                             <li key={child.key}>

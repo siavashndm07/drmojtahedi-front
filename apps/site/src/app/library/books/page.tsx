@@ -40,16 +40,18 @@ export default async function BooksPage() {
         <ContentCardGrid
           columns="md:grid-cols-2"
           items={books.map((book, index) => {
-            const cover = coverByIndex(index + 3, book.title);
+            const fallback = coverByIndex(index + 3, book.title);
+            const coverSrc = book.heroImage?.src || book.cover || fallback.src;
+            const coverAlt = book.heroImage?.alt || fallback.alt;
             return {
               key: book.id,
               href: `/library/${book.slug}`,
               title: book.title,
               description: book.description,
               meta: [book.author, book.year].filter(Boolean).join(" · "),
-              badge: book.itemType === "book" ? "کتاب" : "مقاله",
+              badge: book.itemType === "book" ? "کتاب" : book.itemType || "منبع",
               comingSoon: book.status === "coming-soon",
-              image: { src: cover.src, alt: cover.alt },
+              image: { src: coverSrc, alt: coverAlt },
               icon: BookOpen,
             };
           })}
