@@ -3,15 +3,27 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { CheckCircle2, CreditCard, Hash, KeyRound, Loader2, Star, User } from "lucide-react";
+import {
+  CheckCircle2,
+  CreditCard,
+  Hash,
+  KeyRound,
+  Loader2,
+  MessageSquareText,
+  Star,
+  User,
+} from "lucide-react";
+import { sanitizeSimpleHtml } from "@drmojtahedi/shared";
 import PageHeader from "@/components/PageHeader";
 import {
   Checkbox,
   Field,
+  FormAccordion,
+  FormAccordionItem,
   FormActions,
-  FormSection,
   Input,
   Select,
+  SimpleHtmlEditor,
   Textarea,
 } from "@/components/form";
 import { useAuth } from "@/lib/auth";
@@ -347,7 +359,7 @@ export default function PaymentsSettingsClient() {
         cardToCard: form.cardToCard,
         cardHolder: form.cardHolder,
         cardNumber: form.cardNumber,
-        donateMessage: form.donateMessage,
+        donateMessage: sanitizeSimpleHtml(form.donateMessage ?? ""),
         gateway: resolvedDefault,
         defaultGateway: resolvedDefault,
         paymentGateways,
@@ -389,75 +401,49 @@ export default function PaymentsSettingsClient() {
       ) : null}
       {form ? (
         <div className="space-y-4">
-          <FormSection
-            title="پیام صفحه کمک"
-            description="این متن قبل از انتخاب مبلغ در /donate نمایش داده می‌شود."
+          <FormAccordion
+            defaultOpenIds={["donate-message", "gateways"]}
+            storageKey="dm-payments-settings-accordion"
           >
-            <Field label="پیام معرفی کمک" htmlFor="donate-message">
-              <Textarea
-                id="donate-message"
-                value={form.donateMessage ?? ""}
-                rows={4}
-                onChange={(e) =>
-                  setForm({ ...form, donateMessage: e.target.value })
-                }
-                placeholder="حمایت شما صرف…"
-              />
-            </Field>
-            <p className="text-xs text-ink-muted">
-              اهداف قابل انتخاب در{" "}
-              <Link href="/donation-goals" className="font-medium text-pine hover:underline">
-                اهداف کمک
-              </Link>{" "}
-              تعریف می‌شوند.
-            </p>
-          </FormSection>
+            <FormAccordionItem
+              id="donate-message"
+              title="پیام صفحه کمک"
+              description="قبل از مبلغ در /donate نمایش داده می‌شود"
+              icon={MessageSquareText}
+            >
+              <Field
+                label="پیام معرفی کمک"
+                htmlFor="donate-message-editor"
+                hint="از نوار ابزار برای پررنگ، ایتالیک، فهرست و لینک استفاده کنید."
+              >
+                <SimpleHtmlEditor
+                  id="donate-message-editor"
+                  value={form.donateMessage ?? ""}
+                  rows={8}
+                  placeholder="حمایت شما صرف برنامه‌های فرهنگی و عام‌المنفعهٔ بنیاد می‌شود."
+                  onChange={(donateMessage) =>
+                    setForm({ ...form, donateMessage })
+                  }
+                />
+              </Field>
+              <p className="mt-3 text-xs text-ink-muted">
+                اهداف قابل انتخاب در{" "}
+                <Link
+                  href="/donation-goals"
+                  className="font-medium text-pine hover:underline"
+                >
+                  اهداف کمک
+                </Link>{" "}
+                تعریف می‌شوند.
+              </p>
+            </FormAccordionItem>
 
-          <FormSection title="روش‌های آفلاین">
-            <Checkbox
-              id="cod"
-              label="پرداخت در محل"
-              description="پس از هماهنگی، مبلغ هنگام تحویل دریافت شود."
-              checked={Boolean(form.cashOnDelivery)}
-              onChange={(e) => setForm({ ...form, cashOnDelivery: e.target.checked })}
-            />
-            <Checkbox
-              id="ctc"
-              label="کارت‌به‌کارت"
-              description="شماره کارت در هماهنگی کمک به اهداکننده اعلام شود."
-              checked={Boolean(form.cardToCard)}
-              onChange={(e) => setForm({ ...form, cardToCard: e.target.checked })}
-            />
-            {form.cardToCard ? (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Field label="صاحب حساب" htmlFor="holder">
-                  <Input
-                    id="holder"
-                    value={form.cardHolder ?? ""}
-                    icon={<User className="h-4 w-4" aria-hidden />}
-                    onChange={(e) => setForm({ ...form, cardHolder: e.target.value })}
-                  />
-                </Field>
-                <Field label="شماره کارت" htmlFor="card">
-                  <Input
-                    id="card"
-                    value={form.cardNumber ?? ""}
-                    dir="ltr"
-                    className="text-start tabular-nums"
-                    inputMode="numeric"
-                    persianDigits
-                    icon={<CreditCard className="h-4 w-4" aria-hidden />}
-                    onChange={(e) => setForm({ ...form, cardNumber: e.target.value })}
-                  />
-                </Field>
-              </div>
-            ) : null}
-          </FormSection>
-
-          <FormSection
-            title="درگاه‌های آنلاین"
-            description="هر درگاهی که فعال و پیکربندی شده باشد برای پرداخت آنلاین در دسترس است."
-          >
+            <FormAccordionItem
+              id="gateways"
+              title="درگاه‌های آنلاین"
+              description="هر درگاهی که فعال و پیکربندی شده باشد برای پرداخت آنلاین در دسترس است."
+              icon={CreditCard}
+            >
             <div className="grid gap-4 sm:grid-cols-2">
               {ONLINE_GATEWAYS.map((meta) => {
                 const row = gatewayRow(form.paymentGateways, meta.id);
@@ -762,7 +748,8 @@ export default function PaymentsSettingsClient() {
                 );
               })}
             </div>
-          </FormSection>
+            </FormAccordionItem>
+          </FormAccordion>
 
           <FormActions>
             <button

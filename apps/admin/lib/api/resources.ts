@@ -421,6 +421,10 @@ export type MemberRow = {
   annualFeeRials?: number;
   annual_fee_rials?: number;
   membershipStatus?: string;
+  lastLogin?: string | null;
+  last_login?: string | null;
+  lastLoginIp?: string | null;
+  last_login_ip?: string | null;
   created_at?: string;
 };
 
@@ -530,54 +534,6 @@ export async function apiPatchDonation(
 
 export async function apiDeleteDonation(token: string, id: string | number) {
   return apiFetch(`/admin/donations/${id}/`, { method: "DELETE", token });
-}
-
-export type DonationGoalRow = {
-  id: number | string;
-  title: string;
-  description?: string;
-  slug?: string;
-  sortOrder?: number;
-  sort_order?: number;
-  isActive?: boolean;
-  is_active?: boolean;
-};
-
-export async function apiListDonationGoals(token: string) {
-  return unwrapList(
-    await apiFetch<DonationGoalRow[] | Paginated<DonationGoalRow>>(
-      "/admin/donation-goals/",
-      { token },
-    ),
-  );
-}
-
-export async function apiSaveDonationGoal(
-  token: string,
-  payload: {
-    title: string;
-    description?: string;
-    sortOrder?: number;
-    isActive?: boolean;
-  },
-  id?: string | number,
-) {
-  if (id) {
-    return apiFetch<DonationGoalRow>(`/admin/donation-goals/${id}/`, {
-      method: "PATCH",
-      token,
-      body: JSON.stringify(payload),
-    });
-  }
-  return apiFetch<DonationGoalRow>("/admin/donation-goals/", {
-    method: "POST",
-    token,
-    body: JSON.stringify(payload),
-  });
-}
-
-export async function apiDeleteDonationGoal(token: string, id: string | number) {
-  return apiFetch(`/admin/donation-goals/${id}/`, { method: "DELETE", token });
 }
 
 export type DonationGoalRow = {

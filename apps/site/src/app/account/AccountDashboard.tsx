@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 import {
   ArrowLeft,
   CreditCard,
@@ -20,13 +22,30 @@ const statusLabel = {
 
 export default function AccountDashboardPage() {
   const { user, donations } = useAuth();
+  const nudgedRef = useRef(false);
+
+  const displayName = user
+    ? [user.firstName, user.lastName].filter(Boolean).join(" ") || null
+    : null;
+  const missingName = Boolean(
+    user && (!user.firstName.trim() || !user.lastName.trim()),
+  );
+  const missingNationalId = Boolean(user && !user.nationalId.trim());
+  const showNudge = missingName || missingNationalId;
+
+  useEffect(() => {
+    if (!user || !showNudge || nudgedRef.current) return;
+    nudgedRef.current = true;
+    toast(
+      missingName
+        ? "نام و نام خانوادگی را در پروفایل تکمیل کنید."
+        : "کد ملی را در پروفایل وارد کنید.",
+      { id: "account-profile-nudge" },
+    );
+  }, [user, showNudge, missingName]);
+
   if (!user) return null;
 
-  const displayName =
-    [user.firstName, user.lastName].filter(Boolean).join(" ") || null;
-  const missingName = !user.firstName.trim() || !user.lastName.trim();
-  const missingNationalId = !user.nationalId.trim();
-  const showNudge = missingName || missingNationalId;
   const totalDonated = donations.reduce((sum, d) => sum + d.amountRials, 0);
   const recent = donations.slice(0, 3);
 

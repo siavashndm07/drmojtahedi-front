@@ -15,29 +15,28 @@ export default function OptionPills<T extends string>({
   value,
   options,
   onChange,
-  columns = "auto",
+  columns: _columns = "auto",
   error,
+  className,
 }: {
   label?: string;
   value: T;
   options: OptionPill<T>[];
   onChange: (value: T) => void;
-  /** auto wraps; 2/3 force a denser grid */
+  /** Kept for callers; pills always sit together as one row. */
   columns?: "auto" | 2 | 3;
   error?: string | null;
+  className?: string;
 }) {
   return (
-    <div className="space-y-2">
+    <div className={cn("space-y-2", className)}>
       {label ? (
         <p className="text-sm font-medium text-ink">{label}</p>
       ) : null}
       <div
         className={cn(
-          "grid gap-2 rounded-2xl",
-          error && "ring-2 ring-red-400/70",
-          columns === 2 && "grid-cols-4",
-          columns === 3 && "grid-cols-4 sm:grid-cols-3",
-          columns === "auto" && "grid-cols-4 sm:grid-cols-3",
+          "flex flex-wrap gap-2",
+          error && "rounded-2xl ring-2 ring-red-400/70",
         )}
         role="radiogroup"
         aria-label={label}

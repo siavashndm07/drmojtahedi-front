@@ -1,4 +1,13 @@
-import { mergeBrandColors, mergeSiteBanner, type BrandColors, type SiteBanner } from "@drmojtahedi/shared";
+import {
+  mergeBrandColors,
+  mergeHomeSections,
+  mergeSiteBanner,
+  normalizeHomeSectionOrder,
+  type BrandColors,
+  type HomeSectionKey,
+  type HomeSections,
+  type SiteBanner,
+} from "@drmojtahedi/shared";
 import { getServerApiUrl, isApiEnabled, rewritePublicMediaUrl } from "@/lib/api/config";
 
 export type PublicSiteSettings = {
@@ -17,6 +26,8 @@ export type PublicSiteSettings = {
   phoneSecondary?: string;
   address?: string;
   social?: Partial<Record<string, string>> | null;
+  homeSections?: Partial<HomeSections> | null;
+  homeSectionOrder?: HomeSectionKey[] | null;
 };
 
 export async function fetchPublicSiteSettings(): Promise<PublicSiteSettings | null> {
@@ -38,6 +49,8 @@ export async function fetchPublicSiteSettings(): Promise<PublicSiteSettings | nu
       logoDark: rewritePublicMediaUrl(data.logoDark ?? ""),
       favicon: rewritePublicMediaUrl(data.favicon ?? ""),
       social: data.social ?? {},
+      homeSections: mergeHomeSections(data.homeSections),
+      homeSectionOrder: normalizeHomeSectionOrder(data.homeSectionOrder),
     };
   } catch {
     return null;

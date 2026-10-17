@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Fragment, type ReactNode } from "react";
+import { visibleHomeSections, type HomeSectionKey } from "@drmojtahedi/shared";
 import { HomeHeroSlider } from "@/components/homepage/HomeHeroSlider";
 import { TimelinePreview } from "@/components/homepage/TimelinePreview";
 import {
@@ -15,6 +17,7 @@ import { listArticles } from "@/lib/api/magazine";
 import { listNews } from "@/lib/api/news";
 import { listTimeline } from "@/lib/api/people";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { loadSiteSettings } from "@/lib/site-settings";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "خانه",
@@ -22,7 +25,8 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default async function HomePage() {
-  const [news, articles, timeline, projects, sponsors] = await Promise.all([
+  const [site, news, articles, timeline, projects, sponsors] = await Promise.all([
+    loadSiteSettings(),
     listNews(),
     listArticles(),
     listTimeline(),
@@ -30,17 +34,26 @@ export default async function HomePage() {
     listSponsors(),
   ]);
 
+  const sections: Partial<Record<HomeSectionKey, ReactNode>> = {
+    hero: <HomeHeroSlider />,
+    timeline: <TimelinePreview items={timeline} />,
+    news: <NewsPreview items={news} />,
+    projects: <ProjectsPreview items={projects} />,
+    archive: <ArchiveHighlights />,
+    magazine: <MagazinePreview articles={articles} />,
+    sponsors: <SponsorsPreview items={sponsors} />,
+    partners: <PartnersPreview />,
+    supportCta: <SupportCTA />,
+  };
+
+  const visible = visibleHomeSections(site.homeSectionOrder, site.homeSections);
+
   return (
     <>
-      <HomeHeroSlider />
-      <TimelinePreview items={timeline} />
-      <NewsPreview items={news} />
-      <ProjectsPreview items={projects} />
-      <ArchiveHighlights />
-      <MagazinePreview articles={articles} />
-      <SponsorsPreview items={sponsors} />
-      <PartnersPreview />
-      <SupportCTA />
+      {visible.map((key) => {
+        const node = sections[key];
+        return node ? <Fragment key={key}>{node}</Fragment> : null;
+      })}
     </>
   );
 }

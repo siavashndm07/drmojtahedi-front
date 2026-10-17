@@ -50,6 +50,15 @@ export function Field({
   );
 }
 
+/** Desktop form dialogs: wide panel, two fields per row, full-width groups. */
+export const formDialogClassName =
+  "relative max-h-[min(92vh,52rem)] w-full max-w-4xl overflow-y-auto rounded-2xl border border-ink/10 bg-surface p-5 shadow-xl sm:p-6";
+
+export const formDialogFieldsClassName =
+  "grid grid-cols-1 items-start gap-4 md:grid-cols-2";
+
+export const formDialogFullClassName = "md:col-span-2";
+
 export function FormActions({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-wrap items-center gap-2 border-t border-ink/10 pt-4">

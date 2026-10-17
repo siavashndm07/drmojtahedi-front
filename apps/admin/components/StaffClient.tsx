@@ -27,7 +27,7 @@ import {
   updateStaff,
   type AdminStaff,
 } from "@/lib/api/settings";
-import { toPersianDigits } from "@/lib/digits";
+import { formatFaDateTime, toPersianDigits } from "@/lib/digits";
 import {
   STAFF_PERMISSION_KEYS,
   STAFF_PERMISSION_LABELS,
@@ -197,6 +197,15 @@ export default function StaffClient() {
                         {item.email}
                       </p>
                     ) : null}
+                    <p className="mt-2 text-xs text-ink-muted">
+                      آخرین ورود:{" "}
+                      {item.lastLogin ? formatFaDateTime(item.lastLogin) : "هنوز وارد نشده"}
+                      <span className="mx-1.5">·</span>
+                      IP:{" "}
+                      <span dir="ltr" className="font-mono">
+                        {item.lastLoginIp?.trim() ? item.lastLoginIp : "—"}
+                      </span>
+                    </p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {perms.map((key) => (
                         <span

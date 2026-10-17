@@ -13,6 +13,12 @@ export type DonatePaymentMethod = {
   description?: string;
 };
 
+export type DonateGoalOption = {
+  id: string;
+  title: string;
+  description?: string;
+};
+
 export type DonatePaymentOptions = {
   methods: DonatePaymentMethod[];
   gateways: DonateGatewayOption[];
@@ -23,6 +29,8 @@ export type DonatePaymentOptions = {
     cardNumber: string;
   };
   minAmountRials: number;
+  message: string;
+  goals: DonateGoalOption[];
 };
 
 export type DonateStartPayload = {
@@ -56,13 +64,28 @@ const EMPTY_OPTIONS: DonatePaymentOptions = {
   defaultGateway: null,
   cardToCard: { enabled: false, cardHolder: "", cardNumber: "" },
   minAmountRials: 10_000,
+  message: "",
+  goals: [],
 };
 
 export async function getDonatePaymentOptions(): Promise<DonatePaymentOptions> {
   if (!isApiEnabled()) return EMPTY_OPTIONS;
-  return apiGet<DonatePaymentOptions>("/donate/payment-options/", {
-    scope: "public",
-  });
+  const data = await apiGet<Partial<DonatePaymentOptions>>(
+    "/donate/payment-options/",
+    { scope: "public" },
+  );
+  return {
+    ...EMPTY_OPTIONS,
+    ...data,
+    methods: data.methods ?? [],
+    gateways: data.gateways ?? [],
+    cardToCard: {
+      ...EMPTY_OPTIONS.cardToCard,
+      ...(data.cardToCard ?? {}),
+    },
+    goals: data.goals ?? [],
+    message: data.message ?? "",
+  };
 }
 
 export async function startDonatePayment(

@@ -1,10 +1,16 @@
 import { cache } from "react";
 import {
   DEFAULT_BRAND_PALETTE_ID,
+  DEFAULT_HOME_SECTION_ORDER,
+  DEFAULT_HOME_SECTIONS,
   DEFAULT_SITE_BANNER,
   mergeBrandColors,
+  mergeHomeSections,
   mergeSiteBanner,
+  normalizeHomeSectionOrder,
   type BrandColors,
+  type HomeSectionKey,
+  type HomeSections,
   type SiteBanner,
 } from "@drmojtahedi/shared";
 import { siteConfig } from "@/config/site";
@@ -34,6 +40,8 @@ export type ResolvedSiteSettings = {
   social: Partial<Record<string, string>>;
   heroTemplate: HeroTemplateId;
   heroAutoplayDelay: number;
+  homeSections: HomeSections;
+  homeSectionOrder: HomeSectionKey[];
 };
 
 /** Static fallbacks when API is unavailable (also used by client default context). */
@@ -56,6 +64,8 @@ export const siteSettings: ResolvedSiteSettings = {
   social: { ...siteConfig.social },
   heroTemplate: DEFAULT_HERO_TEMPLATE,
   heroAutoplayDelay: DEFAULT_HERO_AUTOPLAY_DELAY_MS,
+  homeSections: { ...DEFAULT_HOME_SECTIONS },
+  homeSectionOrder: [...DEFAULT_HOME_SECTION_ORDER],
 };
 
 export function resolveSiteSettings(
@@ -89,6 +99,10 @@ export function resolveSiteSettings(
       ...base.social,
       ...(remote.social ?? {}),
     },
+    homeSections: mergeHomeSections(remote.homeSections ?? base.homeSections),
+    homeSectionOrder: normalizeHomeSectionOrder(
+      remote.homeSectionOrder ?? base.homeSectionOrder,
+    ),
   };
 }
 

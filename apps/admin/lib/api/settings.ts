@@ -1,12 +1,16 @@
 import { apiFetch } from "@/lib/api/client";
 import {
   mergeBrandColors,
+  mergeHomeSections,
   mergeSiteBanner,
+  normalizeHomeSectionOrder,
   type BrandColors,
+  type HomeSectionKey,
+  type HomeSections,
   type SiteBanner,
 } from "@drmojtahedi/shared";
 
-export type { BrandColors, SiteBanner };
+export type { BrandColors, HomeSectionKey, HomeSections, SiteBanner };
 
 export type WatermarkPosition =
   | "bottom_right"
@@ -115,6 +119,8 @@ export type SiteSettings = {
   watermarkApplyKinds?: WatermarkMediaKind[];
   watermark?: string;
   watermarkId?: string | null;
+  homeSections?: HomeSections;
+  homeSectionOrder?: HomeSectionKey[];
 };
 
 export type PaymentGateway =
@@ -192,6 +198,7 @@ export type AdminStaff = {
   isSuperuser: boolean;
   permissions: string[];
   lastLogin?: string | null;
+  lastLoginIp?: string | null;
   dateJoined?: string | null;
 };
 
@@ -210,6 +217,8 @@ function normalizeSiteSettings(data: SiteSettings): SiteSettings {
         : [...DEFAULT_WATERMARK_KINDS],
     watermark: data.watermark ?? "",
     watermarkId: data.watermarkId ?? null,
+    homeSections: mergeHomeSections(data.homeSections),
+    homeSectionOrder: normalizeHomeSectionOrder(data.homeSectionOrder),
   };
 }
 

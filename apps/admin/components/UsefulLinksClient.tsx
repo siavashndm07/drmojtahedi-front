@@ -8,7 +8,15 @@ import { createPortal } from "react-dom";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import ImageAssetField from "@/components/ImageAssetField";
 import PageHeader from "@/components/PageHeader";
-import { Checkbox, Field, Input, NumberInput } from "@/components/form";
+import {
+  Checkbox,
+  Field,
+  Input,
+  NumberInput,
+  formDialogClassName,
+  formDialogFieldsClassName,
+  formDialogFullClassName,
+} from "@/components/form";
 import { useAuth } from "@/lib/auth";
 import {
   apiDeleteUsefulLink,
@@ -169,12 +177,12 @@ export default function UsefulLinksClient() {
             <div
               role="dialog"
               aria-modal="true"
-              className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-ink/10 bg-surface p-5 shadow-xl sm:p-6"
+              className={formDialogClassName}
             >
               <h2 className="text-base font-bold text-ink">
                 {editing ? "ویرایش پیوند" : "پیوند جدید"}
               </h2>
-              <form onSubmit={onSubmit} noValidate className="mt-4 space-y-4">
+              <form onSubmit={onSubmit} noValidate className={`mt-4 ${formDialogFieldsClassName}`}>
                 <Field label="عنوان پیوند" htmlFor="link-title">
                   <Input
                     id="link-title"
@@ -203,6 +211,7 @@ export default function UsefulLinksClient() {
                     }
                   />
                 </Field>
+                <div className={formDialogFullClassName}>
                 <ImageAssetField
                   label="لوگو"
                   kind="logo"
@@ -216,7 +225,9 @@ export default function UsefulLinksClient() {
                     setForm((f) => ({ ...f, logoId: id, logo: url }))
                   }
                 />
+                </div>
                 <Checkbox
+                  className={formDialogFullClassName}
                   id="link-active"
                   label="فعال"
                   description="در صفحه پیوندهای مفید سایت نمایش داده شود."
@@ -225,7 +236,7 @@ export default function UsefulLinksClient() {
                     setForm((f) => ({ ...f, isActive: e.target.checked }))
                   }
                 />
-                <div className="flex justify-end gap-2 border-t border-ink/10 pt-4">
+                <div className={`${formDialogFullClassName} flex justify-end gap-2 border-t border-ink/10 pt-4`}>
                   <button
                     type="button"
                     className="btn-secondary"

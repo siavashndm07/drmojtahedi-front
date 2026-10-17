@@ -2,12 +2,24 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { createPortal } from "react-dom";
+import ActionIconButton from "@/components/ActionIconButton";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PageHeader from "@/components/PageHeader";
-import { Checkbox, Field, Input, NumberInput, Textarea } from "@/components/form";
+import SortableHandle from "@/components/SortableHandle";
+import {
+  Checkbox,
+  Field,
+  Input,
+  NumberInput,
+  Textarea,
+  formDialogClassName,
+  formDialogFieldsClassName,
+  formDialogFullClassName,
+} from "@/components/form";
 import { useAuth } from "@/lib/auth";
+import { arrayMove, useListReorder } from "@/lib/reorder";
 import {
   apiDeleteDonationGoal,
   apiListDonationGoals,
@@ -40,6 +52,7 @@ export default function DonationGoalsClient() {
   const [busy, setBusy] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<DonationGoalRow | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [orderBusy, setOrderBusy] = useState(false);
 
   const reload = useCallback(async () => {
     if (!accessToken) return;
@@ -69,6 +82,56 @@ export default function DonationGoalsClient() {
         (r.description || "").toLowerCase().includes(q),
     );
   }, [rows, query]);
+
+  const canReorder = !query.trim() && !orderBusy;
+
+  const commitOrder = useCallback(
+    async (next: DonationGoalRow[]) => {
+      if (!accessToken || orderBusy) return;
+      const reordered = next.map((row, index) => ({
+        ...row,
+        sortOrder: index + 1,
+        sort_order: index + 1,
+      }));
+      const changed = reordered.filter((row) => {
+        const previous = rows.find((item) => item.id === row.id);
+        return previous ? sortOf(previous) !== sortOf(row) : true;
+      });
+      if (changed.length === 0) return;
+      const snapshot = rows;
+      setRows(reordered);
+      setOrderBusy(true);
+      try {
+        await Promise.all(
+          changed.map((row) =>
+            apiSaveDonationGoal(
+              accessToken,
+              {
+                title: row.title,
+                description: row.description || "",
+                sortOrder: sortOf(row),
+                isActive: activeOf(row),
+              },
+              row.id,
+            ),
+          ),
+        );
+      } catch (err) {
+        setRows(snapshot);
+        toast.error(err instanceof Error ? err.message : "ذخیره ترتیب ناموفق");
+      } finally {
+        setOrderBusy(false);
+      }
+    },
+    [accessToken, orderBusy, rows],
+  );
+
+  const reorder = useListReorder({
+    enabled: canReorder,
+    onMove: (from, to) => {
+      void commitOrder(arrayMove(rows, from, to));
+    },
+  });
 
   function openCreate() {
     setCreating(true);
@@ -156,27 +219,17 @@ export default function DonationGoalsClient() {
             <div
               role="dialog"
               aria-modal="true"
-              className="relative w-full max-w-lg rounded-2xl border border-ink/10 bg-surface p-5 shadow-xl sm:p-6"
+              className={formDialogClassName}
             >
               <h2 className="text-base font-bold text-ink">
                 {editing ? "ویرایش هدف کمک" : "هدف کمک جدید"}
               </h2>
-              <form onSubmit={onSubmit} noValidate className="mt-4 space-y-4">
+              <form onSubmit={onSubmit} noValidate className={`mt-4 ${formDialogFieldsClassName}`}>
                 <Field label="عنوان" htmlFor="goal-title">
                   <Input
                     id="goal-title"
                     value={form.title}
                     onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                  />
-                </Field>
-                <Field label="توضیح کوتاه" htmlFor="goal-desc">
-                  <Textarea
-                    id="goal-desc"
-                    value={form.description}
-                    rows={3}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, description: e.target.value }))
-                    }
                   />
                 </Field>
                 <Field label="ترتیب نمایش" htmlFor="goal-sort">
@@ -190,8 +243,19 @@ export default function DonationGoalsClient() {
                     }
                   />
                 </Field>
+                <Field label="توضیح کوتاه" htmlFor="goal-desc" className={formDialogFullClassName}>
+                  <Textarea
+                    id="goal-desc"
+                    value={form.description}
+                    rows={3}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, description: e.target.value }))
+                    }
+                  />
+                </Field>
                 <Checkbox
                   id="goal-active"
+                  className={formDialogFullClassName}
                   label="فعال"
                   description="در فرم کمک سایت نمایش داده شود."
                   checked={form.isActive}
@@ -199,7 +263,7 @@ export default function DonationGoalsClient() {
                     setForm((f) => ({ ...f, isActive: e.target.checked }))
                   }
                 />
-                <div className="flex justify-end gap-2 border-t border-ink/10 pt-4">
+                <div className={`${formDialogFullClassName} flex justify-end gap-2 border-t border-ink/10 pt-4`}>
                   <button
                     type="button"
                     className="btn-secondary"
@@ -246,6 +310,11 @@ export default function DonationGoalsClient() {
         />
       </div>
 
+      {!query.trim() && rows.length > 1 ? (
+        <p className="mb-3 text-xs text-ink-muted">
+          برای تغییر ترتیب، ردیف را بکشید یا با دکمه‌ها جابه‌جا کنید.
+        </p>
+      ) : null}
       <ul className="space-y-3">
         {filtered.length === 0 ? (
           <li className="rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
@@ -255,46 +324,68 @@ export default function DonationGoalsClient() {
           filtered.map((row, index) => (
             <li
               key={String(row.id)}
-              className="rounded-2xl border border-ink/10 bg-surface p-5"
+              {...(canReorder ? reorder.itemProps(index) : {})}
+              className={reorder.itemClassName(
+                index,
+                "flex flex-wrap items-center gap-3 rounded-2xl border border-ink/10 bg-surface p-3 sm:p-4",
+              )}
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-ink-muted">
-                      {toPersianDigits(sortOf(row) || index + 1)}
-                    </span>
-                    <h2 className="font-semibold text-ink">{row.title}</h2>
-                    <span
-                      className={`rounded-full px-2.5 py-0.5 text-[11px] ${
-                        activeOf(row)
-                          ? "bg-mint-soft text-pine"
-                          : "bg-cream text-ink-muted"
-                      }`}
-                    >
-                      {activeOf(row) ? "فعال" : "غیرفعال"}
-                    </span>
-                  </div>
-                  {row.description ? (
-                    <p className="mt-2 text-sm text-ink-muted">{row.description}</p>
-                  ) : null}
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    onClick={() => openEdit(row)}
+              <SortableHandle
+                label={`جابه‌جایی ${row.title}`}
+                disabled={!canReorder}
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-ink-muted">
+                    {toPersianDigits(sortOf(row) || index + 1)}
+                  </span>
+                  <h2 className="font-semibold text-ink">{row.title}</h2>
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-[11px] ${
+                      activeOf(row)
+                        ? "bg-mint-soft text-pine"
+                        : "bg-cream text-ink-muted"
+                    }`}
                   >
-                    <Pencil className="h-3.5 w-3.5" aria-hidden />
-                    ویرایش
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1 rounded-xl border border-red-200 px-3 py-2 text-sm text-red-700 hover:bg-red-50"
-                    onClick={() => setDeleteTarget(row)}
-                  >
-                    <Trash2 className="h-4 w-4" aria-hidden />
-                  </button>
+                    {activeOf(row) ? "فعال" : "غیرفعال"}
+                  </span>
                 </div>
+                {row.description ? (
+                  <p className="mt-1 text-sm text-ink-muted">{row.description}</p>
+                ) : null}
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <ActionIconButton
+                  label="بالاتر"
+                  variant="muted"
+                  disabled={!canReorder || index === 0}
+                  onClick={() => void commitOrder(arrayMove(rows, index, index - 1))}
+                >
+                  <ArrowUp className="h-4 w-4" aria-hidden />
+                </ActionIconButton>
+                <ActionIconButton
+                  label="پایین‌تر"
+                  variant="muted"
+                  disabled={!canReorder || index === rows.length - 1}
+                  onClick={() => void commitOrder(arrayMove(rows, index, index + 1))}
+                >
+                  <ArrowDown className="h-4 w-4" aria-hidden />
+                </ActionIconButton>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => openEdit(row)}
+                >
+                  <Pencil className="h-3.5 w-3.5" aria-hidden />
+                  ویرایش
+                </button>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-xl border border-red-200 px-3 py-2 text-sm text-red-700 hover:bg-red-50"
+                  onClick={() => setDeleteTarget(row)}
+                >
+                  <Trash2 className="h-4 w-4" aria-hidden />
+                </button>
               </div>
             </li>
           ))

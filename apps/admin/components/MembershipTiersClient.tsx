@@ -6,7 +6,16 @@ import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { createPortal } from "react-dom";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PageHeader from "@/components/PageHeader";
-import { Checkbox, Field, Input, NumberInput, Textarea } from "@/components/form";
+import {
+  Checkbox,
+  Field,
+  Input,
+  NumberInput,
+  Textarea,
+  formDialogClassName,
+  formDialogFieldsClassName,
+  formDialogFullClassName,
+} from "@/components/form";
 import { useAuth } from "@/lib/auth";
 import {
   apiDeleteMembershipTier,
@@ -160,12 +169,12 @@ export default function MembershipTiersClient() {
             <div
               role="dialog"
               aria-modal="true"
-              className="relative w-full max-w-lg rounded-2xl border border-ink/10 bg-surface p-5 shadow-xl sm:p-6"
+              className={formDialogClassName}
             >
               <h2 className="text-base font-bold text-ink">
                 {editing ? "ویرایش نوع عضویت" : "نوع عضویت جدید"}
               </h2>
-              <form onSubmit={onSubmit} noValidate className="mt-4 space-y-4">
+              <form onSubmit={onSubmit} noValidate className={`mt-4 ${formDialogFieldsClassName}`}>
                 <Field label="عنوان ارکان / نوع عضویت" htmlFor="tier-title">
                   <Input
                     id="tier-title"
@@ -196,7 +205,7 @@ export default function MembershipTiersClient() {
                     }
                   />
                 </Field>
-                <Field label="توضیح" htmlFor="tier-desc">
+                <Field label="توضیح" htmlFor="tier-desc" className={formDialogFullClassName}>
                   <Textarea
                     id="tier-desc"
                     value={form.description}
@@ -207,6 +216,7 @@ export default function MembershipTiersClient() {
                   />
                 </Field>
                 <Checkbox
+                  className={formDialogFullClassName}
                   id="tier-active"
                   label="فعال"
                   description="در انتخاب عضو و پرداخت نمایش داده شود."
@@ -215,7 +225,7 @@ export default function MembershipTiersClient() {
                     setForm((f) => ({ ...f, isActive: e.target.checked }))
                   }
                 />
-                <div className="flex justify-end gap-2 border-t border-ink/10 pt-4">
+                <div className={`${formDialogFullClassName} flex justify-end gap-2 border-t border-ink/10 pt-4`}>
                   <button
                     type="button"
                     className="btn-secondary"

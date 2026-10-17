@@ -11,6 +11,7 @@ import {
 } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Clock, Loader2, Phone, X } from "lucide-react";
+import toast from "react-hot-toast";
 import {
   DEMO_OTP,
   isValidIranMobile,
@@ -42,7 +43,7 @@ export function LoginPanel({
   const [phone, setPhone] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [timer, setTimer] = useState(120);
-  const [error, setError] = useState("");
+  const [otpInvalid, setOtpInvalid] = useState(false);
   const [loadingSend, setLoadingSend] = useState(false);
   const [loadingVerify, setLoadingVerify] = useState(false);
 
@@ -78,7 +79,7 @@ export function LoginPanel({
     }
 
     setTimer(120);
-    setError("");
+    setOtpInvalid(false);
     expiresAtRef.current = Date.now() + 120_000;
 
     const focusTimeout = setTimeout(() => otpRefs.current[0]?.focus(), 120);
@@ -95,7 +96,7 @@ export function LoginPanel({
           clearInterval(timerRef.current);
           timerRef.current = null;
         }
-        setError("کد منقضی شده است. لطفا دوباره ارسال کنید.");
+        toast.error("کد منقضی شده است. لطفا دوباره ارسال کنید.");
       }
     };
 
@@ -112,9 +113,9 @@ export function LoginPanel({
   }, [step]);
 
   const handleSendOtp = useCallback(async () => {
-    setError("");
+    setOtpInvalid(false);
     if (!isValidIranMobile(phone)) {
-      setError("لطفا شماره موبایل معتبر (با ۰۹) وارد کنید.");
+      toast.error("لطفا شماره موبایل معتبر (با ۰۹) وارد کنید.");
       return;
     }
 
@@ -124,21 +125,22 @@ export function LoginPanel({
 
     if (res.success) {
       setOtpCode("");
-      setError("");
+      setOtpInvalid(false);
       setStep("otp");
+      toast.success("کد تأیید ارسال شد.");
     } else {
-      setError(res.message || "ارسال کد با خطا مواجه شد.");
+      toast.error(res.message || "ارسال کد با خطا مواجه شد.");
     }
   }, [phone]);
 
   const handleVerifyOtp = useCallback(async () => {
-    setError("");
+    setOtpInvalid(false);
     if (otpCode.length !== OTP_LENGTH) {
-      setError("کد باید ۶ رقم باشد.");
+      toast.error("کد باید ۶ رقم باشد.");
       return;
     }
     if (timer === 0) {
-      setError("کد منقضی شده است. لطفا دوباره ارسال کنید.");
+      toast.error("کد منقضی شده است. لطفا دوباره ارسال کنید.");
       return;
     }
 
@@ -152,14 +154,16 @@ export function LoginPanel({
         res.access ? { access: res.access, refresh: res.refresh } : undefined,
         res.user,
       );
+      toast.success("ورود موفق.");
       onLoginSuccess?.(phone);
       onClose?.();
       setStep("phone");
       setPhone("");
       setOtpCode("");
-      setError("");
+      setOtpInvalid(false);
     } else {
-      setError(res.message || "اعتبارسنجی کد موفق نبود.");
+      toast.error(res.message || "اعتبارسنجی کد موفق نبود.");
+      setOtpInvalid(true);
       setOtpCode("");
       queueMicrotask(() => otpRefs.current[0]?.focus());
     }
@@ -320,9 +324,6 @@ export function LoginPanel({
                     inputMode="numeric"
                   />
                 </div>
-                {error ? (
-                  <p className="mt-2 text-center text-xs text-red-600">{error}</p>
-                ) : null}
               </div>
 
               <p className="rounded-xl bg-mint-soft/80 px-3 py-2 text-xs leading-6 text-ink-muted">
@@ -404,7 +405,7 @@ export function LoginPanel({
                         disabled={otpDisabled}
                         aria-label={`رقم ${toPersianDigits(index + 1)}`}
                         className={`h-12 w-10 rounded-xl border bg-cream/60 text-center text-xl font-bold text-ink outline-none transition sm:h-14 sm:w-11 sm:text-2xl ${
-                          error
+                          otpInvalid
                             ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-200/60"
                             : "border-ink/10 focus:border-pine focus:ring-2 focus:ring-pine/20"
                         } disabled:opacity-50`}
@@ -412,9 +413,6 @@ export function LoginPanel({
                     );
                   })}
                 </div>
-                {error ? (
-                  <p className="mt-3 text-center text-xs text-red-600">{error}</p>
-                ) : null}
               </div>
 
               <div className="flex items-center justify-center gap-2 text-sm text-ink-muted">
@@ -437,7 +435,7 @@ export function LoginPanel({
                     onClick={() => {
                       setStep("phone");
                       setOtpCode("");
-                      setError("");
+                      setOtpInvalid(false);
                     }}
                   >
                     ارسال مجدد کد
@@ -464,7 +462,7 @@ export function LoginPanel({
                   onClick={() => {
                     setStep("phone");
                     setOtpCode("");
-                    setError("");
+                    setOtpInvalid(false);
                   }}
                   className="flex-1 rounded-xl border border-ink/10 bg-surface px-4 py-3 text-sm font-medium hover:border-pine/40 disabled:opacity-50"
                   disabled={loadingVerify}

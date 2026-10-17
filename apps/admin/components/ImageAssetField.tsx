@@ -10,7 +10,15 @@ import { mediaAssetUrl } from "@/lib/mediaAssetUrl";
 type ImageAssetFieldProps = {
   label: string;
   hint?: string;
-  kind?: "news" | "articles" | "archive" | "people" | "sponsors" | "hero" | "logo";
+  kind?:
+    | "news"
+    | "articles"
+    | "archive"
+    | "people"
+    | "sponsors"
+    | "hero"
+    | "logo"
+    | "gallery";
   imageId: string | null;
   imageUrl: string;
   aspectClass?: string;

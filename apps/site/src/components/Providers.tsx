@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { Toaster } from "react-hot-toast";
 import SiteAiChatWidget from "@/components/ai/SiteAiChatWidget";
 import { AuthUiProvider } from "@/components/auth/AuthUi";
 import { AuthProvider } from "@/lib/auth";
@@ -22,6 +23,13 @@ export function Providers({
           <AuthUiProvider>
             {children}
             <SiteAiChatWidget />
+            <Toaster
+              position="bottom-center"
+              toastOptions={{
+                className: "!rounded-xl !bg-surface !text-ink !shadow-lg !border !border-ink/10",
+                duration: 4000,
+              }}
+            />
           </AuthUiProvider>
         </AuthProvider>
       </SiteSettingsProvider>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import {
   CreditCard,
   Heart,
@@ -93,6 +94,7 @@ export function AccountShell({ children }: { children: ReactNode }) {
           type="button"
           onClick={() => {
             logout();
+            toast.success("از حساب خارج شدید.");
             router.push("/");
           }}
           className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600"
@@ -168,6 +170,7 @@ export function AccountShell({ children }: { children: ReactNode }) {
                 type="button"
                 onClick={() => {
                   logout();
+                  toast.success("از حساب خارج شدید.");
                   router.push("/");
                 }}
                 className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-red-600 transition hover:bg-red-50"

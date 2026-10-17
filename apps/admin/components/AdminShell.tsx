@@ -1,262 +1,106 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Archive,
-  BookOpen,
-  Bot,
-  Building2,
-  ChevronLeft,
-  CreditCard,
+  ChevronDown,
   ExternalLink,
-  FileHeart,
-  HandHeart,
-  LayoutDashboard,
   LogOut,
-  Mail,
-  MapPin,
   Menu,
-  Mic,
-  Newspaper,
   Search,
-  Settings,
-  Tags,
-  Users,
   X,
-  type LucideIcon,
 } from "lucide-react";
+import {
+  ADMIN_MENU,
+  filterAdminMenu,
+  normalizeMenuSearch,
+  resolveActiveNavKey,
+  type NavItem,
+  type NavLeaf,
+} from "@/lib/adminNav";
 import { permissionForPath } from "@/lib/staffPermissions";
 import { brand, ports } from "@drmojtahedi/shared";
 import ThemeToggle from "@/components/ThemeToggle";
 import RouteProgressBar from "@/components/RouteProgressBar";
 import { useAuth } from "@/lib/auth";
 
-type NavLeaf = {
-  key: string;
-  label: string;
-  href: string;
-  icon: LucideIcon;
-};
-
-type NavChild = NavLeaf & {
-  children?: NavLeaf[];
-};
-
-type NavItem = {
-  key: string;
-  label: string;
-  icon: LucideIcon;
-  href?: string;
-  children?: NavChild[];
-};
-
-const MENU: NavItem[] = [
-  {
-    key: "dashboard",
-    label: "داشبورد",
-    icon: LayoutDashboard,
-    href: "/",
-  },
-  {
-    key: "content-group",
-    label: "محتوا",
-    icon: BookOpen,
-    children: [
-      {
-        key: "news-group",
-        label: "اخبار",
-        href: "/news",
-        icon: Newspaper,
-        children: [
-          { key: "news", label: "فهرست اخبار", href: "/news", icon: Newspaper },
-          {
-            key: "news-categories",
-            label: "دسته‌بندی اخبار",
-            href: "/news/categories",
-            icon: Tags,
-          },
-        ],
-      },
-      {
-        key: "articles-group",
-        label: "مقالات",
-        href: "/articles",
-        icon: BookOpen,
-        children: [
-          {
-            key: "articles",
-            label: "فهرست مقالات",
-            href: "/articles",
-            icon: BookOpen,
-          },
-          {
-            key: "articles-categories",
-            label: "دسته‌بندی مقالات",
-            href: "/articles/categories",
-            icon: Tags,
-          },
-        ],
-      },
-      { key: "books", label: "کتاب‌ها", href: "/books", icon: BookOpen },
-    ],
-  },
-  {
-    key: "heritage-group",
-    label: "میراث",
-    icon: Users,
-    children: [
-      { key: "people", label: "افراد", href: "/people", icon: Users },
-      { key: "places", label: "مکان‌ها", href: "/places", icon: MapPin },
-      { key: "timeline", label: "خط زمان", href: "/timeline", icon: Building2 },
-    ],
-  },
-  {
-    key: "archive-group",
-    label: "آرشیو",
-    icon: Archive,
-    children: [
-      { key: "archive", label: "آیتم‌ها", href: "/archive", icon: Archive },
-      { key: "oral-history", label: "تاریخ شفاهی", href: "/oral-history", icon: Mic },
-      { key: "media", label: "رسانه", href: "/media", icon: Archive },
-    ],
-  },
-  {
-    key: "foundation-group",
-    label: "بنیاد",
-    icon: Building2,
-    children: [
-      { key: "projects", label: "پروژه‌ها", href: "/projects", icon: Building2 },
-      { key: "sponsors", label: "حامیان", href: "/sponsors", icon: HandHeart },
-      { key: "organs", label: "ارکان", href: "/organs", icon: Users },
-      { key: "useful-links", label: "پیوندهای مفید", href: "/useful-links", icon: ExternalLink },
-    ],
-  },
-  {
-    key: "engagement-group",
-    label: "همراهی",
-    icon: HandHeart,
-    children: [
-      { key: "donations", label: "کمک‌ها", href: "/donations", icon: HandHeart },
-      { key: "donation-goals", label: "اهداف کمک", href: "/donation-goals", icon: HandHeart },
-      { key: "membership-tiers", label: "انواع عضویت", href: "/membership-tiers", icon: CreditCard },
-      { key: "membership-fees", label: "حق عضویت", href: "/membership-fees", icon: CreditCard },
-      { key: "members", label: "اعضا", href: "/members", icon: Users },
-      { key: "newsletter", label: "خبرنامه", href: "/newsletter", icon: Mail },
-      {
-        key: "contributions",
-        label: "ارسال خاطره",
-        href: "/contributions",
-        icon: FileHeart,
-      },
-    ],
-  },
-  {
-    key: "settings-group",
-    label: "سیستم",
-    icon: Settings,
-    children: [
-      { key: "settings", label: "تنظیمات سایت", href: "/settings", icon: Settings },
-      {
-        key: "settings-payments",
-        label: "پرداخت",
-        href: "/settings/payments",
-        icon: CreditCard,
-      },
-      {
-        key: "settings-staff",
-        label: "کاربران پنل",
-        href: "/settings/staff",
-        icon: Users,
-      },
-      { key: "ai", label: "دستیار AI", href: "/ai", icon: Bot },
-      { key: "account", label: "حساب ادمین", href: "/account", icon: Users },
-    ],
-  },
-];
-
-function collectLeaves(items: NavChild[]): NavLeaf[] {
-  const leaves: NavLeaf[] = [];
-  for (const child of items) {
-    if (child.children?.length) {
-      leaves.push(...child.children);
-    } else {
-      leaves.push(child);
-    }
-  }
-  return leaves;
-}
-
-function childContainsActive(child: NavChild, activeKey: string): boolean {
-  if (child.key === activeKey) return true;
-  return child.children?.some((leaf) => leaf.key === activeKey) ?? false;
-}
-
 const COLLAPSE_KEY = "dm-admin-sidebar-collapsed";
 const SUBMENU_KEY = "dm-admin-open-submenus";
 
-function pathMatches(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-function normalizeMenuSearch(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/ي/g, "ی")
-    .replace(/ك/g, "ک")
-    .replace(/\u200c/g, "");
-}
-
-function resolveActiveKey(pathname: string): string {
-  const matches: { key: string; href: string }[] = [];
-  for (const item of MENU) {
-    if (item.href && pathMatches(pathname, item.href)) {
-      matches.push({ key: item.key, href: item.href });
-    }
-    for (const leaf of collectLeaves(item.children ?? [])) {
-      if (pathMatches(pathname, leaf.href)) {
-        matches.push({ key: leaf.key, href: leaf.href });
-      }
-    }
-  }
-  matches.sort((a, b) => b.href.length - a.href.length);
-  return matches[0]?.key ?? "dashboard";
-}
-
-export default function AdminShell({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  const activeKey = resolveActiveKey(pathname);
-  const { user, logout, hasPermission } = useAuth();
-
-  const visibleMenu = useMemo(() => {
-    return MENU.map((item) => {
-      if (item.href) {
+function filterMenuByPermission(
+  items: NavItem[],
+  hasPermission: (key: string) => boolean,
+): NavItem[] {
+  return items
+    .map((item) => {
+      if (item.kind === "link") {
         const need = permissionForPath(item.href);
         if (need && !hasPermission(need)) return null;
         return item;
       }
-      const children = (item.children ?? [])
-        .map((child) => {
-          if (child.children?.length) {
-            const nested = child.children.filter((leaf) => {
-              const need = permissionForPath(leaf.href);
-              return !need || hasPermission(need);
-            });
-            if (!nested.length) return null;
-            return { ...child, children: nested };
-          }
-          const need = permissionForPath(child.href);
-          if (need && !hasPermission(need)) return null;
-          return child;
-        })
-        .filter(Boolean) as NavChild[];
+      const children = item.children.filter((leaf) => {
+        const need = permissionForPath(leaf.href);
+        return !need || hasPermission(need);
+      });
       if (!children.length) return null;
       return { ...item, children };
-    }).filter(Boolean) as NavItem[];
-  }, [hasPermission]);
+    })
+    .filter(Boolean) as NavItem[];
+}
+
+function groupContainsActive(item: NavItem, activeKey: string) {
+  if (item.kind === "link") return item.key === activeKey;
+  return item.children.some((leaf) => leaf.key === activeKey);
+}
+
+function NavLinkRow({
+  leaf,
+  active,
+  collapsed,
+  onNavigate,
+}: {
+  leaf: NavLeaf;
+  active: boolean;
+  collapsed?: boolean;
+  onNavigate: () => void;
+}) {
+  const Icon = leaf.icon;
+  return (
+    <Link
+      href={leaf.href}
+      onClick={onNavigate}
+      title={collapsed ? leaf.label : undefined}
+      aria-current={active ? "page" : undefined}
+      className={`group flex items-center gap-2.5 rounded-xl text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/35 focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
+        collapsed ? "justify-center p-2.5" : "px-3 py-2"
+      } ${
+        active
+          ? "bg-pine text-white shadow-sm"
+          : "text-ink-muted hover:bg-mint-soft/80 hover:text-ink dark:hover:bg-mint/40"
+      }`}
+    >
+      <Icon
+        className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-pine/80"}`}
+        aria-hidden
+      />
+      {!collapsed ? (
+        <span className="flex-1 truncate text-right font-medium">{leaf.label}</span>
+      ) : null}
+    </Link>
+  );
+}
+
+export default function AdminShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const activeKey = resolveActiveNavKey(pathname);
+  const { user, logout, hasPermission } = useAuth();
+  const searchId = useId();
+
+  const visibleMenu = useMemo(
+    () => filterMenuByPermission(ADMIN_MENU, hasPermission),
+    [hasPermission],
+  );
 
   const [mounted, setMounted] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -265,35 +109,10 @@ export default function AdminShell({ children }: { children: ReactNode }) {
   const [openSubmenus, setOpenSubmenus] = useState<string[]>([]);
   const [menuQuery, setMenuQuery] = useState("");
 
-  const filteredMenu = useMemo(() => {
-    const q = normalizeMenuSearch(menuQuery);
-    if (!q) return visibleMenu;
-    return visibleMenu.flatMap((item) => {
-      const labelHit = normalizeMenuSearch(item.label).includes(q);
-      if (!item.children?.length) {
-        return labelHit ? [item] : [];
-      }
-      const children = item.children.flatMap((child) => {
-        const childHit =
-          normalizeMenuSearch(child.label).includes(q) ||
-          normalizeMenuSearch(child.href).includes(q);
-        if (child.children?.length) {
-          const nested = child.children.filter(
-            (leaf) =>
-              normalizeMenuSearch(leaf.label).includes(q) ||
-              normalizeMenuSearch(leaf.href).includes(q),
-          );
-          if (childHit || labelHit) return [child];
-          if (nested.length) return [{ ...child, children: nested }];
-          return [];
-        }
-        return childHit ? [child] : [];
-      });
-      if (labelHit) return [{ ...item, children: item.children }];
-      if (children.length) return [{ ...item, children }];
-      return [];
-    });
-  }, [menuQuery, visibleMenu]);
+  const filteredMenu = useMemo(
+    () => filterAdminMenu(visibleMenu, menuQuery),
+    [menuQuery, visibleMenu],
+  );
 
   const searching = normalizeMenuSearch(menuQuery).length > 0;
 
@@ -343,36 +162,35 @@ export default function AdminShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (searching) {
-      const keys = filteredMenu.flatMap((item) => {
-        const open = [item.key];
-        for (const child of item.children ?? []) {
-          if (child.children?.length) open.push(child.key);
-        }
-        return open;
-      });
-      setOpenSubmenus(keys);
+      setOpenSubmenus(
+        filteredMenu
+          .filter((item) => item.kind === "group")
+          .map((item) => item.key),
+      );
       return;
     }
-    for (const item of MENU) {
-      const childHit = item.children?.some((c) => childContainsActive(c, activeKey));
-      if (!childHit) continue;
-      setOpenSubmenus((prev) => {
-        const next = new Set(prev);
-        next.add(item.key);
-        for (const child of item.children ?? []) {
-          if (childContainsActive(child, activeKey) && child.children?.length) {
-            next.add(child.key);
-          }
-        }
-        return [...next];
-      });
+    for (const item of visibleMenu) {
+      if (item.kind !== "group") continue;
+      if (!groupContainsActive(item, activeKey)) continue;
+      setOpenSubmenus((prev) =>
+        prev.includes(item.key) ? prev : [...prev, item.key],
+      );
     }
-  }, [activeKey, searching, filteredMenu]);
+  }, [activeKey, searching, filteredMenu, visibleMenu]);
 
   useEffect(() => {
     if (!collapsed) return;
     setMenuQuery("");
   }, [collapsed]);
+
+  useEffect(() => {
+    if (collapsed || !isMobile) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setCollapsed(true);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [collapsed, isMobile]);
 
   function toggleCollapse() {
     setCollapsed((prev) => !prev);
@@ -382,6 +200,11 @@ export default function AdminShell({ children }: { children: ReactNode }) {
     setOpenSubmenus((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
     );
+  }
+
+  function handleNavigate() {
+    setMenuQuery("");
+    if (isMobile) setCollapsed(true);
   }
 
   const sidebarOpen = !collapsed;
@@ -398,8 +221,10 @@ export default function AdminShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={toggleCollapse}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-ink/10 text-ink transition hover:bg-mint-soft lg:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-ink/10 text-ink transition hover:bg-mint-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/35 lg:hidden"
               aria-label={sidebarOpen ? "بستن منو" : "باز کردن منو"}
+              aria-expanded={sidebarOpen}
+              aria-controls="admin-sidebar"
             >
               {sidebarOpen ? (
                 <X className="h-5 w-5" aria-hidden />
@@ -409,16 +234,21 @@ export default function AdminShell({ children }: { children: ReactNode }) {
             </button>
             <div>
               <p className="text-[11px] text-ink-muted">پنل مدیریت</p>
-              <p className="text-sm font-bold text-ink sm:text-base">{brand.nameFa}</p>
+              <p className="text-sm font-bold text-ink sm:text-base">
+                {brand.nameFa}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             {user ? (
-              <div className="flex items-center gap-2">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-mint-soft text-xs font-bold text-pine dark:bg-mint">
+              <div className="flex items-center gap-2 rounded-full border border-ink/10 bg-cream/50 py-1 pe-3 ps-1">
+                <span
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-mint-soft text-xs font-bold text-pine dark:bg-mint"
+                  aria-hidden
+                >
                   {(user.displayName || user.username).slice(0, 1)}
                 </span>
-                <span className="hidden max-w-[10rem] truncate text-xs text-ink-muted md:inline">
+                <span className="hidden max-w-[10rem] truncate text-xs font-medium text-ink md:inline">
                   {user.displayName || user.username}
                 </span>
               </div>
@@ -427,8 +257,8 @@ export default function AdminShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={logout}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-ink/10 text-ink transition hover:bg-mint-soft"
-              aria-label="خروج"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-ink/10 text-ink transition hover:bg-mint-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/35"
+              aria-label="خروج از حساب"
               title="خروج"
             >
               <LogOut className="h-4 w-4" aria-hidden />
@@ -439,7 +269,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
               rel="noreferrer"
               className="btn-secondary !gap-1.5 !px-3 !py-2 text-xs"
             >
-              سایت
+              مشاهده سایت
               <ExternalLink className="h-3.5 w-3.5" aria-hidden />
             </a>
           </div>
@@ -456,25 +286,41 @@ export default function AdminShell({ children }: { children: ReactNode }) {
       ) : null}
 
       <aside
-        className={`fixed right-0 top-16 z-40 flex flex-col overflow-hidden border-l border-ink/10 bg-surface shadow-lg transition-all duration-300 ${
+        id="admin-sidebar"
+        aria-label="ناوبری پنل مدیریت"
+        className={`fixed right-0 top-16 z-40 flex flex-col overflow-hidden border-l border-ink/10 bg-surface shadow-xl transition-all duration-300 ${
           collapsed
-            ? "w-64 translate-x-full lg:w-16 lg:translate-x-0"
-            : "w-64 translate-x-0 lg:w-64"
+            ? "w-72 translate-x-full lg:w-[4.5rem] lg:translate-x-0"
+            : "w-72 translate-x-0"
         }`}
         style={{ height: "calc(100vh - 4rem)" }}
       >
-        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-ink/10 p-3" dir="rtl">
+        <div
+          className="flex shrink-0 items-center justify-between gap-2 border-b border-ink/10 px-3 py-3"
+          dir="rtl"
+        >
           {!collapsed ? (
-            <Link href="/" className="min-w-0">
-              <p className="truncate text-sm font-bold text-ink">{brand.shortName}</p>
-              <p className="text-[11px] text-ink-muted">مدیریت بنیاد</p>
+            <Link
+              href="/"
+              className="min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/35"
+            >
+              <p className="truncate text-sm font-bold text-ink">
+                {brand.shortName}
+              </p>
+              <p className="text-[11px] text-ink-muted">مدیریت محتوا و اعضا</p>
             </Link>
-          ) : null}
+          ) : (
+            <span className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-mint-soft text-xs font-bold text-pine dark:bg-mint">
+              م
+            </span>
+          )}
           <button
             type="button"
             onClick={toggleCollapse}
-            className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-muted transition hover:bg-mint-soft hover:text-ink lg:inline-flex"
-            title={collapsed ? "باز کردن منو" : "بستن منو"}
+            className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-muted transition hover:bg-mint-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/35 lg:inline-flex"
+            title={collapsed ? "باز کردن منو" : "جمع کردن منو"}
+            aria-label={collapsed ? "باز کردن منو" : "جمع کردن منو"}
+            aria-expanded={!collapsed}
           >
             {collapsed ? (
               <Menu className="h-4 w-4" aria-hidden />
@@ -485,19 +331,20 @@ export default function AdminShell({ children }: { children: ReactNode }) {
         </div>
 
         {!collapsed ? (
-          <div className="shrink-0 border-b border-ink/10 px-2 py-2" dir="rtl">
-            <label className="relative block">
+          <div className="shrink-0 border-b border-ink/10 px-3 py-2.5" dir="rtl">
+            <label htmlFor={searchId} className="relative block">
               <span className="sr-only">جستجوی منو</span>
               <Search
                 className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-muted"
                 aria-hidden
               />
               <input
+                id={searchId}
                 type="search"
                 value={menuQuery}
                 onChange={(e) => setMenuQuery(e.target.value)}
-                placeholder="جستجوی منو…"
-                className="w-full rounded-lg border border-ink/10 bg-cream/60 py-2 pe-3 ps-8 text-xs text-ink outline-none transition placeholder:text-ink-muted focus:border-pine/40 focus:bg-surface dark:bg-ink/5"
+                placeholder="جستجو در منو…"
+                className="w-full rounded-xl border border-ink/10 bg-cream/70 py-2.5 pe-3 ps-9 text-xs text-ink outline-none transition placeholder:text-ink-muted focus:border-pine/40 focus:bg-surface focus:ring-2 focus:ring-pine/15 dark:bg-ink/5"
                 autoComplete="off"
               />
             </label>
@@ -507,186 +354,124 @@ export default function AdminShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => setCollapsed(false)}
-              className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg text-ink-muted transition hover:bg-mint-soft hover:text-ink"
+              className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg text-ink-muted transition hover:bg-mint-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/35"
               title="جستجوی منو"
-              aria-label="جستجوی منو"
+              aria-label="باز کردن جستجوی منو"
             >
               <Search className="h-4 w-4" aria-hidden />
             </button>
           </div>
         )}
 
-        <nav className="flex-1 overflow-x-hidden overflow-y-auto px-2 py-3">
-          <ul className="space-y-1">
+        <nav
+          className="flex-1 overflow-x-hidden overflow-y-auto px-2.5 py-3"
+          aria-label="منوی اصلی"
+        >
+          <ul className="space-y-1.5">
             {filteredMenu.length === 0 ? (
-              <li className="px-3 py-4 text-center text-xs text-ink-muted">موردی یافت نشد</li>
+              <li className="rounded-xl bg-cream/60 px-3 py-6 text-center text-xs text-ink-muted">
+                موردی یافت نشد
+              </li>
             ) : null}
+
             {filteredMenu.map((item) => {
-              const Icon = item.icon;
-              if (item.children) {
-                const open = searching || openSubmenus.includes(item.key);
-                const groupActive = item.children.some((c) =>
-                  childContainsActive(c, activeKey),
-                );
+              if (item.kind === "link") {
                 return (
                   <li key={item.key}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (collapsed) setCollapsed(false);
-                        if (!searching) toggleSubmenu(item.key);
-                      }}
-                      className={`flex w-full items-center gap-3 rounded-lg p-3 text-sm transition ${
-                        collapsed ? "justify-center" : ""
-                      } ${
-                        open || groupActive
-                          ? "bg-mint-soft font-semibold text-ink dark:bg-mint"
-                          : "text-ink-muted hover:bg-cream hover:text-ink"
-                      }`}
-                      title={collapsed ? item.label : undefined}
-                    >
-                      <Icon className="h-5 w-5 shrink-0" aria-hidden />
-                      {!collapsed ? (
-                        <>
-                          <span className="flex-1 text-right">{item.label}</span>
-                          <ChevronLeft
-                            className={`h-4 w-4 transition ${open ? "-rotate-90" : ""}`}
-                            aria-hidden
-                          />
-                        </>
-                      ) : null}
-                    </button>
-                    <div
-                      className={`overflow-hidden transition-all duration-300 ${
-                        open && !collapsed ? "max-h-[64rem]" : "max-h-0"
-                      }`}
-                    >
-                      <ul className="space-y-1 py-1 ps-2">
-                        {item.children.map((child) => {
-                          const ChildIcon = child.icon;
-                          if (child.children?.length) {
-                            const nestedOpen =
-                              searching || openSubmenus.includes(child.key);
-                            const nestedActive = childContainsActive(
-                              child,
-                              activeKey,
-                            );
-                            return (
-                              <li key={child.key}>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    if (!searching) toggleSubmenu(child.key);
-                                  }}
-                                  className={`flex w-full items-center gap-2.5 rounded-md p-2.5 text-sm transition ${
-                                    nestedOpen || nestedActive
-                                      ? "bg-cream font-semibold text-ink dark:bg-ink/10"
-                                      : "text-ink-muted hover:bg-cream hover:text-ink"
-                                  }`}
-                                >
-                                  <ChildIcon
-                                    className="h-4 w-4 shrink-0"
-                                    aria-hidden
-                                  />
-                                  <span className="flex-1 text-right">
-                                    {child.label}
-                                  </span>
-                                  <ChevronLeft
-                                    className={`h-3.5 w-3.5 transition ${
-                                      nestedOpen ? "-rotate-90" : ""
-                                    }`}
-                                    aria-hidden
-                                  />
-                                </button>
-                                <div
-                                  className={`overflow-hidden transition-all duration-300 ${
-                                    nestedOpen ? "max-h-48" : "max-h-0"
-                                  }`}
-                                >
-                                  <ul className="mt-1 space-y-0.5 border-r border-ink/10 pe-1 ps-3">
-                                    {child.children.map((leaf) => {
-                                      const LeafIcon = leaf.icon;
-                                      const active = activeKey === leaf.key;
-                                      return (
-                                        <li key={leaf.key}>
-                                          <Link
-                                            href={leaf.href}
-                                            onClick={() => {
-                                              setMenuQuery("");
-                                              if (isMobile) setCollapsed(true);
-                                            }}
-                                            className={`flex items-center gap-2.5 rounded-md p-2 text-[13px] transition ${
-                                              active
-                                                ? "border-r-4 border-pine bg-mint-soft font-semibold text-pine dark:bg-mint"
-                                                : "text-ink-muted hover:bg-cream hover:text-ink"
-                                            }`}
-                                          >
-                                            <LeafIcon
-                                              className="h-3.5 w-3.5 shrink-0"
-                                              aria-hidden
-                                            />
-                                            <span className="flex-1 text-right">
-                                              {leaf.label}
-                                            </span>
-                                          </Link>
-                                        </li>
-                                      );
-                                    })}
-                                  </ul>
-                                </div>
-                              </li>
-                            );
-                          }
-
-                          const active = activeKey === child.key;
-                          return (
-                            <li key={child.key}>
-                              <Link
-                                href={child.href}
-                                onClick={() => {
-                                  setMenuQuery("");
-                                  if (isMobile) setCollapsed(true);
-                                }}
-                                className={`flex items-center gap-3 rounded-md p-2.5 text-sm transition ${
-                                  active
-                                    ? "border-r-4 border-pine bg-mint-soft font-semibold text-pine dark:bg-mint"
-                                    : "text-ink-muted hover:bg-cream hover:text-ink"
-                                }`}
-                              >
-                                <ChildIcon className="h-4 w-4 shrink-0" aria-hidden />
-                                <span className="flex-1 text-right">{child.label}</span>
-                              </Link>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
+                    <NavLinkRow
+                      leaf={item}
+                      active={activeKey === item.key}
+                      collapsed={collapsed}
+                      onNavigate={handleNavigate}
+                    />
                   </li>
                 );
               }
 
-              const active = activeKey === item.key;
+              const Icon = item.icon;
+              const open = searching || openSubmenus.includes(item.key);
+              const groupActive = groupContainsActive(item, activeKey);
+
               return (
-                <li key={item.key}>
-                  <Link
-                    href={item.href ?? "#"}
+                <li key={item.key} className="pt-0.5">
+                  <button
+                    type="button"
                     onClick={() => {
-                      if (isMobile) setCollapsed(true);
+                      if (collapsed) {
+                        setCollapsed(false);
+                        setOpenSubmenus((prev) =>
+                          prev.includes(item.key) ? prev : [...prev, item.key],
+                        );
+                        return;
+                      }
+                      if (!searching) toggleSubmenu(item.key);
                     }}
-                    title={collapsed ? item.label : undefined}
-                    className={`flex items-center gap-3 rounded-lg p-3 text-sm transition ${
-                      collapsed ? "justify-center" : ""
+                    aria-expanded={open && !collapsed}
+                    aria-controls={`submenu-${item.key}`}
+                    title={
+                      collapsed
+                        ? item.label
+                        : item.description
+                          ? `${item.label} — ${item.description}`
+                          : item.label
+                    }
+                    className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/35 focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
+                      collapsed ? "justify-center px-2.5" : ""
                     } ${
-                      active
-                        ? "border-r-4 border-pine bg-mint-soft font-semibold text-pine dark:bg-mint"
+                      open || groupActive
+                        ? "bg-mint-soft/90 font-semibold text-ink dark:bg-mint/50"
                         : "text-ink-muted hover:bg-cream hover:text-ink"
                     }`}
                   >
-                    <Icon className="h-5 w-5 shrink-0" aria-hidden />
+                    <Icon
+                      className={`h-[1.125rem] w-[1.125rem] shrink-0 ${
+                        open || groupActive ? "text-pine" : ""
+                      }`}
+                      aria-hidden
+                    />
                     {!collapsed ? (
-                      <span className="flex-1 text-right">{item.label}</span>
+                      <>
+                        <span className="min-w-0 flex-1 text-right">
+                          <span className="block truncate">{item.label}</span>
+                          {item.description ? (
+                            <span className="mt-0.5 block truncate text-[10px] font-normal text-ink-muted">
+                              {item.description}
+                            </span>
+                          ) : null}
+                        </span>
+                        <ChevronDown
+                          className={`h-4 w-4 shrink-0 text-ink-muted transition duration-200 ${
+                            open ? "rotate-180" : ""
+                          }`}
+                          aria-hidden
+                        />
+                      </>
                     ) : null}
-                  </Link>
+                  </button>
+
+                  <div
+                    id={`submenu-${item.key}`}
+                    role="region"
+                    aria-label={item.label}
+                    aria-hidden={!(open && !collapsed)}
+                    className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out ${
+                      open && !collapsed
+                        ? "grid-rows-[1fr]"
+                        : "grid-rows-[0fr]"
+                    }`}
+                  >
+                    <ul className="min-h-0 space-y-0.5 overflow-hidden border-r border-pine/15 py-1 pe-0.5 ps-2.5">
+                      {item.children.map((leaf) => (
+                        <li key={leaf.key}>
+                          <NavLinkRow
+                            leaf={leaf}
+                            active={activeKey === leaf.key}
+                            onNavigate={handleNavigate}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </li>
               );
             })}
@@ -695,16 +480,20 @@ export default function AdminShell({ children }: { children: ReactNode }) {
 
         <div className="shrink-0 border-t border-ink/10 p-3">
           {!collapsed ? (
-            <p className="text-center text-[11px] text-ink-muted">
-              پنل مدیریت {brand.shortName} · v0.1
+            <p className="text-center text-[11px] leading-5 text-ink-muted">
+              پنل {brand.shortName}
+              <span className="mx-1 text-ink/20">·</span>
+              v0.1
             </p>
-          ) : null}
+          ) : (
+            <p className="text-center text-[10px] text-ink-muted">v0.1</p>
+          )}
         </div>
       </aside>
 
       <main
         className={`min-h-screen flex-1 pt-16 transition-all duration-300 ${
-          !isMobile ? (collapsed ? "lg:mr-16" : "lg:mr-64") : ""
+          !isMobile ? (collapsed ? "lg:mr-[4.5rem]" : "lg:mr-72") : ""
         }`}
       >
         <div className="p-4 md:p-6 lg:p-8">{children}</div>

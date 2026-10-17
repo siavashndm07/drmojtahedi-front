@@ -146,7 +146,7 @@ export default function MediaLibraryClient() {
         </button>
       </div>
 
-      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {filtered.length === 0 ? (
           <li className="col-span-full rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
             فایلی نیست
@@ -160,7 +160,7 @@ export default function MediaLibraryClient() {
                 key={row.id}
                 className="overflow-hidden rounded-2xl border border-ink/10 bg-surface"
               >
-                <div className="relative aspect-[4/3] bg-mint-soft">
+                <div className="relative aspect-[6/3] bg-mint-soft">
                   {src ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={src} alt={row.altText || ""} className="size-full object-cover" />

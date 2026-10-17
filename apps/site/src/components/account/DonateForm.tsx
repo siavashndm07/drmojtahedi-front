@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { sanitizeSimpleHtml } from "@drmojtahedi/shared";
 import {
   ArrowLeft,
   ArrowRight,
@@ -18,6 +20,7 @@ import { useAuth } from "@/lib/auth";
 import {
   getDonatePaymentOptions,
   startDonatePayment,
+  type DonateGoalOption,
   type DonatePaymentOptions,
 } from "@/lib/api/donate";
 import { ApiError } from "@/lib/api/client";
@@ -33,18 +36,25 @@ import {
 import { toEnglishDigits, toPersianDigits } from "@/lib/utils/digits";
 import { cn } from "@/lib/utils/cn";
 
-type Step = "amount" | "purpose" | "identity" | "pay" | "receipt";
+type Step = "intro" | "amount" | "purpose" | "identity" | "pay" | "receipt";
 
 type DonateFormProps = {
   mode?: "public" | "member";
 };
 
 const STEPS: { id: Step; label: string }[] = [
+  { id: "intro", label: "پیام" },
   { id: "amount", label: "مبلغ" },
   { id: "purpose", label: "هدف" },
   { id: "identity", label: "هویت" },
   { id: "pay", label: "پرداخت" },
 ];
+
+const FALLBACK_GOALS: DonateGoalOption[] = DONATE_TARGETS.map((t) => ({
+  id: t.id,
+  title: t.title,
+  description: t.description,
+}));
 
 function formatCardNumber(value: string): string {
   const digits = toEnglishDigits(value).replace(/\D/g, "");
@@ -55,17 +65,16 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
   const { user, addDonation } = useAuth();
   const { openLogin } = useAuthUi();
 
-  const [step, setStep] = useState<Step>("amount");
+  const [step, setStep] = useState<Step>("intro");
   const [amount, setAmount] = useState(5_000_000);
   const [amountInput, setAmountInput] = useState(formatRials(5_000_000));
-  const [targetIds, setTargetIds] = useState<string[]>(["general"]);
+  const [targetIds, setTargetIds] = useState<string[]>([]);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [nationalId, setNationalId] = useState("");
   const [phone, setPhone] = useState("");
   const [methodId, setMethodId] = useState<string | null>(null);
   const [gatewayId, setGatewayId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const [awaitingAuth, setAwaitingAuth] = useState(false);
   const [options, setOptions] = useState<DonatePaymentOptions | null>(null);
@@ -92,6 +101,15 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
         const firstMethod = data.methods[0]?.id ?? null;
         setMethodId(firstMethod);
         setGatewayId(data.defaultGateway ?? data.gateways[0]?.id ?? null);
+        const goals =
+          data.goals.length > 0
+            ? data.goals
+            : isApiEnabled()
+              ? []
+              : FALLBACK_GOALS;
+        const preferred =
+          goals.find((g) => g.id === "general")?.id ?? goals[0]?.id;
+        if (preferred) setTargetIds([preferred]);
       } catch {
         if (!cancelled) {
           setOptions({
@@ -100,7 +118,10 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
             defaultGateway: null,
             cardToCard: { enabled: false, cardHolder: "", cardNumber: "" },
             minAmountRials: DONATE_MIN_RIALS,
+            message: DONATE_MESSAGE,
+            goals: FALLBACK_GOALS,
           });
+          setTargetIds(["general"]);
         }
       } finally {
         if (!cancelled) setOptionsLoading(false);
@@ -120,15 +141,23 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
     setPhone((c) => c || user.phone);
     if (awaitingAuth && step === "identity") {
       setAwaitingAuth(false);
-      setError(null);
+      toast.success("ورود موفق؛ می‌توانید پرداخت را ادامه دهید.");
       setStep("pay");
     }
   }, [user, awaitingAuth, step]);
 
+  const goals: DonateGoalOption[] = useMemo(() => {
+    if (options?.goals && options.goals.length > 0) return options.goals;
+    if (!isApiEnabled()) return FALLBACK_GOALS;
+    return [];
+  }, [options]);
+
   const selectedTargets = useMemo(
-    () => DONATE_TARGETS.filter((t) => targetIds.includes(t.id)),
-    [targetIds],
+    () => goals.filter((t) => targetIds.includes(t.id)),
+    [goals, targetIds],
   );
+
+  const donateMessage = (options?.message || "").trim() || DONATE_MESSAGE;
 
   const minAmount = options?.minAmountRials ?? DONATE_MIN_RIALS;
   const methods = options?.methods ?? [];
@@ -149,10 +178,13 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
   };
 
   const goNext = () => {
-    setError(null);
+    if (step === "intro") {
+      setStep("amount");
+      return;
+    }
     if (step === "amount") {
       if (amount < minAmount) {
-        setError(
+        toast.error(
           `حداقل مبلغ ${toPersianDigits(formatRials(minAmount))} ریال است.`,
         );
         return;
@@ -161,8 +193,12 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
       return;
     }
     if (step === "purpose") {
+      if (goals.length === 0) {
+        toast.error("هنوز هدف کمکی تعریف نشده است.");
+        return;
+      }
       if (targetIds.length === 0) {
-        setError("حداقل یک هدف را انتخاب کنید.");
+        toast.error("حداقل یک هدف را انتخاب کنید.");
         return;
       }
       setStep("identity");
@@ -170,21 +206,21 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
     }
     if (step === "identity") {
       if (!firstName.trim() || !lastName.trim()) {
-        setError("نام و نام خانوادگی الزامی است.");
+        toast.error("نام و نام خانوادگی الزامی است.");
         return;
       }
       if (!/^\d{10}$/.test(toEnglishDigits(nationalId))) {
-        setError("کد ملی باید ۱۰ رقم باشد.");
+        toast.error("کد ملی باید ۱۰ رقم باشد.");
         return;
       }
       if (!/^09\d{9}$/.test(toEnglishDigits(phone))) {
-        setError("شماره همراه معتبر (۰۹…) وارد کنید.");
+        toast.error("شماره همراه معتبر (۰۹…) وارد کنید.");
         return;
       }
       if (!user) {
         setAwaitingAuth(true);
         openLogin();
-        setError("برای ادامه با پیامک وارد شوید؛ پس از ورود به پرداخت می‌روید.");
+        toast("برای ادامه با پیامک وارد شوید؛ پس از ورود به پرداخت می‌روید.");
         return;
       }
       setStep("pay");
@@ -192,29 +228,28 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
   };
 
   const goBack = () => {
-    setError(null);
-    if (step === "purpose") setStep("amount");
+    if (step === "amount") setStep("intro");
+    else if (step === "purpose") setStep("amount");
     else if (step === "identity") setStep("purpose");
     else if (step === "pay") setStep("identity");
   };
 
   const handlePay = async () => {
-    setError(null);
     if (!user) {
       openLogin();
-      setError("برای پرداخت ابتدا وارد شوید.");
+      toast.error("برای پرداخت ابتدا وارد شوید.");
       return;
     }
     if (!methodId) {
-      setError("روش پرداخت را انتخاب کنید.");
+      toast.error("روش پرداخت را انتخاب کنید.");
       return;
     }
     if (onlineSelected && !gatewayId) {
-      setError("درگاه بانکی را انتخاب کنید.");
+      toast.error("درگاه بانکی را انتخاب کنید.");
       return;
     }
     if (!methods.length) {
-      setError("در حال حاضر روش پرداختی فعال نیست. از تنظیمات ادمین فعال کنید.");
+      toast.error("در حال حاضر روش پرداختی فعال نیست. از تنظیمات ادمین فعال کنید.");
       return;
     }
 
@@ -294,13 +329,13 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
       });
       setStep("receipt");
     } catch (err) {
-      const message =
+      toast.error(
         err instanceof ApiError
           ? err.message
           : err instanceof Error
             ? err.message
-            : "شروع پرداخت ناموفق بود.";
-      setError(message);
+            : "شروع پرداخت ناموفق بود.",
+      );
     } finally {
       setPaying(false);
     }
@@ -312,9 +347,10 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
     try {
       await navigator.clipboard.writeText(toEnglishDigits(number).replace(/\D/g, ""));
       setCopied(true);
+      toast.success("شماره کارت کپی شد.");
       setTimeout(() => setCopied(false), 1600);
     } catch {
-      setError("کپی شماره کارت ممکن نشد.");
+      toast.error("کپی شماره کارت ممکن نشد.");
     }
   };
 
@@ -381,7 +417,7 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
           <button
             type="button"
             onClick={() => {
-              setStep("amount");
+              setStep("intro");
               setReceipt(null);
               setCopied(false);
             }}
@@ -426,15 +462,40 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
       </ol>
 
       <div className="rounded-3xl border border-ink/10 bg-surface p-5 shadow-sm sm:p-8">
-        {step === "amount" ? (
+        {step === "intro" ? (
           <div className="space-y-6">
             <header>
               <p className="inline-flex items-center gap-2 text-xs tracking-[0.14em] text-bronze">
                 <Heart className="size-3.5" aria-hidden />
                 کمک خیرخواهانه
               </p>
-              <h2 className="mt-2 text-2xl font-bold text-ink">مبلغ کمک</h2>
-              <p className="mt-2 text-sm text-ink-muted">{DONATE_MESSAGE}</p>
+              <h2 className="mt-2 text-2xl font-bold text-ink">پیام بنیاد</h2>
+            </header>
+            {optionsLoading ? (
+              <p className="flex items-center gap-2 text-sm text-ink-muted">
+                <Loader2 className="size-4 animate-spin" />
+                بارگذاری پیام…
+              </p>
+            ) : (
+              <div className="rounded-2xl bg-gradient-to-l from-mint-soft/80 to-cream px-5 py-6">
+                <div
+                  className="text-base leading-8 text-ink md:text-lg [&_a]:font-medium [&_a]:text-pine [&_a]:underline [&_em]:italic [&_li]:my-1 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:ps-5 [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_strong]:font-bold [&_ul]:my-3 [&_ul]:list-disc [&_ul]:ps-5"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeSimpleHtml(donateMessage),
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        ) : null}
+
+        {step === "amount" ? (
+          <div className="space-y-6">
+            <header>
+              <h2 className="text-2xl font-bold text-ink">مبلغ کمک</h2>
+              <p className="mt-2 text-sm text-ink-muted">
+                مبلغ مورد نظر خود را به ریال وارد کنید.
+              </p>
             </header>
             <div className="rounded-2xl bg-gradient-to-l from-mint-soft/80 to-cream px-4 py-8 text-center">
               <input
@@ -486,48 +547,58 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
                 می‌توانید چند هدف را همزمان انتخاب کنید.
               </p>
             </header>
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {DONATE_TARGETS.map((target) => {
-                const checked = targetIds.includes(target.id);
-                return (
-                  <li key={target.id}>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setTargetIds((prev) =>
-                          prev.includes(target.id)
-                            ? prev.filter((id) => id !== target.id)
-                            : [...prev, target.id],
-                        )
-                      }
-                      className={cn(
-                        "flex h-full w-full flex-col rounded-2xl border px-4 py-4 text-start transition",
-                        checked
-                          ? "border-pine bg-mint-soft/70"
-                          : "border-ink/10 hover:border-pine/35",
-                      )}
-                    >
-                      <span className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-ink">{target.title}</span>
-                        <span
-                          className={cn(
-                            "flex size-5 items-center justify-center rounded-full border",
-                            checked
-                              ? "border-pine bg-pine text-white"
-                              : "border-ink/20",
-                          )}
-                        >
-                          {checked ? <Check className="size-3" /> : null}
+            {goals.length === 0 ? (
+              <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                هنوز هدف کمکی از پنل ادمین تعریف نشده است.
+              </p>
+            ) : (
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {goals.map((target) => {
+                  const checked = targetIds.includes(target.id);
+                  return (
+                    <li key={target.id}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setTargetIds((prev) =>
+                            prev.includes(target.id)
+                              ? prev.filter((id) => id !== target.id)
+                              : [...prev, target.id],
+                          )
+                        }
+                        className={cn(
+                          "flex h-full w-full flex-col rounded-2xl border px-4 py-4 text-start transition",
+                          checked
+                            ? "border-pine bg-mint-soft/70"
+                            : "border-ink/10 hover:border-pine/35",
+                        )}
+                      >
+                        <span className="flex items-center justify-between gap-2">
+                          <span className="font-semibold text-ink">
+                            {target.title}
+                          </span>
+                          <span
+                            className={cn(
+                              "flex size-5 items-center justify-center rounded-full border",
+                              checked
+                                ? "border-pine bg-pine text-white"
+                                : "border-ink/20",
+                            )}
+                          >
+                            {checked ? <Check className="size-3" /> : null}
+                          </span>
                         </span>
-                      </span>
-                      <span className="mt-2 text-xs leading-6 text-ink-muted">
-                        {target.description}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+                        {target.description ? (
+                          <span className="mt-2 text-xs leading-6 text-ink-muted">
+                            {target.description}
+                          </span>
+                        ) : null}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         ) : null}
 
@@ -716,14 +787,8 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
           </div>
         ) : null}
 
-        {error ? (
-          <p className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </p>
-        ) : null}
-
         <div className="mt-8 flex gap-3">
-          {step !== "amount" ? (
+          {step !== "intro" ? (
             <button
               type="button"
               onClick={goBack}

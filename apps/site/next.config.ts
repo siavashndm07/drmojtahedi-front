@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_MEDIA_BASE_URL: mediaBaseUrl,
   },
   images: {
+    dangerouslyAllowLocalIP: true,
     remotePatterns: [
       {
         protocol: "http",

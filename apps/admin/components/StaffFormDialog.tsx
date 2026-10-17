@@ -196,7 +196,7 @@ export default function StaffFormDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="staff-form-title"
-        className="relative flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-ink/10 bg-surface shadow-2xl"
+        className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-ink/10 bg-surface shadow-2xl"
       >
         <div className="flex shrink-0 items-start justify-between gap-3 border-b border-ink/10 px-5 py-4">
           <div>

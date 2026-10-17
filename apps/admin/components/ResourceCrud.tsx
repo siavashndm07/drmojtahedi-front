@@ -20,7 +20,14 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import FilterPills from "@/components/FilterPills";
 import OptionPills, { type OptionPill } from "@/components/OptionPills";
 import PageHeader from "@/components/PageHeader";
-import { Field, Input, Textarea } from "@/components/form";
+import {
+  Field,
+  Input,
+  Textarea,
+  formDialogClassName,
+  formDialogFieldsClassName,
+  formDialogFullClassName,
+} from "@/components/form";
 import { useAuth } from "@/lib/auth";
 import { isApiEnabled } from "@/lib/api/client";
 import { toPersianDigits } from "@/lib/digits";
@@ -222,7 +229,7 @@ export function ResourceCrud<
             <div
               role="dialog"
               aria-modal="true"
-              className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-ink/10 bg-surface p-5 shadow-xl sm:p-6"
+              className={formDialogClassName}
             >
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
@@ -240,11 +247,12 @@ export function ResourceCrud<
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <form onSubmit={onSubmit} noValidate className="space-y-4">
+              <form onSubmit={onSubmit} noValidate className={formDialogFieldsClassName}>
                 {fields.map((field) =>
                   field.type === "pills" ? (
                     <OptionPills
                       key={field.key}
+                      className={formDialogFullClassName}
                       label={field.label}
                       value={(form[field.key] as string) || (field.options?.[0]?.value ?? "")}
                       options={field.options ?? []}
@@ -265,6 +273,7 @@ export function ResourceCrud<
                       label={field.label}
                       htmlFor={`field-${field.key}`}
                       error={fieldErrors[field.key]}
+                      className={field.type === "textarea" ? formDialogFullClassName : undefined}
                     >
                       {field.type === "textarea" ? (
                         <Textarea
@@ -298,7 +307,7 @@ export function ResourceCrud<
                     </Field>
                   ),
                 )}
-                <div className="flex flex-wrap justify-end gap-2 border-t border-ink/10 pt-4">
+                <div className={`${formDialogFullClassName} flex flex-wrap justify-end gap-2 border-t border-ink/10 pt-4`}>
                   <button
                     type="button"
                     className="btn-secondary"

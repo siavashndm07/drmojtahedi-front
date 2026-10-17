@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { CreditCard, Loader2, ShieldCheck } from "lucide-react";
 import { PaymentGatewayIcon } from "@/components/PaymentGatewayIcon";
 import { useAuth } from "@/lib/auth";
@@ -60,7 +61,6 @@ export default function MembershipFeeClient() {
   const [methodId, setMethodId] = useState<string | null>(null);
   const [gatewayId, setGatewayId] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [cardReceipt, setCardReceipt] = useState<{
     cardHolder: string;
     cardNumber: string;
@@ -129,17 +129,16 @@ export default function MembershipFeeClient() {
     !accessToken?.startsWith("demo-");
 
   async function handlePay() {
-    setError(null);
     if (!accessToken || accessToken.startsWith("demo-")) {
-      setError("برای پرداخت وارد حساب شوید.");
+      toast.error("برای پرداخت وارد حساب شوید.");
       return;
     }
     if (!methodId) {
-      setError("روش پرداخت را انتخاب کنید.");
+      toast.error("روش پرداخت را انتخاب کنید.");
       return;
     }
     if (onlineSelected && !gatewayId) {
-      setError("درگاه بانکی را انتخاب کنید.");
+      toast.error("درگاه بانکی را انتخاب کنید.");
       return;
     }
 
@@ -160,9 +159,10 @@ export default function MembershipFeeClient() {
         cardNumber: result.cardToCard?.cardNumber || card?.cardNumber || "",
         transactionId: result.transactionId || `MFEE-${result.paymentId}`,
       });
+      toast.success("درخواست ثبت شد؛ مشخصات کارت را ببینید.");
       await reloadHistory();
     } catch (err) {
-      setError(
+      toast.error(
         err instanceof ApiError
           ? err.message
           : err instanceof Error
@@ -350,11 +350,6 @@ export default function MembershipFeeClient() {
           </div>
         )}
 
-        {error ? (
-          <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </p>
-        ) : null}
       </div>
 
       <section className="space-y-3">

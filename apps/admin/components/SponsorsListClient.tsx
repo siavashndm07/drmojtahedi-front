@@ -20,7 +20,14 @@ import FilterPills from "@/components/FilterPills";
 import ImageAssetField from "@/components/ImageAssetField";
 import OptionPills from "@/components/OptionPills";
 import PageHeader from "@/components/PageHeader";
-import { Field, Input, Textarea } from "@/components/form";
+import {
+  Field,
+  Input,
+  Textarea,
+  formDialogClassName,
+  formDialogFieldsClassName,
+  formDialogFullClassName,
+} from "@/components/form";
 import { useAuth } from "@/lib/auth";
 import { isApiEnabled } from "@/lib/api/client";
 import {
@@ -207,7 +214,7 @@ export default function SponsorsListClient() {
             <div
               role="dialog"
               aria-modal="true"
-              className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-ink/10 bg-surface p-5 shadow-xl sm:p-6"
+              className={formDialogClassName}
             >
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
@@ -227,7 +234,7 @@ export default function SponsorsListClient() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <form onSubmit={onSubmit} noValidate className="space-y-4">
+              <form onSubmit={onSubmit} noValidate className={formDialogFieldsClassName}>
                 <Field label="نام" htmlFor="sponsor-title" error={fieldErrors.title}>
                   <Input
                     id="sponsor-title"
@@ -260,6 +267,7 @@ export default function SponsorsListClient() {
                   />
                 </Field>
                 <OptionPills
+                  className={formDialogFullClassName}
                   label="نوع"
                   value={form.kind}
                   options={SPONSOR_KIND_OPTIONS}
@@ -274,6 +282,7 @@ export default function SponsorsListClient() {
                   />
                 </Field>
                 <OptionPills
+                  className={formDialogFullClassName}
                   label="وضعیت انتشار"
                   value={form.status}
                   options={PUBLISH_STATUS_OPTIONS.filter((o) => o.value !== "coming-soon")}
@@ -315,14 +324,14 @@ export default function SponsorsListClient() {
                     setForm((f) => ({ ...f, logoImageId: id, logo: url }))
                   }
                 />
-                <Field label="توضیح" htmlFor="sponsor-desc">
+                <Field label="توضیح" htmlFor="sponsor-desc" className={formDialogFullClassName}>
                   <Textarea
                     id="sponsor-desc"
                     value={form.description}
                     onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   />
                 </Field>
-                <div className="flex flex-wrap justify-end gap-2 border-t border-ink/10 pt-4">
+                <div className={`${formDialogFullClassName} flex flex-wrap justify-end gap-2 border-t border-ink/10 pt-4`}>
                   <button
                     type="button"
                     className="btn-secondary"

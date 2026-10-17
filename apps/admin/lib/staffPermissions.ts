@@ -19,12 +19,12 @@ export const STAFF_PERMISSION_KEYS: StaffPermissionKey[] = [
 
 export const STAFF_PERMISSION_LABELS: Record<StaffPermissionKey, string> = {
   dashboard: "داشبورد",
-  content: "محتوا (اخبار، مقالات، کتاب)",
-  heritage: "میراث (افراد، مکان، خط زمان)",
-  archive: "آرشیو و تاریخ شفاهی",
+  content: "محتوا و انتشارات",
+  heritage: "میراث فرهنگی",
+  archive: "آرشیو و رسانه",
   foundation: "بنیاد (پروژه، حامی، ارکان)",
-  engagement: "همراهی (کمک، عضو، خبرنامه)",
-  settings: "تنظیمات و کاربران پنل",
+  engagement: "کمک‌ها، اعضا و خبرنامه",
+  settings: "تنظیمات، پرداخت و کاربران پنل",
 };
 
 export function permissionForPath(path: string): StaffPermissionKey | null {
@@ -37,7 +37,12 @@ export function permissionForPath(path: string): StaffPermissionKey | null {
   if (p.startsWith("/people") || p.startsWith("/places") || p.startsWith("/timeline")) {
     return "heritage";
   }
-  if (p.startsWith("/archive") || p.startsWith("/oral-history") || p.startsWith("/media")) {
+  if (
+    p.startsWith("/archive") ||
+    p.startsWith("/oral-history") ||
+    p.startsWith("/media") ||
+    p.startsWith("/galleries")
+  ) {
     return "archive";
   }
   if (

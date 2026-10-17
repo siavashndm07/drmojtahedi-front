@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import {
   Building2,
   CreditCard,
+  Home,
   Image as ImageIcon,
   Link2,
   Loader2,
@@ -19,8 +20,16 @@ import {
   Type,
   Users,
 } from "lucide-react";
-import { mergeBrandColors, mergeSiteBanner } from "@drmojtahedi/shared";
+import {
+  DEFAULT_HOME_SECTION_ORDER,
+  DEFAULT_HOME_SECTIONS,
+  mergeBrandColors,
+  mergeHomeSections,
+  mergeSiteBanner,
+  normalizeHomeSectionOrder,
+} from "@drmojtahedi/shared";
 import BrandColorsEditor from "@/components/BrandColorsEditor";
+import HomeSectionOrderEditor from "@/components/HomeSectionOrderEditor";
 import ImageAssetField from "@/components/ImageAssetField";
 import LocationMapPickerLazy from "@/components/LocationMapPickerLazy";
 import PageHeader from "@/components/PageHeader";
@@ -120,6 +129,8 @@ function emptyForm(): SiteSettings {
     watermarkApplyKinds: [...DEFAULT_WATERMARK_KINDS],
     watermark: "",
     watermarkId: null,
+    homeSections: { ...DEFAULT_HOME_SECTIONS },
+    homeSectionOrder: [...DEFAULT_HOME_SECTION_ORDER],
   };
 }
 
@@ -152,6 +163,8 @@ export default function SiteSettingsClient() {
               data.watermarkApplyKinds?.length
                 ? data.watermarkApplyKinds
                 : [...DEFAULT_WATERMARK_KINDS],
+            homeSections: mergeHomeSections(data.homeSections),
+            homeSectionOrder: normalizeHomeSectionOrder(data.homeSectionOrder),
           };
           setForm(next);
           applyBrandColorsToDocument(next.brandColors);
@@ -204,6 +217,8 @@ export default function SiteSettingsClient() {
           saved.watermarkApplyKinds?.length
             ? saved.watermarkApplyKinds
             : [...DEFAULT_WATERMARK_KINDS],
+        homeSections: mergeHomeSections(saved.homeSections),
+        homeSectionOrder: normalizeHomeSectionOrder(saved.homeSectionOrder),
       };
       setForm(next);
       applyBrandColorsToDocument(next.brandColors);
@@ -697,6 +712,30 @@ export default function SiteSettingsClient() {
                   </Field>
                 </div>
               </div>
+            </FormAccordionItem>
+
+            <FormAccordionItem
+              id="homepage"
+              title="صفحه اصلی"
+              description="ترتیب و نمایش بخش‌های صفحه خانه"
+              icon={Home}
+            >
+              <HomeSectionOrderEditor
+                order={form.homeSectionOrder ?? DEFAULT_HOME_SECTION_ORDER}
+                enabled={form.homeSections ?? DEFAULT_HOME_SECTIONS}
+                onOrderChange={(homeSectionOrder) =>
+                  patch("homeSectionOrder", homeSectionOrder)
+                }
+                onEnabledChange={(key, active) =>
+                  patch("homeSections", {
+                    ...(form.homeSections ?? DEFAULT_HOME_SECTIONS),
+                    [key]: active,
+                  })
+                }
+                onResetOrder={() =>
+                  patch("homeSectionOrder", [...DEFAULT_HOME_SECTION_ORDER])
+                }
+              />
             </FormAccordionItem>
 
             <FormAccordionItem

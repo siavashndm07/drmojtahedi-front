@@ -8,7 +8,14 @@ import { createPortal } from "react-dom";
 import ActionIconButton from "@/components/ActionIconButton";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PageHeader from "@/components/PageHeader";
-import { Field, Input, Textarea } from "@/components/form";
+import {
+  Field,
+  Input,
+  Textarea,
+  formDialogClassName,
+  formDialogFieldsClassName,
+  formDialogFullClassName,
+} from "@/components/form";
 import { useAuth } from "@/lib/auth";
 import {
   apiDeleteArticleCategory,
@@ -132,7 +139,11 @@ export default function ArticlesCategoriesClient() {
                 if (!busy) setFormOpen(false);
               }}
             />
-            <div className="relative w-full max-w-md rounded-2xl border border-ink/10 bg-surface p-5 shadow-xl">
+            <div
+              role="dialog"
+              aria-modal="true"
+              className={formDialogClassName}
+            >
               <div className="mb-4 flex items-start justify-between">
                 <h2 className="font-bold text-ink">
                   {editing ? "ویرایش دسته" : "دسته جدید"}
@@ -146,7 +157,7 @@ export default function ArticlesCategoriesClient() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <form onSubmit={onSubmit} noValidate className="space-y-4">
+              <form onSubmit={onSubmit} noValidate className={formDialogFieldsClassName}>
                 <Field label="عنوان" htmlFor="cat-title" error={fieldErrors.title}>
                   <Input
                     id="cat-title"
@@ -174,7 +185,7 @@ export default function ArticlesCategoriesClient() {
                     className="text-start"
                   />
                 </Field>
-                <Field label="توضیح" htmlFor="cat-desc">
+                <Field label="توضیح" htmlFor="cat-desc" className={formDialogFullClassName}>
                   <Textarea
                     id="cat-desc"
                     value={description}
@@ -182,7 +193,7 @@ export default function ArticlesCategoriesClient() {
                     rows={3}
                   />
                 </Field>
-                <div className="flex justify-end gap-2">
+                <div className={`${formDialogFullClassName} flex justify-end gap-2 border-t border-ink/10 pt-4`}>
                   <button
                     type="button"
                     className="btn-secondary"

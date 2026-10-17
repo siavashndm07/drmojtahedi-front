@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { OptionPills } from "@/components/forms/OptionPills";
 import { SelectListbox } from "@/components/forms/SelectListbox";
 import { useAuth } from "@/lib/auth";
@@ -17,7 +18,6 @@ import { toEnglishDigits, toPersianDigits } from "@/lib/utils/digits";
 
 export default function ProfileClient() {
   const { user, updateProfile } = useAuth();
-  const [saved, setSaved] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{
     firstName?: string;
     lastName?: string;
@@ -72,14 +72,26 @@ export default function ProfileClient() {
                 : undefined,
           };
           setFieldErrors(next);
-          if (next.firstName || next.lastName || next.email) return;
+          if (next.firstName || next.lastName || next.email) {
+            toast.error(
+              next.email === "ایمیل معتبر وارد کنید."
+                ? next.email
+                : "لطفا فیلدهای الزامی را تکمیل کنید.",
+            );
+            return;
+          }
           void updateProfile({
             ...form,
             nationalId: toEnglishDigits(form.nationalId).replace(/\D/g, ""),
-          }).then(() => {
-            setSaved(true);
-            window.setTimeout(() => setSaved(false), 2500);
-          });
+          })
+            .then(() => {
+              toast.success("اطلاعات ذخیره شد.");
+            })
+            .catch((err) => {
+              toast.error(
+                err instanceof Error ? err.message : "ذخیره پروفایل ناموفق بود.",
+              );
+            });
         }}
       >
         <div className="grid gap-4 sm:grid-cols-2">
@@ -162,9 +174,6 @@ export default function ProfileClient() {
         >
           ذخیره تغییرات
         </button>
-        {saved ? (
-          <p className="text-sm text-pine">اطلاعات ذخیره شد.</p>
-        ) : null}
       </form>
     </div>
   );

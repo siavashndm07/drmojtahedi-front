@@ -6,7 +6,14 @@ import { Loader2, Trash2, Users } from "lucide-react";
 import { createPortal } from "react-dom";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PageHeader from "@/components/PageHeader";
-import { Field, Input, Select } from "@/components/form";
+import {
+  Field,
+  Input,
+  Select,
+  formDialogClassName,
+  formDialogFieldsClassName,
+  formDialogFullClassName,
+} from "@/components/form";
 import { useAuth } from "@/lib/auth";
 import { isApiEnabled } from "@/lib/api/client";
 import {
@@ -163,13 +170,13 @@ export default function MembersListClient() {
             <div
               role="dialog"
               aria-modal="true"
-              className="relative w-full max-w-lg rounded-2xl border border-ink/10 bg-surface p-5 shadow-xl sm:p-6"
+              className={formDialogClassName}
             >
               <h2 className="text-base font-bold text-ink">ویرایش عضو</h2>
               <p className="mt-1 text-xs text-ink-muted" dir="ltr">
                 {editing.phone}
               </p>
-              <form onSubmit={onSubmit} noValidate className="mt-4 space-y-4">
+              <form onSubmit={onSubmit} noValidate className={`mt-4 ${formDialogFieldsClassName}`}>
                 <Field label="نام" htmlFor="member-first">
                   <Input
                     id="member-first"
@@ -198,7 +205,7 @@ export default function MembersListClient() {
                     onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
                   />
                 </Field>
-                <Field label="ارکان / نوع عضویت" htmlFor="member-tier">
+                <Field label="ارکان / نوع عضویت" htmlFor="member-tier" className={formDialogFullClassName}>
                   <Select
                     id="member-tier"
                     value={form.membershipTierId}
@@ -217,14 +224,14 @@ export default function MembersListClient() {
                   </Select>
                 </Field>
                 {selectedTierFee != null ? (
-                  <p className="text-xs text-ink-muted">
+                  <p className={`${formDialogFullClassName} text-xs text-ink-muted`}>
                     حق عضویت سالانه این ارکان:{" "}
                     <span className="font-medium text-ink" dir="ltr">
                       {toPersianDigits(selectedTierFee.toLocaleString("en-US"))} ریال
                     </span>
                   </p>
                 ) : null}
-                <div className="flex justify-end gap-2 border-t border-ink/10 pt-4">
+                <div className={`${formDialogFullClassName} flex justify-end gap-2 border-t border-ink/10 pt-4`}>
                   <button
                     type="button"
                     className="btn-secondary"
@@ -303,8 +310,19 @@ export default function MembersListClient() {
                         : " · بدون حق عضویت"}
                       {r.city ? ` · ${r.city}` : ""}
                       {r.education ? ` · ${r.education}` : ""}
-                      {" · "}
+                      {" · عضویت "}
                       {formatFaDateTime(r.created_at)}
+                    </p>
+                    <p className="mt-1 text-xs text-ink-muted">
+                      آخرین ورود:{" "}
+                      {r.lastLogin || r.last_login
+                        ? formatFaDateTime(r.lastLogin || r.last_login)
+                        : "هنوز وارد نشده"}
+                      <span className="mx-1.5">·</span>
+                      IP:{" "}
+                      <span dir="ltr" className="font-mono">
+                        {(r.lastLoginIp || r.last_login_ip || "").trim() || "—"}
+                      </span>
                     </p>
                   </div>
                   <div className="flex gap-2">
