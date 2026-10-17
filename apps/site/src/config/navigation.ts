@@ -168,6 +168,7 @@ export const primaryNavigation: NavItem[] = [
 export const utilityNavigation: NavChild[] = [
   { label: "جستجو", href: "/search", icon: "search" },
   { label: "حامیان", href: "/sponsors", icon: "sponsors" },
+  { label: "پیوندهای مفید", href: "/links", icon: "collaborate" },
   { label: "حمایت", href: "/support", icon: "support" },
   { label: "کمک مالی", href: "/donate", icon: "support" },
   { label: "خبرنامه", href: "/newsletter", icon: "news" },
@@ -215,6 +216,7 @@ export const footerColumns = [
       { label: "شفافیت", href: "/transparency", icon: "charter" as NavIconName },
       { label: "کمک مالی", href: "/donate", icon: "support" as NavIconName },
       { label: "حامیان", href: "/sponsors", icon: "sponsors" as NavIconName },
+      { label: "پیوندهای مفید", href: "/links", icon: "collaborate" as NavIconName },
       { label: "عضویت", href: "/account/membership", icon: "person" as NavIconName },
       { label: "رسانه", href: "/press", icon: "news" as NavIconName },
       { label: "تماس", href: "/contact", icon: "contact" as NavIconName },

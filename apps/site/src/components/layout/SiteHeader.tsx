@@ -22,6 +22,7 @@ import {
   type NavItem,
 } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
+import { useSiteSettings } from "@/lib/SiteSettingsProvider";
 import { cn } from "@/lib/utils/cn";
 
 function MegaLink({
@@ -346,6 +347,9 @@ function MobileAccordionItem({
 }
 
 export function SiteHeader() {
+  const site = useSiteSettings();
+  const logoSrc = site.logo || "/images/header.png";
+  const siteName = site.nameFa || siteConfig.name;
   const [open, setOpen] = useState(false);
   const [activeMega, setActiveMega] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -509,14 +513,15 @@ export function SiteHeader() {
           <div className="flex h-16 items-center justify-between gap-3 md:h-[4.75rem]">
             <Link href="/" className="flex min-w-0 items-center gap-3">
               <Image
-                src="/images/header.png"
-                alt={siteConfig.name}
+                src={logoSrc}
+                alt={siteName}
                 width={168}
                 height={56}
-                className="h-10 w-auto md:h-12"
+                className="h-10 w-auto md:h-12 object-contain"
                 priority
+                unoptimized={logoSrc.startsWith("http")}
               />
-              <span className="sr-only">{siteConfig.name}</span>
+              <span className="sr-only">{siteName}</span>
             </Link>
 
             <nav

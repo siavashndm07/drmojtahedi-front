@@ -22,8 +22,10 @@ import {
 import { mergeBrandColors, mergeSiteBanner } from "@drmojtahedi/shared";
 import BrandColorsEditor from "@/components/BrandColorsEditor";
 import ImageAssetField from "@/components/ImageAssetField";
+import LocationMapPickerLazy from "@/components/LocationMapPickerLazy";
 import PageHeader from "@/components/PageHeader";
 import WatermarkPositionPicker from "@/components/WatermarkPositionPicker";
+import { hasMapCoordinates } from "@/lib/geocode";
 import {
   Checkbox,
   Field,
@@ -644,39 +646,12 @@ export default function SiteSettingsClient() {
                     className="text-start"
                   />
                 </Field>
-                <Field label="واتساپ" htmlFor="whatsapp">
-                  <Input
-                    id="whatsapp"
-                    value={form.whatsapp ?? ""}
-                    onChange={(e) => patch("whatsapp", e.target.value)}
-                    dir="ltr"
-                    className="text-start"
-                  />
-                </Field>
-                <Field label="لینک واتساپ" htmlFor="whatsapp-href">
-                  <Input
-                    id="whatsapp-href"
-                    value={form.whatsappHref ?? ""}
-                    onChange={(e) => patch("whatsappHref", e.target.value)}
-                    dir="ltr"
-                    className="text-start"
-                    placeholder="https://wa.me/…"
-                  />
-                </Field>
                 <Field label="ساعات پاسخگویی" htmlFor="hours" className="sm:col-span-2">
                   <Input
                     id="hours"
                     value={form.contactHours ?? ""}
                     onChange={(e) => patch("contactHours", e.target.value)}
                     placeholder="شنبه تا چهارشنبه ۹–۱۷"
-                  />
-                </Field>
-                <Field label="آدرس" htmlFor="address" className="sm:col-span-2">
-                  <Textarea
-                    id="address"
-                    rows={2}
-                    value={form.address ?? ""}
-                    onChange={(e) => patch("address", e.target.value)}
                   />
                 </Field>
                 <Field label="توضیح تماس" htmlFor="contact-desc" className="sm:col-span-2">
@@ -687,28 +662,40 @@ export default function SiteSettingsClient() {
                     onChange={(e) => patch("contactDescription", e.target.value)}
                   />
                 </Field>
-                <Field label="عرض جغرافیایی" htmlFor="lat">
-                  <Input
-                    id="lat"
-                    value={form.mapLat ?? ""}
-                    onChange={(e) =>
-                      patch("mapLat", e.target.value ? Number(e.target.value) : null)
+                <div className="sm:col-span-2 space-y-3">
+                  <p className="text-sm font-medium text-ink">موقعیت روی نقشه</p>
+                  <LocationMapPickerLazy
+                    value={
+                      hasMapCoordinates({
+                        lat: form.mapLat ?? undefined,
+                        lon: form.mapLon ?? undefined,
+                      })
+                        ? { lat: form.mapLat as number, lon: form.mapLon as number }
+                        : null
                     }
-                    dir="ltr"
-                    className="text-start"
+                    onChange={(coords) => {
+                      setForm((prev) =>
+                        prev
+                          ? { ...prev, mapLat: coords.lat, mapLon: coords.lon }
+                          : prev,
+                      );
+                    }}
+                    onAddressSuggestion={(line) => {
+                      setForm((prev) =>
+                        prev ? { ...prev, address: line } : prev,
+                      );
+                    }}
                   />
-                </Field>
-                <Field label="طول جغرافیایی" htmlFor="lon">
-                  <Input
-                    id="lon"
-                    value={form.mapLon ?? ""}
-                    onChange={(e) =>
-                      patch("mapLon", e.target.value ? Number(e.target.value) : null)
-                    }
-                    dir="ltr"
-                    className="text-start"
-                  />
-                </Field>
+                  <Field label="آدرس" htmlFor="address">
+                    <Textarea
+                      id="address"
+                      rows={2}
+                      value={form.address ?? ""}
+                      onChange={(e) => patch("address", e.target.value)}
+                      placeholder="آدرس کامل — با انتخاب روی نقشه پیشنهاد می‌شود"
+                    />
+                  </Field>
+                </div>
               </div>
             </FormAccordionItem>
 

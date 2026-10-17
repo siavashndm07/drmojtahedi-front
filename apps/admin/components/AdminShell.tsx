@@ -130,6 +130,7 @@ const MENU: NavItem[] = [
       { key: "projects", label: "پروژه‌ها", href: "/projects", icon: Building2 },
       { key: "sponsors", label: "حامیان", href: "/sponsors", icon: HandHeart },
       { key: "organs", label: "ارکان", href: "/organs", icon: Users },
+      { key: "useful-links", label: "پیوندهای مفید", href: "/useful-links", icon: ExternalLink },
     ],
   },
   {
@@ -138,6 +139,9 @@ const MENU: NavItem[] = [
     icon: HandHeart,
     children: [
       { key: "donations", label: "کمک‌ها", href: "/donations", icon: HandHeart },
+      { key: "donation-goals", label: "اهداف کمک", href: "/donation-goals", icon: HandHeart },
+      { key: "membership-tiers", label: "انواع عضویت", href: "/membership-tiers", icon: CreditCard },
+      { key: "membership-fees", label: "حق عضویت", href: "/membership-fees", icon: CreditCard },
       { key: "members", label: "اعضا", href: "/members", icon: Users },
       { key: "newsletter", label: "خبرنامه", href: "/newsletter", icon: Mail },
       {

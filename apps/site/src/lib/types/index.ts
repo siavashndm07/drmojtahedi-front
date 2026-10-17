@@ -73,6 +73,15 @@ export type Sponsor = EntityBase & {
   coverImage?: MediaAsset;
 };
 
+export type UsefulLink = {
+  id: number | string;
+  title: string;
+  url: string;
+  sortOrder?: number;
+  isActive?: boolean;
+  logoImage?: MediaAsset | null;
+};
+
 export type FoundationProject = EntityBase & {
   phase?: string;
   location?: string;

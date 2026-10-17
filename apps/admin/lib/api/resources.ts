@@ -244,6 +244,55 @@ export async function apiDeleteSponsor(token: string, id: string | number) {
   return apiFetch(`/admin/sponsors/${id}/`, { method: "DELETE", token });
 }
 
+export type UsefulLink = {
+  id: number | string;
+  title: string;
+  url: string;
+  sortOrder?: number;
+  sort_order?: number;
+  isActive?: boolean;
+  is_active?: boolean;
+  logoId?: string | null;
+  logoImage?: { id?: string; src: string; alt?: string } | null;
+};
+
+export async function apiListUsefulLinks(token: string) {
+  return unwrapList(
+    await apiFetch<UsefulLink[] | Paginated<UsefulLink>>("/admin/useful-links/", {
+      token,
+    }),
+  );
+}
+
+export async function apiSaveUsefulLink(
+  token: string,
+  payload: {
+    title: string;
+    url: string;
+    sortOrder?: number;
+    isActive?: boolean;
+    logoId?: string | null;
+  },
+  id?: string | number,
+) {
+  if (id) {
+    return apiFetch<UsefulLink>(`/admin/useful-links/${id}/`, {
+      method: "PATCH",
+      token,
+      body: JSON.stringify(payload),
+    });
+  }
+  return apiFetch<UsefulLink>("/admin/useful-links/", {
+    method: "POST",
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function apiDeleteUsefulLink(token: string, id: string | number) {
+  return apiFetch(`/admin/useful-links/${id}/`, { method: "DELETE", token });
+}
+
 export async function apiListNewsletter(token: string) {
   return unwrapList(
     await apiFetch<NewsletterRow[] | Paginated<NewsletterRow>>("/admin/newsletter/", {
@@ -343,6 +392,19 @@ export type DonationRow = {
   created_at?: string;
 };
 
+export type MembershipTierRow = {
+  id: number | string;
+  title: string;
+  slug?: string;
+  annualFeeRials?: number;
+  annual_fee_rials?: number;
+  description?: string;
+  sortOrder?: number;
+  sort_order?: number;
+  isActive?: boolean;
+  is_active?: boolean;
+};
+
 export type MemberRow = {
   id: number | string;
   phone: string;
@@ -352,8 +414,13 @@ export type MemberRow = {
   last_name?: string;
   education?: string;
   city?: string;
+  membershipTierId?: number | string | null;
+  membership_tier?: number | string | null;
   membershipType?: string;
   membership_type?: string;
+  annualFeeRials?: number;
+  annual_fee_rials?: number;
+  membershipStatus?: string;
   created_at?: string;
 };
 
@@ -465,6 +532,132 @@ export async function apiDeleteDonation(token: string, id: string | number) {
   return apiFetch(`/admin/donations/${id}/`, { method: "DELETE", token });
 }
 
+export type DonationGoalRow = {
+  id: number | string;
+  title: string;
+  description?: string;
+  slug?: string;
+  sortOrder?: number;
+  sort_order?: number;
+  isActive?: boolean;
+  is_active?: boolean;
+};
+
+export async function apiListDonationGoals(token: string) {
+  return unwrapList(
+    await apiFetch<DonationGoalRow[] | Paginated<DonationGoalRow>>(
+      "/admin/donation-goals/",
+      { token },
+    ),
+  );
+}
+
+export async function apiSaveDonationGoal(
+  token: string,
+  payload: {
+    title: string;
+    description?: string;
+    sortOrder?: number;
+    isActive?: boolean;
+  },
+  id?: string | number,
+) {
+  if (id) {
+    return apiFetch<DonationGoalRow>(`/admin/donation-goals/${id}/`, {
+      method: "PATCH",
+      token,
+      body: JSON.stringify(payload),
+    });
+  }
+  return apiFetch<DonationGoalRow>("/admin/donation-goals/", {
+    method: "POST",
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function apiDeleteDonationGoal(token: string, id: string | number) {
+  return apiFetch(`/admin/donation-goals/${id}/`, { method: "DELETE", token });
+}
+
+export type DonationGoalRow = {
+  id: number | string;
+  title: string;
+  description?: string;
+  slug?: string;
+  sortOrder?: number;
+  sort_order?: number;
+  isActive?: boolean;
+  is_active?: boolean;
+};
+
+export async function apiListDonationGoals(token: string) {
+  return unwrapList(
+    await apiFetch<DonationGoalRow[] | Paginated<DonationGoalRow>>(
+      "/admin/donation-goals/",
+      { token },
+    ),
+  );
+}
+
+export async function apiSaveDonationGoal(
+  token: string,
+  payload: {
+    title: string;
+    description?: string;
+    sortOrder?: number;
+    isActive?: boolean;
+  },
+  id?: string | number,
+) {
+  if (id) {
+    return apiFetch<DonationGoalRow>(`/admin/donation-goals/${id}/`, {
+      method: "PATCH",
+      token,
+      body: JSON.stringify(payload),
+    });
+  }
+  return apiFetch<DonationGoalRow>("/admin/donation-goals/", {
+    method: "POST",
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function apiDeleteDonationGoal(token: string, id: string | number) {
+  return apiFetch(`/admin/donation-goals/${id}/`, { method: "DELETE", token });
+}
+
+const membershipTiersApi = crudHelpers<MembershipTierRow>("/admin/membership-tiers/");
+
+export const apiListMembershipTiers = membershipTiersApi.list;
+
+export async function apiSaveMembershipTier(
+  token: string,
+  payload: {
+    title: string;
+    annualFeeRials: number;
+    description?: string;
+    sortOrder?: number;
+    isActive?: boolean;
+  },
+  id?: string | number,
+) {
+  return membershipTiersApi.save(
+    token,
+    {
+      title: payload.title,
+      annualFeeRials: payload.annualFeeRials,
+      description: payload.description ?? "",
+      sortOrder: payload.sortOrder ?? 0,
+      isActive: payload.isActive ?? true,
+    },
+    id,
+  );
+}
+
+export const apiDeleteMembershipTier = membershipTiersApi.remove;
+
 export async function apiListMembers(token: string) {
   return unwrapList(
     await apiFetch<MemberRow[] | Paginated<MemberRow>>("/admin/members/", { token }),
@@ -474,7 +667,7 @@ export async function apiListMembers(token: string) {
 export async function apiPatchMember(
   token: string,
   id: string | number,
-  payload: Partial<MemberRow>,
+  payload: Partial<MemberRow> & { membershipTierId?: number | string | null },
 ) {
   return apiFetch<MemberRow>(`/admin/members/${id}/`, {
     method: "PATCH",
@@ -485,4 +678,48 @@ export async function apiPatchMember(
 
 export async function apiDeleteMember(token: string, id: string | number) {
   return apiFetch(`/admin/members/${id}/`, { method: "DELETE", token });
+}
+
+export type MembershipFeeRow = {
+  id: number | string;
+  amount: number;
+  method?: string;
+  gateway?: string;
+  gatewayLabel?: string;
+  status?: string;
+  memberPhone?: string;
+  memberName?: string;
+  tierTitle?: string;
+  tier_title?: string;
+  transactionId?: string;
+  transaction_id?: string;
+  periodYear?: number | null;
+  period_year?: number | null;
+  createdAt?: string;
+  created_at?: string;
+};
+
+export async function apiListMembershipFees(token: string) {
+  return unwrapList(
+    await apiFetch<MembershipFeeRow[] | Paginated<MembershipFeeRow>>(
+      "/admin/membership-fees/",
+      { token },
+    ),
+  );
+}
+
+export async function apiPatchMembershipFee(
+  token: string,
+  id: string | number,
+  payload: Partial<MembershipFeeRow>,
+) {
+  return apiFetch<MembershipFeeRow>(`/admin/membership-fees/${id}/`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function apiDeleteMembershipFee(token: string, id: string | number) {
+  return apiFetch(`/admin/membership-fees/${id}/`, { method: "DELETE", token });
 }

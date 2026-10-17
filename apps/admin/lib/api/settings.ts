@@ -160,6 +160,7 @@ export type OpsSettings = {
   cardToCard?: boolean;
   cardHolder?: string;
   cardNumber?: string;
+  donateMessage?: string;
   gateway?: PaymentGateway;
   defaultGateway?: PaymentGateway;
   gatewayLabel?: string;

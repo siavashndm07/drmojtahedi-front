@@ -1,15 +1,18 @@
+"use client";
+
 import Link from "next/link";
 import { NewsletterSignup } from "@/components/forms/NewsletterSignup";
 import { getNavIcon } from "@/components/icons/navIcons";
 import { footerColumns, utilityNavigation } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
+import { useSiteSettings } from "@/lib/SiteSettingsProvider";
 import { FOOTER_SOCIAL_LINKS, getActiveSocialLinks } from "@/lib/socialLinks";
 import { toPersianDigits } from "@/lib/utils/digits";
 import { cn } from "@/lib/utils/cn";
 
 function FooterSocials() {
-  const active = getActiveSocialLinks();
-  /** Show all platforms; inactive ones link to contact until URLs are configured */
+  const site = useSiteSettings();
+  const active = getActiveSocialLinks(site.social);
   const links = FOOTER_SOCIAL_LINKS.map((item) => {
     const found = active.find((a) => a.id === item.id);
     return {
@@ -42,31 +45,31 @@ function FooterSocials() {
 }
 
 export function SiteFooter() {
+  const site = useSiteSettings();
   const year = toPersianDigits(new Date().getFullYear());
+  const name = site.nameFa || siteConfig.name;
+  const tagline = site.tagline || siteConfig.tagline;
+  const address = site.address || siteConfig.address;
+  const phone = site.phone || siteConfig.phone;
+  const email = site.email || siteConfig.email;
 
   return (
     <footer className="mt-auto border-t border-ink/10 bg-pine-dark text-white">
       <div className="content-wide section-pad !py-12 md:!py-16">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_2fr]">
           <div className="space-y-4">
-            <p className="text-sm text-white/70">{siteConfig.name}</p>
+            <p className="text-sm text-white/70">{name}</p>
             <p className="text-display text-2xl">{siteConfig.personName}</p>
-            <p className="text-sm font-medium text-mint-soft/90">{siteConfig.tagline}</p>
+            <p className="text-sm font-medium text-mint-soft/90">{tagline}</p>
             <p className="max-w-md text-sm leading-7 text-white/75">
               {siteConfig.personRoles.slice(0, 2).join(" · ")}
             </p>
-            <p className="max-w-md text-sm leading-7 text-white/60">{siteConfig.address}</p>
+            <p className="max-w-md text-sm leading-7 text-white/60">{address}</p>
             <p className="text-sm text-white/60">
-              تلفن: {toPersianDigits(siteConfig.phone)} · {siteConfig.email}
+              تلفن: {toPersianDigits(phone)} · {email}
             </p>
             <FooterSocials />
             <NewsletterSignup variant="footer" />
-            <p className="text-xs text-white/50">
-              عضویت آزمایشی است؛ ارسال واقعی پس از پنل ادمین.{" "}
-              <Link href="/newsletter" className="underline hover:text-white">
-                صفحهٔ خبرنامه
-              </Link>
-            </p>
           </div>
 
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -102,7 +105,7 @@ export function SiteFooter() {
 
         <div className="mt-12 flex flex-col gap-4 border-t border-white/15 pt-6 text-sm text-white/60 md:flex-row md:items-center md:justify-between">
           <p>
-            © {year} {siteConfig.name}
+            © {year} {name}
           </p>
           <ul className="flex flex-wrap gap-4">
             {utilityNavigation.map((item) => {

@@ -1,28 +1,14 @@
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import { mergeSiteBanner, type SiteBanner } from "@drmojtahedi/shared";
-import { getServerApiUrl, rewritePublicMediaUrl } from "@/lib/api/config";
-import { siteSettings } from "@/lib/site-settings";
+import { rewritePublicMediaUrl } from "@/lib/api/config";
 
-async function loadSiteBanner(): Promise<SiteBanner> {
-  const fallback = mergeSiteBanner(siteSettings.siteBanner);
-  const base = getServerApiUrl();
-  if (!base) return fallback;
-  try {
-    const response = await fetch(`${base}/site/`, {
-      headers: { Accept: "application/json" },
-      next: { revalidate: 30 },
-    });
-    if (!response.ok) return fallback;
-    const data = (await response.json()) as { siteBanner?: Partial<SiteBanner> | null };
-    return mergeSiteBanner(data.siteBanner ?? fallback);
-  } catch {
-    return fallback;
-  }
-}
-
-export async function SiteAnnouncementBanner() {
-  const banner = await loadSiteBanner();
+export function SiteAnnouncementBanner({
+  banner: bannerProp,
+}: {
+  banner?: SiteBanner | null;
+}) {
+  const banner = mergeSiteBanner(bannerProp);
   if (!banner.enabled) return null;
 
   const mode = banner.mode === "image" ? "image" : "text";

@@ -4,6 +4,7 @@ import { FadeIn } from "@/components/shared/FadeIn";
 import { PageHero } from "@/components/shared/PageHero";
 import { siteConfig } from "@/config/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { loadSiteSettings } from "@/lib/site-settings";
 import { toPersianDigits } from "@/lib/utils/digits";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -12,17 +13,25 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/contact",
 });
 
-const rows = [
-  { label: "نشانی", value: siteConfig.address },
-  { label: "کد پستی", value: toPersianDigits(siteConfig.postalCode) },
-  { label: "تلفن ثابت", value: toPersianDigits(siteConfig.phone) },
-  { label: "نمابر", value: toPersianDigits(siteConfig.fax) },
-  { label: "همراه", value: toPersianDigits(siteConfig.mobile) },
-  { label: "ایمیل", value: siteConfig.email },
-  { label: "ایمیل جایگزین", value: siteConfig.emailAlt },
-];
+export default async function ContactPage() {
+  const site = await loadSiteSettings();
+  const email = site.email || siteConfig.email;
+  const phone = site.phone || siteConfig.phone;
+  const mobile = site.phoneSecondary || siteConfig.mobile;
+  const address = site.address || siteConfig.address;
 
-export default function ContactPage() {
+  const rows = [
+    { label: "نشانی", value: address },
+    { label: "کد پستی", value: toPersianDigits(siteConfig.postalCode) },
+    { label: "تلفن ثابت", value: toPersianDigits(phone) },
+    { label: "نمابر", value: toPersianDigits(siteConfig.fax) },
+    { label: "همراه", value: toPersianDigits(mobile) },
+    { label: "ایمیل", value: email },
+    ...(siteConfig.emailAlt
+      ? [{ label: "ایمیل جایگزین", value: siteConfig.emailAlt }]
+      : []),
+  ];
+
   return (
     <div>
       <PageHero
@@ -33,7 +42,7 @@ export default function ContactPage() {
         actions={
           <>
             <a
-              href={`mailto:${siteConfig.email}`}
+              href={`mailto:${email}`}
               className="inline-flex rounded-lg bg-pine px-5 py-3 text-sm font-medium text-white hover:bg-pine-dark"
             >
               ارسال ایمیل
@@ -60,7 +69,9 @@ export default function ContactPage() {
             </dl>
             <div className="rounded-2xl border border-ink/10 bg-mint-soft/40 p-6 md:p-8">
               <h2 className="text-display text-xl">اطلاعات رسمی</h2>
-              <p className="mt-3 text-sm leading-8 text-ink-muted">{siteConfig.legalName}</p>
+              <p className="mt-3 text-sm leading-8 text-ink-muted">
+                {site.nameFa || siteConfig.legalName}
+              </p>
               <p className="mt-4 text-sm text-ink-muted">
                 شماره ثبت: {toPersianDigits(siteConfig.registrationNumber)}
               </p>

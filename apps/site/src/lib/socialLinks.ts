@@ -39,14 +39,18 @@ export const FOOTER_SOCIAL_LINKS: FooterSocialLink[] = [
   { id: "rubika", label: "Rubika", labelFa: "روبیکا", Icon: RubikaIcon },
 ];
 
-export function resolveSocialHref(id: SocialKey): string {
-  const value = siteConfig.social[id]?.trim() ?? "";
-  return value;
+export function resolveSocialHref(
+  id: SocialKey,
+  social?: Partial<Record<string, string>> | null,
+): string {
+  const fromApi = social?.[id]?.trim() ?? "";
+  if (fromApi) return fromApi;
+  return siteConfig.social[id]?.trim() ?? "";
 }
 
-export function getActiveSocialLinks() {
+export function getActiveSocialLinks(social?: Partial<Record<string, string>> | null) {
   return FOOTER_SOCIAL_LINKS.map((item) => ({
     ...item,
-    href: resolveSocialHref(item.id),
+    href: resolveSocialHref(item.id, social),
   })).filter((item) => Boolean(item.href));
 }

@@ -6,18 +6,27 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  Copy,
+  CreditCard,
   Heart,
   Loader2,
   ShieldCheck,
 } from "lucide-react";
+import { PaymentGatewayIcon } from "@/components/PaymentGatewayIcon";
 import { useAuthUi } from "@/components/auth/AuthUi";
 import { useAuth } from "@/lib/auth";
+import {
+  getDonatePaymentOptions,
+  startDonatePayment,
+  type DonatePaymentOptions,
+} from "@/lib/api/donate";
+import { ApiError } from "@/lib/api/client";
+import { isApiEnabled } from "@/lib/api/config";
 import {
   DONATE_AMOUNT_PRESETS,
   DONATE_MESSAGE,
   DONATE_MIN_RIALS,
   DONATE_TARGETS,
-  PAYMENT_BANKS,
   formatRials,
   formatToman,
 } from "@/lib/mock/donations";
@@ -37,6 +46,11 @@ const STEPS: { id: Step; label: string }[] = [
   { id: "pay", label: "پرداخت" },
 ];
 
+function formatCardNumber(value: string): string {
+  const digits = toEnglishDigits(value).replace(/\D/g, "");
+  return digits.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+}
+
 export function DonateForm({ mode = "public" }: DonateFormProps) {
   const { user, addDonation } = useAuth();
   const { openLogin } = useAuthUi();
@@ -49,16 +63,54 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
   const [lastName, setLastName] = useState("");
   const [nationalId, setNationalId] = useState("");
   const [phone, setPhone] = useState("");
-  const [bankId, setBankId] = useState<string | null>(null);
+  const [methodId, setMethodId] = useState<string | null>(null);
+  const [gatewayId, setGatewayId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const [awaitingAuth, setAwaitingAuth] = useState(false);
+  const [options, setOptions] = useState<DonatePaymentOptions | null>(null);
+  const [optionsLoading, setOptionsLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
   const [receipt, setReceipt] = useState<{
     amountRials: number;
     bankName: string;
     transactionId: string;
     targets: string[];
+    method: string;
+    cardNumber?: string;
+    cardHolder?: string;
   } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setOptionsLoading(true);
+      try {
+        const data = await getDonatePaymentOptions();
+        if (cancelled) return;
+        setOptions(data);
+        const firstMethod = data.methods[0]?.id ?? null;
+        setMethodId(firstMethod);
+        setGatewayId(data.defaultGateway ?? data.gateways[0]?.id ?? null);
+      } catch {
+        if (!cancelled) {
+          setOptions({
+            methods: [],
+            gateways: [],
+            defaultGateway: null,
+            cardToCard: { enabled: false, cardHolder: "", cardNumber: "" },
+            minAmountRials: DONATE_MIN_RIALS,
+          });
+        }
+      } finally {
+        if (!cancelled) setOptionsLoading(false);
+      }
+    }
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -78,6 +130,17 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
     [targetIds],
   );
 
+  const minAmount = options?.minAmountRials ?? DONATE_MIN_RIALS;
+  const methods = options?.methods ?? [];
+  const gateways = options?.gateways ?? [];
+  const card = options?.cardToCard;
+  const onlineSelected = methodId === "online";
+  const cardSelected = methodId === "card_to_card";
+  const canPay =
+    Boolean(methodId) &&
+    (cardSelected || (onlineSelected && Boolean(gatewayId))) &&
+    !optionsLoading;
+
   const stepIndex = STEPS.findIndex((s) => s.id === step);
 
   const parseAmount = (raw: string) => {
@@ -88,9 +151,9 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
   const goNext = () => {
     setError(null);
     if (step === "amount") {
-      if (amount < DONATE_MIN_RIALS) {
+      if (amount < minAmount) {
         setError(
-          `حداقل مبلغ ${toPersianDigits(formatRials(DONATE_MIN_RIALS))} ریال است.`,
+          `حداقل مبلغ ${toPersianDigits(formatRials(minAmount))} ریال است.`,
         );
         return;
       }
@@ -142,42 +205,123 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
       setError("برای پرداخت ابتدا وارد شوید.");
       return;
     }
-    if (!bankId) {
-      setError("درگاه پرداخت را انتخاب کنید.");
+    if (!methodId) {
+      setError("روش پرداخت را انتخاب کنید.");
       return;
     }
-    const bank = PAYMENT_BANKS.find((b) => b.id === bankId);
-    if (!bank) return;
+    if (onlineSelected && !gatewayId) {
+      setError("درگاه بانکی را انتخاب کنید.");
+      return;
+    }
+    if (!methods.length) {
+      setError("در حال حاضر روش پرداختی فعال نیست. از تنظیمات ادمین فعال کنید.");
+      return;
+    }
+
+    const gatewayLabel =
+      gateways.find((g) => g.id === gatewayId)?.label ?? "درگاه آنلاین";
+    const bankName = cardSelected
+      ? "کارت‌به‌کارت"
+      : gatewayLabel;
+    const targets = selectedTargets.map((t) => t.title);
 
     setPaying(true);
-    await new Promise((r) => setTimeout(r, 700));
-    const now = new Date();
-    const transactionId = `DEMO-${now.getTime().toString().slice(-8)}`;
-    const targets = selectedTargets.map((t) => t.title);
-    addDonation({
-      dateLabel: now.toLocaleDateString("fa-IR"),
-      timeLabel: now.toLocaleTimeString("fa-IR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      amountRials: amount,
-      transactionId,
-      bankName: bank.name,
-      targets,
-    });
-    setReceipt({
-      amountRials: amount,
-      bankName: bank.name,
-      transactionId,
-      targets,
-    });
-    setPaying(false);
-    setStep("receipt");
+    try {
+      if (!isApiEnabled()) {
+        await new Promise((r) => setTimeout(r, 500));
+        const transactionId = `LOCAL-${Date.now().toString().slice(-8)}`;
+        addDonation({
+          dateLabel: new Date().toLocaleDateString("fa-IR"),
+          timeLabel: new Date().toLocaleTimeString("fa-IR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          amountRials: amount,
+          transactionId,
+          bankName,
+          targets,
+        });
+        setReceipt({
+          amountRials: amount,
+          bankName,
+          transactionId,
+          targets,
+          method: methodId,
+          cardNumber: cardSelected ? card?.cardNumber : undefined,
+          cardHolder: cardSelected ? card?.cardHolder : undefined,
+        });
+        setStep("receipt");
+        return;
+      }
+
+      const result = await startDonatePayment({
+        amount,
+        method: methodId,
+        gateway: onlineSelected ? gatewayId : null,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        phone: toEnglishDigits(phone),
+        nationalId: toEnglishDigits(nationalId),
+        goals: targets,
+      });
+
+      if (result.redirectUrl) {
+        window.location.assign(result.redirectUrl);
+        return;
+      }
+
+      const transactionId =
+        result.transactionId || `DON-${result.donationId}`;
+      addDonation({
+        dateLabel: new Date().toLocaleDateString("fa-IR"),
+        timeLabel: new Date().toLocaleTimeString("fa-IR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        amountRials: amount,
+        transactionId,
+        bankName,
+        targets,
+      });
+      setReceipt({
+        amountRials: amount,
+        bankName,
+        transactionId,
+        targets,
+        method: methodId,
+        cardNumber: result.cardToCard?.cardNumber ?? card?.cardNumber,
+        cardHolder: result.cardToCard?.cardHolder ?? card?.cardHolder,
+      });
+      setStep("receipt");
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : "شروع پرداخت ناموفق بود.";
+      setError(message);
+    } finally {
+      setPaying(false);
+    }
+  };
+
+  const copyCard = async () => {
+    const number = receipt?.cardNumber || card?.cardNumber;
+    if (!number) return;
+    try {
+      await navigator.clipboard.writeText(toEnglishDigits(number).replace(/\D/g, ""));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setError("کپی شماره کارت ممکن نشد.");
+    }
   };
 
   const widthClass = mode === "member" ? "w-full" : "mx-auto max-w-2xl";
 
   if (step === "receipt" && receipt) {
+    const isCard = receipt.method === "card_to_card";
     return (
       <div
         className={cn(
@@ -188,10 +332,13 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
         <span className="mx-auto inline-flex size-14 items-center justify-center rounded-full bg-mint-soft text-pine">
           <Check className="size-7" strokeWidth={2} aria-hidden />
         </span>
-        <h2 className="mt-4 text-2xl font-bold text-ink">کمک شما ثبت شد</h2>
+        <h2 className="mt-4 text-2xl font-bold text-ink">
+          {isCard ? "آماده واریز کارت‌به‌کارت" : "کمک شما ثبت شد"}
+        </h2>
         <p className="mt-2 text-sm leading-7 text-ink-muted">
-          اتصال درگاه واقعی در فاز بعدی است؛ این رسید آزمایشی در حساب شما ذخیره
-          شد.
+          {isCard
+            ? "مبلغ را به کارت زیر واریز کنید؛ پس از تأیید مالی، وضعیت کمک به‌روزرسانی می‌شود."
+            : "رسید در حساب شما ذخیره شد."}
         </p>
         <div className="mt-6 space-y-2 rounded-2xl bg-mint-soft/50 px-5 py-4 text-sm">
           <p className="text-3xl font-bold text-pine" dir="ltr">
@@ -199,6 +346,24 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
             <span className="ms-2 text-sm font-medium text-ink-muted">ریال</span>
           </p>
           <p className="text-ink-muted">{receipt.bankName}</p>
+          {isCard && receipt.cardNumber ? (
+            <div className="space-y-1 pt-2">
+              {receipt.cardHolder ? (
+                <p className="text-xs text-ink-muted">{receipt.cardHolder}</p>
+              ) : null}
+              <p className="font-semibold tracking-wider text-ink" dir="ltr">
+                {toPersianDigits(formatCardNumber(receipt.cardNumber))}
+              </p>
+              <button
+                type="button"
+                onClick={() => void copyCard()}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-pine hover:underline"
+              >
+                <Copy className="size-3.5" aria-hidden />
+                {copied ? "کپی شد" : "کپی شماره کارت"}
+              </button>
+            </div>
+          ) : null}
           <p className="text-xs text-ink-muted" dir="ltr">
             {receipt.transactionId}
           </p>
@@ -218,7 +383,7 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
             onClick={() => {
               setStep("amount");
               setReceipt(null);
-              setBankId(null);
+              setCopied(false);
             }}
             className="inline-flex rounded-full border border-ink/10 px-5 py-2.5 text-sm font-medium"
           >
@@ -377,16 +542,8 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
               </p>
             </header>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field
-                label="نام"
-                value={firstName}
-                onChange={setFirstName}
-              />
-              <Field
-                label="نام خانوادگی"
-                value={lastName}
-                onChange={setLastName}
-              />
+              <Field label="نام" value={firstName} onChange={setFirstName} />
+              <Field label="نام خانوادگی" value={lastName} onChange={setLastName} />
               <Field
                 label="کد ملی"
                 value={toPersianDigits(nationalId)}
@@ -413,7 +570,7 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
             <header>
               <h2 className="text-2xl font-bold text-ink">تأیید و پرداخت</h2>
               <p className="mt-2 text-sm text-ink-muted">
-                خلاصه را بررسی کنید و درگاه را انتخاب کنید.
+                روش پرداخت فعال در تنظیمات ادمین و درگاه مرتبط را انتخاب کنید.
               </p>
             </header>
             <div className="rounded-2xl bg-cream/80 px-5 py-4 text-sm">
@@ -443,29 +600,118 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
                 </div>
               </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {PAYMENT_BANKS.map((bank) => (
-                <button
-                  key={bank.id}
-                  type="button"
-                  onClick={() => setBankId(bank.id)}
-                  className={cn(
-                    "rounded-xl border px-4 py-4 text-start transition",
-                    bankId === bank.id
-                      ? "border-pine bg-mint-soft/60"
-                      : "border-ink/10 hover:border-pine/40",
-                  )}
-                >
-                  <span className="block text-sm font-bold">{bank.name}</span>
-                  <span className="mt-1 block text-xs text-ink-muted">
-                    {bank.description}
-                  </span>
-                </button>
-              ))}
-            </div>
+
+            {optionsLoading ? (
+              <p className="flex items-center gap-2 text-sm text-ink-muted">
+                <Loader2 className="size-4 animate-spin" />
+                بارگذاری روش‌های پرداخت…
+              </p>
+            ) : methods.length === 0 ? (
+              <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                هیچ روش پرداختی از پنل ادمین فعال نیست. از
+                {" "}
+                <span className="font-medium">تنظیمات ← پرداخت</span>
+                {" "}
+                درگاه یا کارت‌به‌کارت را فعال کنید.
+              </p>
+            ) : (
+              <>
+                <div>
+                  <p className="mb-2 text-sm font-medium text-ink">روش پرداخت</p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {methods.map((method) => (
+                      <button
+                        key={method.id}
+                        type="button"
+                        onClick={() => setMethodId(method.id)}
+                        className={cn(
+                          "rounded-xl border px-4 py-4 text-start transition",
+                          methodId === method.id
+                            ? "border-pine bg-mint-soft/60"
+                            : "border-ink/10 hover:border-pine/40",
+                        )}
+                      >
+                        <span className="flex items-center gap-2 text-sm font-bold">
+                          {method.id === "card_to_card" ? (
+                            <CreditCard className="size-4 text-pine" aria-hidden />
+                          ) : (
+                            <ShieldCheck className="size-4 text-pine" aria-hidden />
+                          )}
+                          {method.label}
+                        </span>
+                        {method.description ? (
+                          <span className="mt-1 block text-xs text-ink-muted">
+                            {method.description}
+                          </span>
+                        ) : null}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {onlineSelected ? (
+                  <div>
+                    <p className="mb-2 text-sm font-medium text-ink">
+                      درگاه بانکی
+                    </p>
+                    {gateways.length === 0 ? (
+                      <p className="text-sm text-ink-muted">
+                        درگاه آنلاینی فعال و آماده نیست.
+                      </p>
+                    ) : (
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {gateways.map((gateway) => (
+                          <button
+                            key={gateway.id}
+                            type="button"
+                            onClick={() => setGatewayId(gateway.id)}
+                            className={cn(
+                              "flex items-center gap-3 rounded-xl border px-4 py-4 text-start transition",
+                              gatewayId === gateway.id
+                                ? "border-pine bg-mint-soft/60"
+                                : "border-ink/10 hover:border-pine/40",
+                            )}
+                          >
+                            <PaymentGatewayIcon gateway={gateway.id} />
+                            <span>
+                              <span className="block text-sm font-bold">
+                                {gateway.label}
+                              </span>
+                              <span className="mt-0.5 block text-xs text-ink-muted">
+                                {gateway.sandbox
+                                  ? "حالت آزمایشی"
+                                  : "هدایت به درگاه بانک"}
+                              </span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+
+                {cardSelected && card?.enabled ? (
+                  <div className="rounded-xl border border-ink/10 bg-cream/60 px-4 py-4 text-sm">
+                    <p className="font-medium text-ink">مشخصات کارت بنیاد</p>
+                    {card.cardHolder ? (
+                      <p className="mt-2 text-ink-muted">{card.cardHolder}</p>
+                    ) : null}
+                    <p
+                      className="mt-1 font-semibold tracking-wider text-ink"
+                      dir="ltr"
+                    >
+                      {toPersianDigits(formatCardNumber(card.cardNumber))}
+                    </p>
+                  </div>
+                ) : null}
+              </>
+            )}
+
             <p className="flex items-start gap-2 text-xs leading-6 text-ink-muted">
               <ShieldCheck className="mt-0.5 size-4 shrink-0 text-pine" />
-              پرداخت آزمایشی است و مبلغ واقعی کسر نمی‌شود.
+              {onlineSelected
+                ? "پس از تأیید به درگاه بانک هدایت می‌شوید."
+                : "پس از ثبت، مبلغ را کارت‌به‌کارت واریز کنید."}
             </p>
           </div>
         ) : null}
@@ -490,12 +736,12 @@ export function DonateForm({ mode = "public" }: DonateFormProps) {
           {step === "pay" ? (
             <button
               type="button"
-              disabled={paying || !bankId}
+              disabled={paying || !canPay}
               onClick={() => void handlePay()}
               className="inline-flex flex-[1.4] items-center justify-center gap-2 rounded-xl bg-pine px-4 py-3 text-sm font-semibold text-white hover:bg-pine-dark disabled:opacity-50"
             >
               {paying ? <Loader2 className="size-4 animate-spin" /> : null}
-              تأیید پرداخت
+              {onlineSelected ? "پرداخت و هدایت به بانک" : "ثبت و نمایش کارت"}
             </button>
           ) : (
             <button

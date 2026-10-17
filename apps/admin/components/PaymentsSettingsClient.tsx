@@ -347,6 +347,7 @@ export default function PaymentsSettingsClient() {
         cardToCard: form.cardToCard,
         cardHolder: form.cardHolder,
         cardNumber: form.cardNumber,
+        donateMessage: form.donateMessage,
         gateway: resolvedDefault,
         defaultGateway: resolvedDefault,
         paymentGateways,
@@ -388,6 +389,30 @@ export default function PaymentsSettingsClient() {
       ) : null}
       {form ? (
         <div className="space-y-4">
+          <FormSection
+            title="پیام صفحه کمک"
+            description="این متن قبل از انتخاب مبلغ در /donate نمایش داده می‌شود."
+          >
+            <Field label="پیام معرفی کمک" htmlFor="donate-message">
+              <Textarea
+                id="donate-message"
+                value={form.donateMessage ?? ""}
+                rows={4}
+                onChange={(e) =>
+                  setForm({ ...form, donateMessage: e.target.value })
+                }
+                placeholder="حمایت شما صرف…"
+              />
+            </Field>
+            <p className="text-xs text-ink-muted">
+              اهداف قابل انتخاب در{" "}
+              <Link href="/donation-goals" className="font-medium text-pine hover:underline">
+                اهداف کمک
+              </Link>{" "}
+              تعریف می‌شوند.
+            </p>
+          </FormSection>
+
           <FormSection title="روش‌های آفلاین">
             <Checkbox
               id="cod"

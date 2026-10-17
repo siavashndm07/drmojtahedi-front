@@ -1,8 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { OptionPills } from "@/components/forms/OptionPills";
 import { SelectListbox } from "@/components/forms/SelectListbox";
 import { useAuth } from "@/lib/auth";
+import {
+  HOW_MET_OPTIONS,
+  normalizeHowMetValue,
+  type HowMetValue,
+} from "@/lib/howMet";
 import {
   EDUCATION_OPTIONS,
   normalizeEducationValue,
@@ -24,7 +30,7 @@ export default function ProfileClient() {
     email: "",
     education: "",
     description: "",
-    howMet: "",
+    howMet: "" as HowMetValue | "",
   });
 
   useEffect(() => {
@@ -36,7 +42,7 @@ export default function ProfileClient() {
       email: user.email,
       education: normalizeEducationValue(user.education),
       description: user.description,
-      howMet: user.howMet,
+      howMet: normalizeHowMetValue(user.howMet),
     });
   }, [user]);
 
@@ -96,40 +102,42 @@ export default function ProfileClient() {
             }}
           />
         </div>
-        <Field
-          label="کد ملی"
-          value={toPersianDigits(form.nationalId)}
-          onChange={(v) =>
-            setForm((f) => ({
-              ...f,
-              nationalId: toEnglishDigits(v).replace(/\D/g, "").slice(0, 10),
-            }))
-          }
-        />
-        <Field
-          label="ایمیل"
-          value={form.email}
-          error={fieldErrors.email}
-          onChange={(email) => {
-            setForm((f) => ({ ...f, email }));
-            setFieldErrors((prev) => ({ ...prev, email: undefined }));
-          }}
-          type="email"
-        />
-        <Field
-          label="شماره همراه"
-          value={toPersianDigits(user.phone)}
-          onChange={() => undefined}
-          disabled
-        />
-        <SelectListbox
-          id="profile-education"
-          label="تحصیلات"
-          value={form.education}
-          onChange={(education) => setForm((f) => ({ ...f, education }))}
-          options={EDUCATION_OPTIONS}
-          placeholder="سطح تحصیلات را انتخاب کنید"
-        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label="کد ملی"
+            value={toPersianDigits(form.nationalId)}
+            onChange={(v) =>
+              setForm((f) => ({
+                ...f,
+                nationalId: toEnglishDigits(v).replace(/\D/g, "").slice(0, 10),
+              }))
+            }
+          />
+          <Field
+            label="ایمیل"
+            value={form.email}
+            error={fieldErrors.email}
+            onChange={(email) => {
+              setForm((f) => ({ ...f, email }));
+              setFieldErrors((prev) => ({ ...prev, email: undefined }));
+            }}
+            type="email"
+          />
+          <Field
+            label="شماره همراه"
+            value={toPersianDigits(user.phone)}
+            onChange={() => undefined}
+            disabled
+          />
+          <SelectListbox
+            id="profile-education"
+            label="تحصیلات"
+            value={form.education}
+            onChange={(education) => setForm((f) => ({ ...f, education }))}
+            options={EDUCATION_OPTIONS}
+            placeholder="سطح تحصیلات را انتخاب کنید"
+          />
+        </div>
         <div>
           <label className="text-sm font-medium text-ink">توضیحات</label>
           <textarea
@@ -141,10 +149,12 @@ export default function ProfileClient() {
             className="mt-2 w-full rounded-xl border border-ink/10 bg-paper px-4 py-3 text-sm focus:border-pine/40 focus:outline-none focus:ring-2 focus:ring-pine/20"
           />
         </div>
-        <Field
+        <OptionPills
           label="نحوه آشنایی با دکتر مجتهدی"
           value={form.howMet}
+          options={HOW_MET_OPTIONS}
           onChange={(howMet) => setForm((f) => ({ ...f, howMet }))}
+          columns={2}
         />
         <button
           type="submit"

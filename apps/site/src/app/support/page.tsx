@@ -12,6 +12,7 @@ import { PageHero } from "@/components/shared/PageHero";
 import { IconBadge } from "@/components/ui/IconBadge";
 import { siteConfig } from "@/config/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { loadSiteSettings } from "@/lib/site-settings";
 import { toPersianDigits } from "@/lib/utils/digits";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -59,14 +60,21 @@ const ways: {
   },
 ];
 
-export default function SupportPage() {
+export default async function SupportPage() {
+  const site = await loadSiteSettings();
+  const tagline = site.tagline || siteConfig.tagline;
+  const address = site.address || siteConfig.address;
+  const phone = site.phone || siteConfig.phone;
+  const mobile = site.phoneSecondary || siteConfig.mobile;
+  const email = site.email || siteConfig.email;
+
   return (
     <div>
       <PageHero
         breadcrumbs={[{ label: "خانه", href: "/" }, { label: "حمایت" }]}
         eyebrow="حمایت"
         title="کمک‌های خیرخواهانه"
-        description={`${siteConfig.tagline}. حمایت مالی، اهدای سند و کتاب، یا همراهی داوطلبانه با بنیاد فرهنگی دکتر مجتهدی.`}
+        description={`${tagline}. حمایت مالی، اهدای سند و کتاب، یا همراهی داوطلبانه با بنیاد فرهنگی دکتر مجتهدی.`}
         actions={
           <>
             <Link
@@ -117,12 +125,12 @@ export default function SupportPage() {
         <FadeIn>
           <section className="rounded-2xl border border-ink/10 bg-mint-soft/40 p-6 md:p-8">
             <h2 className="text-display text-xl">اطلاعات تماس برای حمایت</h2>
-            <p className="mt-3 text-sm leading-8 text-ink-muted">{siteConfig.address}</p>
+            <p className="mt-3 text-sm leading-8 text-ink-muted">{address}</p>
             <p className="mt-2 text-sm text-ink-muted">
-              تلفن: {toPersianDigits(siteConfig.phone)} · همراه:{" "}
-              {toPersianDigits(siteConfig.mobile)}
+              تلفن: {toPersianDigits(phone)} · همراه:{" "}
+              {toPersianDigits(mobile)}
             </p>
-            <p className="mt-1 text-sm text-ink-muted">ایمیل: {siteConfig.email}</p>
+            <p className="mt-1 text-sm text-ink-muted">ایمیل: {email}</p>
           </section>
         </FadeIn>
       </div>

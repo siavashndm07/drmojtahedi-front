@@ -6,14 +6,16 @@ import { Loader2, Trash2, Users } from "lucide-react";
 import { createPortal } from "react-dom";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PageHeader from "@/components/PageHeader";
-import { Field, Input } from "@/components/form";
+import { Field, Input, Select } from "@/components/form";
 import { useAuth } from "@/lib/auth";
 import { isApiEnabled } from "@/lib/api/client";
 import {
   apiDeleteMember,
   apiListMembers,
+  apiListMembershipTiers,
   apiPatchMember,
   type MemberRow,
+  type MembershipTierRow,
 } from "@/lib/api/resources";
 import { formatFaDateTime, toPersianDigits } from "@/lib/digits";
 
@@ -24,9 +26,23 @@ function displayName(row: MemberRow) {
   return full || "بدون نام";
 }
 
+function tierIdOf(row: MemberRow): string {
+  const id = row.membershipTierId ?? row.membership_tier;
+  return id == null || id === "" ? "" : String(id);
+}
+
+function feeOf(row: MemberRow) {
+  return Number(row.annualFeeRials ?? row.annual_fee_rials ?? 0);
+}
+
+function feeOfTier(row: MembershipTierRow) {
+  return Number(row.annualFeeRials ?? row.annual_fee_rials ?? 0);
+}
+
 export default function MembersListClient() {
   const { accessToken } = useAuth();
   const [rows, setRows] = useState<MemberRow[]>([]);
+  const [tiers, setTiers] = useState<MembershipTierRow[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<MemberRow | null>(null);
@@ -35,7 +51,7 @@ export default function MembersListClient() {
     lastName: "",
     education: "",
     city: "",
-    membershipType: "",
+    membershipTierId: "",
   });
   const [busy, setBusy] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<MemberRow | null>(null);
@@ -45,10 +61,18 @@ export default function MembersListClient() {
     if (!accessToken) return;
     setLoading(true);
     try {
-      setRows(await apiListMembers(accessToken));
+      const [members, membershipTiers] = await Promise.all([
+        apiListMembers(accessToken),
+        apiListMembershipTiers(accessToken),
+      ]);
+      setRows(members);
+      setTiers(
+        membershipTiers.filter((t) => t.isActive ?? t.is_active ?? true),
+      );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "بارگذاری ناموفق");
       setRows([]);
+      setTiers([]);
     } finally {
       setLoading(false);
     }
@@ -75,7 +99,7 @@ export default function MembersListClient() {
       lastName: row.lastName || row.last_name || "",
       education: row.education || "",
       city: row.city || "",
-      membershipType: row.membershipType || row.membership_type || "",
+      membershipTierId: tierIdOf(row),
     });
   }
 
@@ -84,7 +108,15 @@ export default function MembersListClient() {
     if (!accessToken || !editing) return;
     setBusy(true);
     try {
-      await apiPatchMember(accessToken, editing.id, form);
+      await apiPatchMember(accessToken, editing.id, {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        education: form.education,
+        city: form.city,
+        membershipTierId: form.membershipTierId
+          ? Number(form.membershipTierId)
+          : null,
+      });
       toast.success("ذخیره شد");
       setEditing(null);
       await reload();
@@ -109,6 +141,12 @@ export default function MembersListClient() {
       setDeleting(false);
     }
   }
+
+  const selectedTierFee = useMemo(() => {
+    if (!form.membershipTierId) return null;
+    const tier = tiers.find((t) => String(t.id) === form.membershipTierId);
+    return tier ? feeOfTier(tier) : null;
+  }, [form.membershipTierId, tiers]);
 
   const dialog =
     editing && typeof document !== "undefined"
@@ -160,15 +198,32 @@ export default function MembersListClient() {
                     onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
                   />
                 </Field>
-                <Field label="نوع عضویت" htmlFor="member-type">
-                  <Input
-                    id="member-type"
-                    value={form.membershipType}
+                <Field label="ارکان / نوع عضویت" htmlFor="member-tier">
+                  <Select
+                    id="member-tier"
+                    value={form.membershipTierId}
                     onChange={(e) =>
-                      setForm((f) => ({ ...f, membershipType: e.target.value }))
+                      setForm((f) => ({ ...f, membershipTierId: e.target.value }))
                     }
-                  />
+                  >
+                    <option value="">— انتخاب نشده —</option>
+                    {tiers.map((tier) => (
+                      <option key={String(tier.id)} value={String(tier.id)}>
+                        {tier.title}
+                        {" — "}
+                        {feeOfTier(tier).toLocaleString("en-US")} ریال
+                      </option>
+                    ))}
+                  </Select>
                 </Field>
+                {selectedTierFee != null ? (
+                  <p className="text-xs text-ink-muted">
+                    حق عضویت سالانه این ارکان:{" "}
+                    <span className="font-medium text-ink" dir="ltr">
+                      {toPersianDigits(selectedTierFee.toLocaleString("en-US"))} ریال
+                    </span>
+                  </p>
+                ) : null}
                 <div className="flex justify-end gap-2 border-t border-ink/10 pt-4">
                   <button
                     type="button"
@@ -206,7 +261,11 @@ export default function MembersListClient() {
             <Users className="h-5 w-5" />
           </div>
           <p className="text-sm leading-7 text-ink-muted">
-            اعضای سایت با ورود OTP — ویرایش پروفایل و نوع عضویت، بدون ایجاد سفارش.
+            ارکان هر عضو را از{" "}
+            <a href="/membership-tiers" className="font-medium text-pine hover:underline">
+              انواع عضویت
+            </a>{" "}
+            انتخاب کنید؛ حق عضویت سالانه از همان ارکان گرفته می‌شود.
           </p>
         </div>
       </div>
@@ -216,7 +275,7 @@ export default function MembersListClient() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="جستجو در نام، تلفن یا شهر…"
+          placeholder="جستجو در نام، تلفن یا ارکان…"
         />
       </div>
 
@@ -228,6 +287,7 @@ export default function MembersListClient() {
         ) : (
           filtered.map((r) => {
             const type = r.membershipType || r.membership_type || "—";
+            const fee = feeOf(r);
             return (
               <li key={String(r.id)} className="rounded-2xl border border-ink/10 bg-surface p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -238,6 +298,9 @@ export default function MembersListClient() {
                     </p>
                     <p className="mt-2 text-xs text-ink-muted">
                       {type}
+                      {fee > 0
+                        ? ` · ${toPersianDigits(fee.toLocaleString("en-US"))} ریال/سال`
+                        : " · بدون حق عضویت"}
                       {r.city ? ` · ${r.city}` : ""}
                       {r.education ? ` · ${r.education}` : ""}
                       {" · "}

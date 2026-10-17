@@ -8,22 +8,37 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/config/site";
 import { brandThemeStyleTag, resolveBrandColors } from "@/lib/brand/theme";
 import { buildPageMetadata, organizationJsonLd, websiteJsonLd } from "@/lib/seo/metadata";
-import { siteSettings } from "@/lib/site-settings";
+import { loadSiteSettings } from "@/lib/site-settings";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  ...buildPageMetadata({}),
-  metadataBase: new URL(siteConfig.url),
-  applicationName: siteConfig.shortName,
-  keywords: [
-    "دکتر مجتهدی",
-    "محمدعلی مجتهدی",
-    "میراث فرهنگی",
-    "موزه",
-    "آرشیو دیجیتال",
-    "مجموعه فرهنگی",
-  ],
-};
+export const revalidate = 30;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await loadSiteSettings();
+  const base = buildPageMetadata({});
+  return {
+    ...base,
+    metadataBase: new URL(site.url || siteConfig.url),
+    applicationName: site.nameFa || siteConfig.shortName,
+    title: site.nameFa || siteConfig.name,
+    description: site.tagline || siteConfig.description,
+    icons: site.favicon
+      ? {
+          icon: [{ url: site.favicon }],
+          shortcut: [site.favicon],
+          apple: [{ url: site.favicon }],
+        }
+      : undefined,
+    keywords: [
+      "دکتر مجتهدی",
+      "محمدعلی مجتهدی",
+      "میراث فرهنگی",
+      "موزه",
+      "آرشیو دیجیتال",
+      "مجموعه فرهنگی",
+    ],
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [
@@ -36,9 +51,10 @@ export const viewport: Viewport = {
 
 const themeBootScript = `(function(){try{var t=localStorage.getItem('drmojtahedi-theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();`;
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const site = await loadSiteSettings();
   const brandThemeCss = brandThemeStyleTag(
-    resolveBrandColors(siteSettings.brandPaletteId, siteSettings.brandColors),
+    resolveBrandColors(site.brandPaletteId, site.brandColors),
   );
 
   return (
@@ -50,7 +66,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <JsonLd data={websiteJsonLd()} />
       </head>
       <body className="flex min-h-full flex-col bg-cream font-sans text-ink">
-        <Providers>
+        <Providers site={site}>
           <VisitBeacon />
           <a
             href="#main-content"
@@ -58,7 +74,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           >
             پرش به محتوای اصلی
           </a>
-          <SiteAnnouncementBanner />
+          <SiteAnnouncementBanner banner={site.siteBanner} />
           <SiteHeader />
           <main id="main-content" className="flex-1">
             {children}

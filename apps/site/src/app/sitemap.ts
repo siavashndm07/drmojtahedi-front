@@ -38,6 +38,7 @@ const staticRoutes = [
   "/collaborate",
   "/contribute",
   "/sponsors",
+  "/links",
   "/support",
   "/donate",
   "/transparency",

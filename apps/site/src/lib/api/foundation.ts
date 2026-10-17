@@ -15,6 +15,7 @@ import type {
   LibraryItem,
   Person,
   Sponsor,
+  UsefulLink,
 } from "@/lib/types";
 
 export async function listOrganMembers(): Promise<FoundationOrganMember[]> {
@@ -85,5 +86,17 @@ export async function getSponsor(slug: string): Promise<Sponsor | null> {
     return await apiGet<Sponsor>(`/sponsors/${slug}/`);
   } catch {
     return null;
+  }
+}
+
+export async function listUsefulLinks(): Promise<UsefulLink[]> {
+  if (!isApiEnabled()) return [];
+  try {
+    const data = await apiGet<UsefulLink[] | { results: UsefulLink[] }>(
+      "/useful-links/",
+    );
+    return unwrapList(data);
+  } catch {
+    return [];
   }
 }

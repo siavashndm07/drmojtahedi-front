@@ -35,6 +35,7 @@ export type UserProfile = {
   education: string;
   description: string;
   howMet: string;
+  membershipTierId: number | null;
   membershipType: string;
   membershipNumber: string;
   membershipStatus: MembershipStatus;
@@ -79,21 +80,65 @@ const emptyProfile: UserProfile = {
   education: "",
   description: "",
   howMet: "",
-  membershipType: "عضو وابسته",
+  membershipTierId: null,
+  membershipType: "",
   membershipNumber: "—",
   membershipStatus: "pending",
   membershipValidUntil: "—",
-  annualFeeRials: 5_000_000,
+  annualFeeRials: 0,
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+function normalizeMembershipStatus(
+  value: string | null | undefined,
+): MembershipStatus {
+  if (value === "active" || value === "expired" || value === "pending") {
+    return value;
+  }
+  return "pending";
+}
+
+function profileFromApi(me: Partial<UserProfile> & { phone?: string }): UserProfile {
+  const validUntil = (me.membershipValidUntil || "").trim();
+  const tierId =
+    typeof me.membershipTierId === "number"
+      ? me.membershipTierId
+      : me.membershipTierId
+        ? Number(me.membershipTierId)
+        : null;
+  return {
+    ...emptyProfile,
+    firstName: me.firstName ?? "",
+    lastName: me.lastName ?? "",
+    email: me.email ?? "",
+    nationalId: me.nationalId ?? "",
+    education: me.education ?? "",
+    description: me.description ?? "",
+    howMet: me.howMet ?? "",
+    membershipTierId: Number.isFinite(tierId as number) ? (tierId as number) : null,
+    membershipType: me.membershipType ?? "",
+    membershipNumber: me.membershipNumber || emptyProfile.membershipNumber,
+    membershipStatus: normalizeMembershipStatus(me.membershipStatus),
+    membershipValidUntil: validUntil || "—",
+    annualFeeRials:
+      typeof me.annualFeeRials === "number" && me.annualFeeRials >= 0
+        ? me.annualFeeRials
+        : emptyProfile.annualFeeRials,
+  };
+}
 
 function readProfile(phone: string): UserProfile {
   try {
     const raw = localStorage.getItem(`${STORAGE_PROFILE}:${phone}`);
     if (!raw) return { ...emptyProfile };
     const parsed = JSON.parse(raw) as Partial<UserProfile>;
-    return { ...emptyProfile, ...parsed };
+    return {
+      ...emptyProfile,
+      ...parsed,
+      membershipStatus: normalizeMembershipStatus(parsed.membershipStatus),
+      membershipValidUntil: (parsed.membershipValidUntil || "").trim() || "—",
+    };
   } catch {
     return { ...emptyProfile };
   }
@@ -136,22 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setAccessToken(token);
           try {
             const me = await apiGetMe(token);
-            const profile: UserProfile = {
-              ...emptyProfile,
-              firstName: me.firstName ?? "",
-              lastName: me.lastName ?? "",
-              email: me.email ?? "",
-              nationalId: me.nationalId ?? "",
-              education: me.education ?? "",
-              description: me.description ?? "",
-              howMet: me.howMet ?? "",
-              membershipType: me.membershipType ?? emptyProfile.membershipType,
-              membershipNumber: me.membershipNumber ?? emptyProfile.membershipNumber,
-              membershipStatus: me.membershipStatus ?? emptyProfile.membershipStatus,
-              membershipValidUntil:
-                me.membershipValidUntil ?? emptyProfile.membershipValidUntil,
-              annualFeeRials: me.annualFeeRials ?? emptyProfile.annualFeeRials,
-            };
+            const profile = profileFromApi(me);
             writeProfile(phone, profile);
             setUser({ phone, ...profile });
             return;
@@ -182,15 +212,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       tokens?: { access: string; refresh?: string },
       profile?: Partial<UserProfile>,
     ) => {
+      // When API profile is present, membership fields come from backend —
+      // do not keep a stale localStorage "active" from the old demo pay button.
+      const fromApi = profile ? profileFromApi(profile) : null;
       const stored = readProfile(phone);
-      const nextProfile: UserProfile = {
-        ...stored,
-        ...profile,
-        membershipNumber:
-          profile?.membershipNumber ??
-          stored.membershipNumber ??
-          `DM-${phone.slice(-4)}`,
-      };
+      const nextProfile: UserProfile = fromApi
+        ? {
+            ...fromApi,
+            firstName: fromApi.firstName || stored.firstName,
+            lastName: fromApi.lastName || stored.lastName,
+            email: fromApi.email || stored.email,
+            nationalId: fromApi.nationalId || stored.nationalId,
+            education: fromApi.education || stored.education,
+            description: fromApi.description || stored.description,
+            howMet: fromApi.howMet || stored.howMet,
+            membershipNumber:
+              fromApi.membershipNumber !== "—"
+                ? fromApi.membershipNumber
+                : `DM-${phone.slice(-4)}`,
+          }
+        : {
+            ...stored,
+            ...profile,
+            membershipStatus: "pending",
+            membershipValidUntil: "—",
+            membershipNumber:
+              profile?.membershipNumber ||
+              stored.membershipNumber ||
+              `DM-${phone.slice(-4)}`,
+          };
       if (nextProfile.membershipNumber === "—") {
         nextProfile.membershipNumber = `DM-${phone.slice(-4)}`;
       }
@@ -227,21 +277,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateProfile = useCallback(
     async (patch: Partial<UserProfile>) => {
       let phone = "";
-      let next: UserProfile = emptyProfile;
+      // Membership activation is server-side only (after real payment).
+      const {
+        membershipStatus: _ms,
+        membershipValidUntil: _vu,
+        annualFeeRials: _fee,
+        ...safePatch
+      } = patch;
 
       setUser((current) => {
         if (!current) return current;
         phone = current.phone;
-        next = { ...current, ...patch };
+        const next = { ...current, ...safePatch };
         writeProfile(current.phone, next);
-        return { ...current, ...next };
+        return next;
       });
 
       if (!phone) return;
 
       if (isApiEnabled() && accessToken && !accessToken.startsWith("demo-")) {
         try {
-          await apiPatchMe(accessToken, patch);
+          const me = await apiPatchMe(accessToken, safePatch);
+          const synced = profileFromApi(me);
+          writeProfile(phone, synced);
+          setUser({ phone, ...synced });
         } catch {
           /* keep local profile */
         }

@@ -40,12 +40,20 @@ export function permissionForPath(path: string): StaffPermissionKey | null {
   if (p.startsWith("/archive") || p.startsWith("/oral-history") || p.startsWith("/media")) {
     return "archive";
   }
-  if (p.startsWith("/projects") || p.startsWith("/sponsors") || p.startsWith("/organs")) {
+  if (
+    p.startsWith("/projects") ||
+    p.startsWith("/sponsors") ||
+    p.startsWith("/organs") ||
+    p.startsWith("/useful-links")
+  ) {
     return "foundation";
   }
   if (
     p.startsWith("/donations") ||
+    p.startsWith("/donation-goals") ||
     p.startsWith("/members") ||
+    p.startsWith("/membership-tiers") ||
+    p.startsWith("/membership-fees") ||
     p.startsWith("/newsletter") ||
     p.startsWith("/contributions")
   ) {
