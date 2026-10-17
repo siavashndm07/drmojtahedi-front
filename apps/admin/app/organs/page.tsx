@@ -1,5 +1,6 @@
 "use client";
 
+import { Landmark } from "lucide-react";
 import { ResourceCrud } from "@/components/ResourceCrud";
 import { apiDeleteOrgan, apiListOrgans, apiSaveOrgan } from "@/lib/api/resources";
 import { ORGAN_GROUP_OPTIONS, PUBLISH_STATUS_OPTIONS } from "@/lib/optionSets";
@@ -9,6 +10,9 @@ export default function OrgansAdminPage() {
     <ResourceCrud
       title="ارکان"
       description="هیئت‌ها، اعضا و نمایندگان."
+      emptyIcon={Landmark}
+      emptyTitle="هنوز رکنی ثبت نشده"
+      emptyDescription="هیئت‌ها، اعضا و نمایندگان را با نام و نقش اضافه کنید."
       fields={[
         { key: "name", label: "نام", required: true },
         { key: "role", label: "نقش", required: true },

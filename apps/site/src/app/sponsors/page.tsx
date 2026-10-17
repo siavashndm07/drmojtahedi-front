@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Handshake } from "lucide-react";
 import { FadeIn } from "@/components/shared/FadeIn";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHero } from "@/components/shared/PageHero";
 import { Badge } from "@/components/ui/Badge";
 import { listSponsors } from "@/lib/api/foundation";
@@ -34,6 +36,13 @@ export default async function SponsorsPage() {
       />
       <div className="content-shell section-pad !pt-8">
         <FadeIn>
+          {sponsors.length === 0 ? (
+            <EmptyState
+              icon={Handshake}
+              title="هنوز حامی‌ای معرفی نشده"
+              description="حامیان و همراهان بنیاد پس از انتشار اینجا دیده می‌شوند."
+            />
+          ) : (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {sponsors.map((sponsor) => (
               <li key={sponsor.id}>
@@ -76,6 +85,7 @@ export default async function SponsorsPage() {
               </li>
             ))}
           </ul>
+          )}
         </FadeIn>
       </div>
     </div>

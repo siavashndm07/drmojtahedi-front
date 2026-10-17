@@ -7,11 +7,13 @@ import {
   Clock3,
   HandHeart,
   LayoutGrid,
+  SearchX,
   Loader2,
   Trash2,
   XCircle,
 } from "lucide-react";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import FilterPills from "@/components/FilterPills";
 import PageHeader from "@/components/PageHeader";
 import { Input } from "@/components/form";
@@ -170,8 +172,32 @@ export default function DonationsListClient() {
 
       <ul className="space-y-3">
         {filtered.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
-            موردی نیست
+          <li className="list-none">
+            <EmptyState
+              icon={query.trim() || statusFilter !== "all" ? SearchX : HandHeart}
+              title={
+                query.trim() || statusFilter !== "all" ? NO_MATCH_TITLE : "هنوز کمکی ثبت نشده"
+              }
+              description={
+                query.trim() || statusFilter !== "all"
+                  ? NO_MATCH_DESCRIPTION
+                  : "کمک‌های ثبت‌شده از صفحه کمک سایت اینجا فهرست می‌شوند."
+              }
+              action={
+                query.trim() || statusFilter !== "all" ? (
+                  <button
+                    type="button"
+                    className="btn-secondary !py-2 text-xs"
+                    onClick={() => {
+                      setQuery("");
+                      setStatusFilter("all");
+                    }}
+                  >
+                    پاک کردن فیلتر
+                  </button>
+                ) : undefined
+              }
+            />
           </li>
         ) : (
           filtered.map((r) => {

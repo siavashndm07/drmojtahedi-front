@@ -7,9 +7,11 @@ import {
   ArrowLeft,
   CreditCard,
   Heart,
+  HandHeart,
   ListOrdered,
   UserRound,
 } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { useAuth } from "@/lib/auth";
 import { formatRials } from "@/lib/mock/donations";
 import { toPersianDigits } from "@/lib/utils/digits";
@@ -139,12 +141,14 @@ export default function AccountDashboardPage() {
           </Link>
         </div>
         {recent.length === 0 ? (
-          <p className="mt-4 text-sm text-ink-muted">
-            هنوز کمکی ثبت نشده است.{" "}
-            <Link href="/account/donate" className="font-medium text-pine hover:underline">
-              اولین کمک را ثبت کنید
-            </Link>
-          </p>
+          <EmptyState
+            icon={HandHeart}
+            title="هنوز کمکی ثبت نشده"
+            description="اولین کمک شما اینجا، کنار خلاصه حساب، دیده می‌شود."
+            actionHref="/account/donate"
+            actionLabel="ثبت کمک"
+            className="mt-4 border-0 bg-transparent px-2 py-8 shadow-none"
+          />
         ) : (
           <ul className="mt-4 divide-y divide-ink/8">
             {recent.map((item) => (

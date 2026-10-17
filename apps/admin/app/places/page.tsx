@@ -1,5 +1,6 @@
 "use client";
 
+import { MapPin } from "lucide-react";
 import { ResourceCrud } from "@/components/ResourceCrud";
 import { apiDeletePlace, apiListPlaces, apiSavePlace } from "@/lib/api/resources";
 import { PUBLISH_STATUS_OPTIONS } from "@/lib/optionSets";
@@ -9,6 +10,9 @@ export default function PlacesAdminPage() {
     <ResourceCrud
       title="مکان‌ها"
       description="مکان‌های میراث روی نقشه و صفحات جزئیات."
+      emptyIcon={MapPin}
+      emptyTitle="هنوز مکانی ثبت نشده"
+      emptyDescription="مکان‌های میراث را با موقعیت روی نقشه اضافه کنید."
       fields={[
         { key: "title", label: "عنوان", required: true },
         { key: "slug", label: "اسلاگ", required: true },

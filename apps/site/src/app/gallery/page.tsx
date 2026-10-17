@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Camera, Clapperboard, Images } from "lucide-react";
 import { GatewayGrid } from "@/components/foundation/ContentCards";
 import { PageHero } from "@/components/shared/PageHero";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { listGalleries } from "@/lib/api/galleries";
 import { toPersianDigits } from "@/lib/utils/digits";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -50,9 +51,11 @@ export default async function GalleryPage() {
       />
       <div className="content-shell section-pad !pt-8 space-y-12">
         {albums.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-ink/15 px-4 py-12 text-center text-sm text-ink-muted">
-            هنوز آلبومی منتشر نشده است.
-          </p>
+          <EmptyState
+            icon={Images}
+            title="هنوز آلبومی منتشر نشده"
+            description="تصاویر و ویدئوهای بنیاد، هر کدام در آلبومی با عنوان خودش، اینجا دیده می‌شوند."
+          />
         ) : (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {albums.map((album) => (

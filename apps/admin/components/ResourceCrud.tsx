@@ -4,12 +4,14 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import {
   Clock3,
+  Inbox,
   LayoutGrid,
   Loader2,
   Pencil,
   PencilLine,
   Plus,
   Rocket,
+  SearchX,
   Trash2,
   X,
   type LucideIcon,
@@ -17,6 +19,7 @@ import {
 import { createPortal } from "react-dom";
 import ActionIconButton from "@/components/ActionIconButton";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import FilterPills from "@/components/FilterPills";
 import OptionPills, { type OptionPill } from "@/components/OptionPills";
 import PageHeader from "@/components/PageHeader";
@@ -85,10 +88,16 @@ export function ResourceCrud<
   save,
   remove,
   emptyForm,
+  emptyIcon: EmptyIcon = Inbox,
+  emptyTitle,
+  emptyDescription,
 }: {
   title: string;
   description?: string;
   fields: FieldDef[];
+  emptyIcon?: LucideIcon;
+  emptyTitle?: string;
+  emptyDescription?: string;
   list: (token: string) => Promise<T[]>;
   save: (
     token: string,
@@ -393,13 +402,38 @@ export function ResourceCrud<
         />
       </div>
 
+      {filtered.length === 0 ? (
+        <EmptyState
+          icon={query.trim() || statusFilter !== "all" ? SearchX : EmptyIcon}
+          title={query.trim() || statusFilter !== "all" ? NO_MATCH_TITLE : (emptyTitle ?? `هنوز موردی در ${title} نیست`)}
+          description={
+            query.trim() || statusFilter !== "all"
+              ? NO_MATCH_DESCRIPTION
+              : (emptyDescription ?? "با «مورد جدید» اولین رکورد را بسازید.")
+          }
+          action={
+            query.trim() || statusFilter !== "all" ? (
+              <button
+                type="button"
+                className="btn-secondary !py-2 text-xs"
+                onClick={() => {
+                  setQuery("");
+                  setStatusFilter("all");
+                }}
+              >
+                پاک کردن فیلتر
+              </button>
+            ) : (
+              <button type="button" onClick={openCreate} className="btn-primary !gap-1.5 !py-2 text-xs">
+                <Plus className="h-4 w-4" />
+                مورد جدید
+              </button>
+            )
+          }
+        />
+      ) : (
       <ul className="space-y-3">
-        {filtered.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
-            موردی یافت نشد
-          </li>
-        ) : (
-          filtered.map((row) => (
+        {filtered.map((row) => (
             <li
               key={String(row.id)}
               className="rounded-2xl border border-ink/10 bg-surface p-4 transition hover:border-pine/25"
@@ -435,9 +469,9 @@ export function ResourceCrud<
                 </div>
               </div>
             </li>
-          ))
-        )}
+          ))}
       </ul>
+      )}
 
       {formDialog}
 

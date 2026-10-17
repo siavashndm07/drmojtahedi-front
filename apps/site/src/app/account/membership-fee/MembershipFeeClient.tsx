@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { CreditCard, Loader2, ShieldCheck } from "lucide-react";
+import { CreditCard, Loader2, Receipt, ShieldCheck } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PaymentGatewayIcon } from "@/components/PaymentGatewayIcon";
 import { useAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api/client";
@@ -387,11 +388,13 @@ export default function MembershipFeeClient() {
                   </tr>
                 ) : history.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={6}
-                      className="px-4 py-10 text-center text-ink-muted"
-                    >
-                      هنوز پرداختی ثبت نشده است.
+                    <td colSpan={6} className="p-2">
+                      <EmptyState
+                        icon={Receipt}
+                        title="هنوز پرداختی ثبت نشده"
+                        description="پس از پرداخت حق عضویت، تاریخ، مبلغ و وضعیت تراکنش اینجا می‌ماند."
+                        className="border-0 bg-transparent py-8 shadow-none"
+                      />
                     </td>
                   </tr>
                 ) : (

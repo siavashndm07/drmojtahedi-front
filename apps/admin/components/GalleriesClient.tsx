@@ -2,9 +2,10 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { Clapperboard, Images, Loader2, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { Clapperboard, Images, Loader2, Pencil, Plus, SearchX, Trash2, Upload } from "lucide-react";
 import { createPortal } from "react-dom";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import ImageAssetField from "@/components/ImageAssetField";
 import PageHeader from "@/components/PageHeader";
 import {
@@ -402,9 +403,16 @@ export default function GalleriesClient() {
                     />
                   </div>
                   {editing.items.length === 0 ? (
-                    <p className="mt-4 rounded-xl border border-dashed border-ink/15 px-4 py-8 text-center text-sm text-ink-muted">
-                      هنوز رسانه‌ای اضافه نشده است.
-                    </p>
+                    <EmptyState
+                      compact
+                      icon={editing.kind === "videos" ? Clapperboard : Images}
+                      title={
+                        editing.kind === "videos"
+                          ? "هنوز ویدئویی در این گالری نیست"
+                          : "هنوز تصویری در این گالری نیست"
+                      }
+                      description="از دکمه بارگذاری، فایل‌ها را به همین آلبوم اضافه کنید."
+                    />
                   ) : (
                     <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                       {editing.items.map((item) => (
@@ -482,9 +490,35 @@ export default function GalleriesClient() {
         />
       </div>
       {filtered.length === 0 && !loading ? (
-        <p className="rounded-2xl border border-dashed border-ink/15 px-4 py-10 text-center text-sm text-ink-muted">
-          گالری‌ای نیست. یک عنوان بسازید و تصاویر یا ویدئوها را داخل آن بگذارید.
-        </p>
+        <EmptyState
+          icon={query.trim() ? SearchX : Images}
+          title={query.trim() ? NO_MATCH_TITLE : "هنوز گالری‌ای ساخته نشده"}
+          description={
+            query.trim()
+              ? NO_MATCH_DESCRIPTION
+              : "یک عنوان بسازید، مثلاً تصاویر همایش یا ویدئوهای احداث مجموعه، و رسانه را داخل آن بگذارید."
+          }
+          action={
+            query.trim() ? (
+              <button
+                type="button"
+                className="btn-secondary !py-2 text-xs"
+                onClick={() => setQuery("")}
+              >
+                پاک کردن جستجو
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={openCreate}
+                className="btn-primary !gap-1.5 !py-2 text-xs"
+              >
+                <Plus className="h-4 w-4" />
+                گالری جدید
+              </button>
+            )
+          }
+        />
       ) : (
         <ul className="grid gap-3">
           {filtered.map((row) => (

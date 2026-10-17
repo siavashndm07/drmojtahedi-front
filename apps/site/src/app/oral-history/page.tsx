@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Mic } from "lucide-react";
 import { OralHistoryPlayer } from "@/components/oral/OralHistoryPlayer";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { FadeIn } from "@/components/shared/FadeIn";
 import { PageHero } from "@/components/shared/PageHero";
 import { listOralHistory } from "@/lib/api/oralHistory";
@@ -40,6 +42,13 @@ export default async function OralHistoryPage() {
         }
       />
       <div className="content-shell section-pad !pt-8 space-y-8">
+        {interviews.length === 0 ? (
+          <EmptyState
+            icon={Mic}
+            title="هنوز مصاحبه‌ای منتشر نشده"
+            description="روایت‌های شفاهی پس از انتشار از پنل اینجا پخش می‌شوند."
+          />
+        ) : null}
         {interviews.map((interview) => (
           <FadeIn key={interview.id}>
             <OralHistoryPlayer interview={interview} />

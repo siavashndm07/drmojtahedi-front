@@ -9,6 +9,7 @@ import {
   LogOut,
   Menu,
   Search,
+  SearchX,
   X,
 } from "lucide-react";
 import {
@@ -21,6 +22,7 @@ import {
 } from "@/lib/adminNav";
 import { permissionForPath } from "@/lib/staffPermissions";
 import { brand, ports } from "@drmojtahedi/shared";
+import EmptyState from "@/components/EmptyState";
 import ThemeToggle from "@/components/ThemeToggle";
 import RouteProgressBar from "@/components/RouteProgressBar";
 import { useAuth } from "@/lib/auth";
@@ -369,8 +371,14 @@ export default function AdminShell({ children }: { children: ReactNode }) {
         >
           <ul className="space-y-1.5">
             {filteredMenu.length === 0 ? (
-              <li className="rounded-xl bg-cream/60 px-3 py-6 text-center text-xs text-ink-muted">
-                موردی یافت نشد
+              <li>
+                <EmptyState
+                  bare
+                  compact
+                  icon={SearchX}
+                  title="موردی در منو نیست"
+                  description="نام بخش را جور دیگر بنویسید."
+                />
               </li>
             ) : null}
 

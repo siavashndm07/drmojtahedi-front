@@ -3,10 +3,11 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { ArrowRight, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import { ArrowRight, FolderOpen, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import ActionIconButton from "@/components/ActionIconButton";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState from "@/components/EmptyState";
 import PageHeader from "@/components/PageHeader";
 import {
   Field,
@@ -243,8 +244,22 @@ export default function NewsCategoriesClient() {
 
       <ul className="space-y-3">
         {rows.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
-            دسته‌ای نیست
+          <li className="list-none">
+            <EmptyState
+              icon={FolderOpen}
+              title="هنوز دسته‌ای برای اخبار نیست"
+              description="دسته‌ها در فرم خبر به‌صورت گزینه‌های انتخابی دیده می‌شوند."
+              action={
+                <button
+                  type="button"
+                  onClick={openCreate}
+                  className="btn-primary !gap-1.5 !py-2 text-xs"
+                >
+                  <Plus className="h-4 w-4" />
+                  دسته جدید
+                </button>
+              }
+            />
           </li>
         ) : (
           rows.map((row) => (

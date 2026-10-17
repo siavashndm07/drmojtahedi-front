@@ -2,8 +2,9 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { Image as ImageIcon, Loader2, Trash2, Upload } from "lucide-react";
+import { Image as ImageIcon, Loader2, SearchX, Trash2, Upload } from "lucide-react";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import PageHeader from "@/components/PageHeader";
 import { Field, Input } from "@/components/form";
 import { useAuth } from "@/lib/auth";
@@ -148,8 +149,36 @@ export default function MediaLibraryClient() {
 
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {filtered.length === 0 ? (
-          <li className="col-span-full rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
-            فایلی نیست
+          <li className="col-span-full list-none">
+            <EmptyState
+              icon={query.trim() ? SearchX : ImageIcon}
+              title={query.trim() ? NO_MATCH_TITLE : "هنوز فایلی در کتابخانه نیست"}
+              description={
+                query.trim()
+                  ? NO_MATCH_DESCRIPTION
+                  : "تصویرها را بارگذاری کنید تا در خبر، گالری و بقیه بخش‌ها قابل انتخاب باشند."
+              }
+              action={
+                query.trim() ? (
+                  <button
+                    type="button"
+                    className="btn-secondary !py-2 text-xs"
+                    onClick={() => setQuery("")}
+                  >
+                    پاک کردن جستجو
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn-primary !gap-1.5 !py-2 text-xs"
+                    onClick={() => inputRef.current?.click()}
+                  >
+                    <Upload className="h-4 w-4" />
+                    آپلود تصویر
+                  </button>
+                )
+              }
+            />
           </li>
         ) : (
           filtered.map((row) => {

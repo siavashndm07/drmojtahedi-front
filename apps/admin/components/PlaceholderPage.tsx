@@ -1,3 +1,5 @@
+import { Construction } from "lucide-react";
+import EmptyState from "@/components/EmptyState";
 import PageHeader from "@/components/PageHeader";
 
 export default function PlaceholderPage({
@@ -15,9 +17,11 @@ export default function PlaceholderPage({
         title={title}
         description={description ?? "این مسیر برای هم‌ترازی منو با پنل بینا آماده است."}
       />
-      <div className="rounded-2xl border border-dashed border-ink/15 bg-mint-soft/40 px-5 py-8 text-center text-sm text-ink-muted dark:bg-mint/30">
-        این بخش هنوز فرم و دادهٔ کامل ندارد — فقط برای هم‌ترازی منو و گفتگو است.
-      </div>
+      <EmptyState
+        icon={Construction}
+        title="این بخش هنوز آماده نیست"
+        description="فرم و دادهٔ این مسیر در حال تکمیل است. منو برای پیدا کردن جای آن از قبل اینجاست."
+      />
       {notes.length ? (
         <div className="mt-6 rounded-2xl border border-ink/10 bg-surface p-5">
           <h2 className="text-sm font-semibold text-ink">برای گفتگو</h2>

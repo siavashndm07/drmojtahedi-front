@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Archive, CheckCircle2, FileHeart, LayoutGrid, Sparkles } from "lucide-react";
+import { Archive, CheckCircle2, FileHeart, LayoutGrid, SearchX, Sparkles } from "lucide-react";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import FilterPills from "@/components/FilterPills";
 import PageHeader from "@/components/PageHeader";
 import { Input } from "@/components/form";
@@ -129,8 +130,34 @@ export default function ContributionsAdminPage() {
       </div>
       <ul className="space-y-3">
         {filtered.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
-            موردی نیست
+          <li className="list-none">
+            <EmptyState
+              icon={query.trim() || statusFilter !== "all" ? SearchX : FileHeart}
+              title={
+                query.trim() || statusFilter !== "all"
+                  ? NO_MATCH_TITLE
+                  : "هنوز خاطره یا سندی ارسال نشده"
+              }
+              description={
+                query.trim() || statusFilter !== "all"
+                  ? NO_MATCH_DESCRIPTION
+                  : "ارسال‌های فرم «خاطره و سند» سایت اینجا برای بررسی می‌آیند."
+              }
+              action={
+                query.trim() || statusFilter !== "all" ? (
+                  <button
+                    type="button"
+                    className="btn-secondary !py-2 text-xs"
+                    onClick={() => {
+                      setQuery("");
+                      setStatusFilter("all");
+                    }}
+                  >
+                    پاک کردن فیلتر
+                  </button>
+                ) : undefined
+              }
+            />
           </li>
         ) : (
           filtered.map((r) => (

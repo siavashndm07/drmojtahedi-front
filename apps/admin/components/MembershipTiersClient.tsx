@@ -2,9 +2,10 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { BadgeCheck, Loader2, Pencil, Plus, SearchX, Trash2 } from "lucide-react";
 import { createPortal } from "react-dom";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import PageHeader from "@/components/PageHeader";
 import {
   Checkbox,
@@ -286,11 +287,37 @@ export default function MembershipTiersClient() {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td
-                  colSpan={5}
-                  className="px-4 py-10 text-center text-sm text-ink-muted"
-                >
-                  موردی نیست
+                <td colSpan={5} className="p-2">
+                  <EmptyState
+                    bare
+                    icon={query.trim() ? SearchX : BadgeCheck}
+                    title={query.trim() ? NO_MATCH_TITLE : "هنوز نوع عضویتی تعریف نشده"}
+                    description={
+                      query.trim()
+                        ? NO_MATCH_DESCRIPTION
+                        : "ارکان عضویت و حق سالانه هر کدام را اینجا مشخص کنید."
+                    }
+                    action={
+                      query.trim() ? (
+                        <button
+                          type="button"
+                          className="btn-secondary !py-2 text-xs"
+                          onClick={() => setQuery("")}
+                        >
+                          پاک کردن جستجو
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn-primary !gap-1.5 !py-2 text-xs"
+                          onClick={openCreate}
+                        >
+                          <Plus className="h-4 w-4" />
+                          افزودن
+                        </button>
+                      )
+                    }
+                  />
                 </td>
               </tr>
             ) : (

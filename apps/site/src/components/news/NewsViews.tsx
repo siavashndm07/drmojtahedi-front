@@ -9,6 +9,7 @@ import {
 import { ArticleCover } from "@/components/magazine/ArticleCover";
 import { FadeIn } from "@/components/shared/FadeIn";
 import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHero } from "@/components/shared/PageHero";
 import {
   articleBlockNavLabel,
@@ -163,6 +164,13 @@ export function NewsIndex({ items }: { items: NewsItem[] }) {
       />
 
       <section className="content-wide section-pad !pt-6">
+        {items.length === 0 ? (
+          <EmptyState
+            icon={Newspaper}
+            title="هنوز خبری منتشر نشده"
+            description="اطلاعیه‌ها و گزارش‌های بنیاد پس از انتشار اینجا دیده می‌شوند."
+          />
+        ) : null}
         {featured ? (
           <Link
             href={`/news/${featured.slug}`}

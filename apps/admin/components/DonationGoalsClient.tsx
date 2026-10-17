@@ -2,10 +2,11 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { ArrowDown, ArrowUp, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Loader2, Pencil, Plus, SearchX, Target, Trash2 } from "lucide-react";
 import { createPortal } from "react-dom";
 import ActionIconButton from "@/components/ActionIconButton";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import PageHeader from "@/components/PageHeader";
 import SortableHandle from "@/components/SortableHandle";
 import {
@@ -317,8 +318,32 @@ export default function DonationGoalsClient() {
       ) : null}
       <ul className="space-y-3">
         {filtered.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
-            موردی نیست
+          <li className="list-none">
+            <EmptyState
+              icon={query.trim() ? SearchX : Target}
+              title={query.trim() ? NO_MATCH_TITLE : "هنوز هدف کمکی تعریف نشده"}
+              description={
+                query.trim()
+                  ? NO_MATCH_DESCRIPTION
+                  : "هدف‌ها قبل از مبلغ، در صفحه کمک سایت به بازدیدکننده نشان داده می‌شوند."
+              }
+              action={
+                query.trim() ? (
+                  <button
+                    type="button"
+                    className="btn-secondary !py-2 text-xs"
+                    onClick={() => setQuery("")}
+                  >
+                    پاک کردن جستجو
+                  </button>
+                ) : (
+                  <button type="button" className="btn-primary !gap-1.5 !py-2 text-xs" onClick={openCreate}>
+                    <Plus className="h-4 w-4" />
+                    افزودن هدف
+                  </button>
+                )
+              }
+            />
           </li>
         ) : (
           filtered.map((row, index) => (

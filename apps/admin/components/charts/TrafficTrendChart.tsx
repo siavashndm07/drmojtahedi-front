@@ -1,6 +1,8 @@
 "use client";
 
 import { useLayoutEffect, useMemo, useState, type MouseEvent } from "react";
+import { BarChart3 } from "lucide-react";
+import EmptyState from "@/components/EmptyState";
 import type { ChartPoint } from "@/lib/dashboardCharts";
 import type { TrafficRangeDays } from "@/lib/api/resources";
 import { CHART_GRID_COLOR, chartBarFill } from "@/lib/chartColors";
@@ -153,9 +155,14 @@ export default function TrafficTrendChart({
     return (
       <div className={`flex min-h-0 w-full flex-col ${className}`}>
         {header}
-        <p className="flex min-h-[160px] flex-1 items-center justify-center text-sm text-ink-muted">
-          {emptyLabel}
-        </p>
+        <EmptyState
+          bare
+          compact
+          className="flex min-h-[160px] flex-1 items-center justify-center"
+          icon={BarChart3}
+          title={emptyLabel}
+          description="بازدیدهای ثبت‌شده در این بازه اینجا رسم می‌شوند."
+        />
       </div>
     );
   }

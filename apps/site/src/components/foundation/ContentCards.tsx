@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
+import { Inbox, type LucideIcon } from "lucide-react";
 import { FadeIn } from "@/components/shared/FadeIn";
 import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { IconBadge } from "@/components/ui/IconBadge";
 import { cn } from "@/lib/utils/cn";
 
@@ -89,6 +90,9 @@ function CardMedia({
 export function ContentCardGrid({
   items,
   columns = "md:grid-cols-2 lg:grid-cols-3",
+  emptyTitle = "هنوز محتوایی منتشر نشده",
+  emptyDescription = "موارد این بخش پس از انتشار از پنل، اینجا دیده می‌شوند.",
+  emptyIcon: EmptyIcon = Inbox,
 }: {
   items: {
     key: string;
@@ -102,7 +106,20 @@ export function ContentCardGrid({
     icon?: LucideIcon;
   }[];
   columns?: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
+  emptyIcon?: LucideIcon;
 }) {
+  if (items.length === 0) {
+    return (
+      <EmptyState
+        icon={EmptyIcon}
+        title={emptyTitle}
+        description={emptyDescription}
+      />
+    );
+  }
+
   return (
     <ul className={cn("grid gap-4", columns)}>
       {items.map((item) => {

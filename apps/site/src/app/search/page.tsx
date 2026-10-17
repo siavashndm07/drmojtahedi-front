@@ -7,6 +7,7 @@ import {
   MapPin,
   Newspaper,
   Search,
+  SearchX,
   Users,
 } from "lucide-react";
 import { PageHero } from "@/components/shared/PageHero";
@@ -104,6 +105,7 @@ export default async function SearchPage({
 
         {results.length === 0 ? (
           <EmptyState
+            icon={SearchX}
             title="نتیجه‌ای یافت نشد"
             description="عبارت دیگری را امتحان کنید یا از دسته‌بندی‌ها استفاده کنید."
             actionHref="/news"

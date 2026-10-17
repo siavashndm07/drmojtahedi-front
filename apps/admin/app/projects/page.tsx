@@ -1,5 +1,6 @@
 "use client";
 
+import { FolderKanban } from "lucide-react";
 import { ResourceCrud } from "@/components/ResourceCrud";
 import {
   apiDeleteProject,
@@ -13,6 +14,9 @@ export default function ProjectsAdminPage() {
     <ResourceCrud
       title="پروژه‌ها"
       description="پروژه‌های جاری بنیاد."
+      emptyIcon={FolderKanban}
+      emptyTitle="هنوز پروژه‌ای ثبت نشده"
+      emptyDescription="پروژه‌های جاری بنیاد را با عنوان و فاز اضافه کنید."
       fields={[
         { key: "title", label: "عنوان", required: true },
         { key: "slug", label: "اسلاگ", required: true },

@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Pencil,
   Plus,
+  SearchX,
   ShieldCheck,
   Trash2,
   UserCheck,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 import ActionIconButton from "@/components/ActionIconButton";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import FilterPills from "@/components/FilterPills";
 import PageHeader from "@/components/PageHeader";
 import StaffFormDialog from "@/components/StaffFormDialog";
@@ -162,8 +164,46 @@ export default function StaffClient() {
 
       <ul className="space-y-3">
         {filtered.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-ink/15 px-5 py-10 text-center text-sm text-ink-muted">
-            کاربری نیست — یک کاربر پنل بسازید.
+          <li className="list-none">
+            <EmptyState
+              icon={query.trim() || statusFilter !== "all" ? SearchX : ShieldCheck}
+              title={
+                query.trim() || statusFilter !== "all"
+                  ? NO_MATCH_TITLE
+                  : "هنوز کاربر پنلی نیست"
+              }
+              description={
+                query.trim() || statusFilter !== "all"
+                  ? NO_MATCH_DESCRIPTION
+                  : "برای همکاران بنیاد یک نام کاربری و دسترسی بخش‌ها بسازید."
+              }
+              action={
+                query.trim() || statusFilter !== "all" ? (
+                  <button
+                    type="button"
+                    className="btn-secondary !py-2 text-xs"
+                    onClick={() => {
+                      setQuery("");
+                      setStatusFilter("all");
+                    }}
+                  >
+                    پاک کردن فیلتر
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn-primary !gap-1.5 !py-2 text-xs"
+                    onClick={() => {
+                      setEditing(null);
+                      setFormOpen(true);
+                    }}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    کاربر جدید
+                  </button>
+                )
+              }
+            />
           </li>
         ) : (
           filtered.map((item) => {

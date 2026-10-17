@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { ArrowRight, FolderOpen, Loader2, Tag, Trash2 } from "lucide-react";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState from "@/components/EmptyState";
 import ImageAssetField from "@/components/ImageAssetField";
 import OptionPills from "@/components/OptionPills";
 import PageHeader from "@/components/PageHeader";
@@ -365,15 +366,17 @@ export default function ArticlesFormClient({
               onChange={(category) => patch({ category })}
             />
           ) : (
-            <div className="rounded-2xl border border-dashed border-ink/15 bg-mint-soft/30 px-4 py-5 text-sm text-ink-muted dark:bg-mint/20">
-              هنوز دسته‌ای تعریف نشده.{" "}
-              <Link
-                href="/articles/categories"
-                className="font-semibold text-pine hover:underline"
-              >
-                مدیریت دسته‌ها
-              </Link>
-            </div>
+            <EmptyState
+              compact
+              icon={FolderOpen}
+              title="هنوز دسته‌ای برای مقالات نیست"
+              description="قبل از انتشار، حداقل یک دسته بسازید تا مقاله در آن قرار بگیرد."
+              action={
+                <Link href="/articles/categories" className="btn-primary !gap-1.5 !py-2 text-xs">
+                  مدیریت دسته‌ها
+                </Link>
+              }
+            />
           )}
 
           <OptionPills

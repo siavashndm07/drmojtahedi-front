@@ -1,5 +1,6 @@
 "use client";
 
+import { Mic } from "lucide-react";
 import { ResourceCrud } from "@/components/ResourceCrud";
 import {
   apiDeleteOralHistory,
@@ -13,6 +14,9 @@ export default function OralHistoryAdminPage() {
     <ResourceCrud
       title="تاریخ شفاهی"
       description="مصاحبه‌ها و روایت‌های شنیداری."
+      emptyIcon={Mic}
+      emptyTitle="هنوز مصاحبه‌ای ثبت نشده"
+      emptyDescription="روایت‌های شنیداری را با عنوان و نام راوی اضافه کنید."
       fields={[
         { key: "title", label: "عنوان", required: true },
         { key: "slug", label: "اسلاگ", required: true },

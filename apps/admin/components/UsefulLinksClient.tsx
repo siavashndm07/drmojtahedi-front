@@ -3,9 +3,10 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
-import { ExternalLink, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { ExternalLink, Link2, Loader2, Pencil, Plus, SearchX, Trash2 } from "lucide-react";
 import { createPortal } from "react-dom";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import ImageAssetField from "@/components/ImageAssetField";
 import PageHeader from "@/components/PageHeader";
 import {
@@ -298,11 +299,37 @@ export default function UsefulLinksClient() {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td
-                  colSpan={6}
-                  className="px-4 py-10 text-center text-sm text-ink-muted"
-                >
-                  موردی نیست
+                <td colSpan={6} className="p-2">
+                  <EmptyState
+                    bare
+                    icon={query.trim() ? SearchX : Link2}
+                    title={query.trim() ? NO_MATCH_TITLE : "هنوز پیوندی ثبت نشده"}
+                    description={
+                      query.trim()
+                        ? NO_MATCH_DESCRIPTION
+                        : "وب‌سایت‌ها و انجمن‌های مرتبط را برای صفحه پیوندهای مفید اضافه کنید."
+                    }
+                    action={
+                      query.trim() ? (
+                        <button
+                          type="button"
+                          className="btn-secondary !py-2 text-xs"
+                          onClick={() => setQuery("")}
+                        >
+                          پاک کردن جستجو
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn-primary !gap-1.5 !py-2 text-xs"
+                          onClick={openCreate}
+                        >
+                          <Plus className="h-4 w-4" />
+                          افزودن پیوند
+                        </button>
+                      )
+                    }
+                  />
                 </td>
               </tr>
             ) : (

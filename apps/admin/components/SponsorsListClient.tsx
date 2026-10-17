@@ -4,8 +4,10 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import {
+  Handshake,
   LayoutGrid,
   Loader2,
+  SearchX,
   Pencil,
   PencilLine,
   Plus,
@@ -16,6 +18,7 @@ import {
 import { createPortal } from "react-dom";
 import ActionIconButton from "@/components/ActionIconButton";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import FilterPills from "@/components/FilterPills";
 import ImageAssetField from "@/components/ImageAssetField";
 import OptionPills from "@/components/OptionPills";
@@ -404,8 +407,41 @@ export default function SponsorsListClient() {
 
       <ul className="space-y-3">
         {filtered.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
-            موردی یافت نشد
+          <li className="list-none">
+            <EmptyState
+              icon={query.trim() || statusFilter !== "all" ? SearchX : Handshake}
+              title={
+                query.trim() || statusFilter !== "all" ? NO_MATCH_TITLE : "هنوز حامی‌ای ثبت نشده"
+              }
+              description={
+                query.trim() || statusFilter !== "all"
+                  ? NO_MATCH_DESCRIPTION
+                  : "حامیان و همراهان بنیاد را با نام و نشان اضافه کنید."
+              }
+              action={
+                query.trim() || statusFilter !== "all" ? (
+                  <button
+                    type="button"
+                    className="btn-secondary !py-2 text-xs"
+                    onClick={() => {
+                      setQuery("");
+                      setStatusFilter("all");
+                    }}
+                  >
+                    پاک کردن فیلتر
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={openCreate}
+                    className="btn-primary !gap-1.5 !py-2 text-xs"
+                  >
+                    <Plus className="h-4 w-4" />
+                    حامی جدید
+                  </button>
+                )
+              }
+            />
           </li>
         ) : (
           filtered.map((row) => {

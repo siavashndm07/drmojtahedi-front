@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { LucideIcon } from "lucide-react";
+import { PieChart, type LucideIcon } from "lucide-react";
+import EmptyState from "@/components/EmptyState";
 import ChartCard from "./ChartCard";
 import { ChartTip, useChartTip } from "./ChartTooltip";
 import { pointColor, type ChartPoint } from "@/lib/chartColors";
@@ -79,7 +80,13 @@ export default function DonutChart({
       className={className}
     >
       {total <= 0 ? (
-        <p className="py-8 text-center text-sm text-ink-muted">{emptyLabel}</p>
+        <EmptyState
+          bare
+          compact
+          icon={icon ?? PieChart}
+          title={emptyLabel}
+          description="با ثبت داده، سهم هر بخش اینجا دیده می‌شود."
+        />
       ) : (
         <div
           ref={rootRef}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Mail } from "lucide-react";
+import { Mail, SearchX } from "lucide-react";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import PageHeader from "@/components/PageHeader";
 import { Input } from "@/components/form";
 import { useAuth } from "@/lib/auth";
@@ -85,8 +86,27 @@ export default function NewsletterAdminPage() {
       </div>
       <ul className="space-y-3">
         {filtered.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
-            مشترکی نیست
+          <li className="list-none">
+            <EmptyState
+              icon={query.trim() ? SearchX : Mail}
+              title={query.trim() ? NO_MATCH_TITLE : "هنوز مشترکی در خبرنامه نیست"}
+              description={
+                query.trim()
+                  ? NO_MATCH_DESCRIPTION
+                  : "ایمیل‌هایی که از فرم خبرنامه سایت ثبت شوند اینجا فهرست می‌شوند."
+              }
+              action={
+                query.trim() ? (
+                  <button
+                    type="button"
+                    className="btn-secondary !py-2 text-xs"
+                    onClick={() => setQuery("")}
+                  >
+                    پاک کردن جستجو
+                  </button>
+                ) : undefined
+              }
+            />
           </li>
         ) : (
           filtered.map((r) => (

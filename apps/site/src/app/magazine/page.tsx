@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, Clock } from "lucide-react";
 import { ArticleCover } from "@/components/magazine/ArticleCover";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHero } from "@/components/shared/PageHero";
 import { listArticles } from "@/lib/api/magazine";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -49,6 +50,13 @@ export default async function MagazinePage() {
       />
 
       <section className="content-wide section-pad !pt-6">
+        {articles.length === 0 ? (
+          <EmptyState
+            icon={BookOpen}
+            title="هنوز مقاله‌ای منتشر نشده"
+            description="خواندنی‌های مجله پس از انتشار از پنل اینجا دیده می‌شوند."
+          />
+        ) : null}
         {featured ? (
           <Link
             href={`/magazine/${featured.slug}`}

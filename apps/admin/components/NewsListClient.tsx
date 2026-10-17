@@ -10,11 +10,13 @@ import {
   LayoutGrid,
   Newspaper,
   Pencil,
+  SearchX,
   PencilLine,
   Plus,
   Rocket,
 } from "lucide-react";
 import ActionIconButton from "@/components/ActionIconButton";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import FilterPills from "@/components/FilterPills";
 import PageHeader from "@/components/PageHeader";
 import { Input } from "@/components/form";
@@ -176,8 +178,44 @@ export default function NewsListClient() {
 
       <ul className="space-y-3">
         {filtered.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
-            خبری نیست — یک خبر جدید بسازید.
+          <li className="list-none">
+            <EmptyState
+              icon={
+                query.trim() || statusFilter !== "all" || categoryFilter !== "all"
+                  ? SearchX
+                  : Newspaper
+              }
+              title={
+                query.trim() || statusFilter !== "all" || categoryFilter !== "all"
+                  ? NO_MATCH_TITLE
+                  : "هنوز خبری ثبت نشده"
+              }
+              description={
+                query.trim() || statusFilter !== "all" || categoryFilter !== "all"
+                  ? NO_MATCH_DESCRIPTION
+                  : "اولین خبر را بنویسید تا در سایت منتشر شود."
+              }
+              action={
+                query.trim() || statusFilter !== "all" || categoryFilter !== "all" ? (
+                  <button
+                    type="button"
+                    className="btn-secondary !py-2 text-xs"
+                    onClick={() => {
+                      setQuery("");
+                      setStatusFilter("all");
+                      setCategoryFilter("all");
+                    }}
+                  >
+                    پاک کردن فیلتر
+                  </button>
+                ) : (
+                  <Link href="/news/new" className="btn-primary !gap-1.5 !py-2 text-xs">
+                    <Plus className="h-4 w-4" />
+                    خبر جدید
+                  </Link>
+                )
+              }
+            />
           </li>
         ) : (
           filtered.map((item) => {

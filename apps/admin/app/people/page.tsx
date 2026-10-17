@@ -1,5 +1,6 @@
 "use client";
 
+import { Users } from "lucide-react";
 import { ResourceCrud } from "@/components/ResourceCrud";
 import { apiDeletePerson, apiListPeople, apiSavePerson } from "@/lib/api/resources";
 import { PERSON_KIND_OPTIONS, PUBLISH_STATUS_OPTIONS } from "@/lib/optionSets";
@@ -9,6 +10,9 @@ export default function PeopleAdminPage() {
     <ResourceCrud
       title="افراد"
       description="شاگردان، مؤسسان و چهره‌های مرتبط."
+      emptyIcon={Users}
+      emptyTitle="هنوز فردی ثبت نشده"
+      emptyDescription="شاگردان، مؤسسان و چهره‌های مرتبط را از اینجا اضافه کنید."
       fields={[
         { key: "name", label: "نام", required: true },
         { key: "title", label: "عنوان نمایشی", required: true },

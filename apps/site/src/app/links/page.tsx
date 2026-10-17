@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Link2 } from "lucide-react";
 import { FadeIn } from "@/components/shared/FadeIn";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHero } from "@/components/shared/PageHero";
 import { listUsefulLinks } from "@/lib/api/foundation";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -28,9 +29,11 @@ export default async function UsefulLinksPage() {
       <div className="content-shell section-pad !pt-8">
         <FadeIn>
           {links.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
-              هنوز پیوندی ثبت نشده است.
-            </p>
+            <EmptyState
+              icon={Link2}
+              title="هنوز پیوندی ثبت نشده"
+              description="وب‌سایت‌ها و انجمن‌های مرتبط، پس از انتشار از پنل، اینجا فهرست می‌شوند."
+            />
           ) : (
             <ul className="grid gap-4 sm:grid-cols-2">
               {links.map((link, index) => (

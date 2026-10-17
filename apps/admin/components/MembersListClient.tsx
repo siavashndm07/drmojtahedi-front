@@ -2,9 +2,10 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { Loader2, Trash2, Users } from "lucide-react";
+import { Loader2, SearchX, Trash2, Users } from "lucide-react";
 import { createPortal } from "react-dom";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import PageHeader from "@/components/PageHeader";
 import {
   Field,
@@ -288,8 +289,27 @@ export default function MembersListClient() {
 
       <ul className="space-y-3">
         {filtered.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
-            عضوی نیست
+          <li className="list-none">
+            <EmptyState
+              icon={query.trim() ? SearchX : Users}
+              title={query.trim() ? NO_MATCH_TITLE : "هنوز عضوی ثبت نشده"}
+              description={
+                query.trim()
+                  ? NO_MATCH_DESCRIPTION
+                  : "اعضا پس از ورود با شماره موبایل در سایت، اینجا دیده می‌شوند."
+              }
+              action={
+                query.trim() ? (
+                  <button
+                    type="button"
+                    className="btn-secondary !py-2 text-xs"
+                    onClick={() => setQuery("")}
+                  >
+                    پاک کردن جستجو
+                  </button>
+                ) : undefined
+              }
+            />
           </li>
         ) : (
           filtered.map((r) => {

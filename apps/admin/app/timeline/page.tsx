@@ -1,5 +1,6 @@
 "use client";
 
+import { History } from "lucide-react";
 import { ResourceCrud } from "@/components/ResourceCrud";
 import {
   apiDeleteTimeline,
@@ -13,6 +14,9 @@ export default function TimelineAdminPage() {
     <ResourceCrud
       title="خط زمان"
       description="رویدادهای گاه‌شمار زندگی و میراث."
+      emptyIcon={History}
+      emptyTitle="هنوز رویدادی در خط زمان نیست"
+      emptyDescription="سال و عنوان اولین رویداد را ثبت کنید."
       fields={[
         { key: "year", label: "سال", required: true },
         { key: "title", label: "عنوان", required: true },

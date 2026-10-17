@@ -1,5 +1,6 @@
 "use client";
 
+import { Archive } from "lucide-react";
 import { ResourceCrud } from "@/components/ResourceCrud";
 import {
   apiDeleteArchive,
@@ -13,6 +14,9 @@ export default function ArchiveAdminPage() {
     <ResourceCrud
       title="آرشیو"
       description="اسناد، عکس، صوت و آثار."
+      emptyIcon={Archive}
+      emptyTitle="هنوز آیتمی در آرشیو نیست"
+      emptyDescription="اسناد، عکس، صوت و آثار را از اینجا ثبت کنید."
       fields={[
         { key: "title", label: "عنوان", required: true },
         { key: "slug", label: "اسلاگ", required: true },

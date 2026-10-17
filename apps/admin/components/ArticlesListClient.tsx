@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   BookOpen,
   Clock3,
+  SearchX,
   FolderOpen,
   ImageIcon,
   LayoutGrid,
@@ -15,6 +16,7 @@ import {
   Rocket,
 } from "lucide-react";
 import ActionIconButton from "@/components/ActionIconButton";
+import EmptyState, { NO_MATCH_DESCRIPTION, NO_MATCH_TITLE } from "@/components/EmptyState";
 import FilterPills from "@/components/FilterPills";
 import PageHeader from "@/components/PageHeader";
 import { Input } from "@/components/form";
@@ -176,8 +178,44 @@ export default function ArticlesListClient() {
 
       <ul className="space-y-3">
         {filtered.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-ink/15 bg-surface px-5 py-10 text-center text-sm text-ink-muted">
-            مقاله‌ای نیست — یک مقاله جدید بسازید.
+          <li className="list-none">
+            <EmptyState
+              icon={
+                query.trim() || statusFilter !== "all" || categoryFilter !== "all"
+                  ? SearchX
+                  : BookOpen
+              }
+              title={
+                query.trim() || statusFilter !== "all" || categoryFilter !== "all"
+                  ? NO_MATCH_TITLE
+                  : "هنوز مقاله‌ای ثبت نشده"
+              }
+              description={
+                query.trim() || statusFilter !== "all" || categoryFilter !== "all"
+                  ? NO_MATCH_DESCRIPTION
+                  : "اولین مقاله را بنویسید تا در مجله سایت دیده شود."
+              }
+              action={
+                query.trim() || statusFilter !== "all" || categoryFilter !== "all" ? (
+                  <button
+                    type="button"
+                    className="btn-secondary !py-2 text-xs"
+                    onClick={() => {
+                      setQuery("");
+                      setStatusFilter("all");
+                      setCategoryFilter("all");
+                    }}
+                  >
+                    پاک کردن فیلتر
+                  </button>
+                ) : (
+                  <Link href="/articles/new" className="btn-primary !gap-1.5 !py-2 text-xs">
+                    <Plus className="h-4 w-4" />
+                    مقاله جدید
+                  </Link>
+                )
+              }
+            />
           </li>
         ) : (
           filtered.map((item) => {

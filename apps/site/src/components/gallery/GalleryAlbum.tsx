@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Images, X } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import type { GalleryItem } from "@/lib/api/galleries";
 
 export default function GalleryAlbum({
@@ -40,9 +41,11 @@ export default function GalleryAlbum({
 
   if (items.length === 0) {
     return (
-      <p className="rounded-2xl border border-dashed border-ink/15 px-4 py-12 text-center text-sm text-ink-muted">
-        هنوز رسانه‌ای در این گالری نیست.
-      </p>
+      <EmptyState
+        icon={Images}
+        title="هنوز رسانه‌ای در این گالری نیست"
+        description="تصاویر یا ویدئوهای این آلبوم به‌زودی اینجا قرار می‌گیرند."
+      />
     );
   }
 

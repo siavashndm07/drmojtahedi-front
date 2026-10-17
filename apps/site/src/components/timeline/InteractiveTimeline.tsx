@@ -2,7 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { History } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { toPersianDigits } from "@/lib/utils/digits";
 import { cn } from "@/lib/utils/cn";
 import type { TimelineEvent } from "@/lib/types";
@@ -55,9 +57,11 @@ export function InteractiveTimeline({
 
   if (!events.length || !active) {
     return (
-      <p className="border border-dashed border-ink/10 px-4 py-8 text-ink-muted">
-        رویدادی برای نمایش در خط زمان وجود ندارد.
-      </p>
+      <EmptyState
+        icon={History}
+        title="رویدادی برای نمایش نیست"
+        description="وقایع خط زمان پس از انتشار از پنل، اینجا به‌صورت گاه‌شمار دیده می‌شوند."
+      />
     );
   }
 

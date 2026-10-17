@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { HandHeart } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { useAuth } from "@/lib/auth";
 import { formatRials } from "@/lib/mock/donations";
 import { toPersianDigits } from "@/lib/utils/digits";
@@ -41,11 +43,15 @@ export default function DonationsListClient() {
             <tbody>
               {donations.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={5}
-                    className="px-4 py-10 text-center text-ink-muted"
-                  >
-                    هنوز کمکی ثبت نشده است.
+                  <td colSpan={5} className="p-2">
+                    <EmptyState
+                      icon={HandHeart}
+                      title="هنوز کمکی ثبت نشده"
+                      description="پس از پرداخت، مبلغ، تاریخ و تراکنش اینجا فهرست می‌شود."
+                      actionHref="/account/donate"
+                      actionLabel="ثبت کمک"
+                      className="border-0 bg-transparent py-8 shadow-none"
+                    />
                   </td>
                 </tr>
               ) : (

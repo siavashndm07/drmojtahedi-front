@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState, type MouseEvent } from "react";
-import type { LucideIcon } from "lucide-react";
+import { LineChart, type LucideIcon } from "lucide-react";
+import EmptyState from "@/components/EmptyState";
 import ChartCard from "./ChartCard";
 import { ChartTip, useChartTip } from "./ChartTooltip";
 import {
@@ -124,7 +125,13 @@ export default function LineAreaChart({
   return (
     <ChartCard title={title} subtitle={subtitle} icon={icon}>
       {!hasData ? (
-        <p className="py-8 text-center text-sm text-ink-muted">{emptyLabel}</p>
+        <EmptyState
+          bare
+          compact
+          icon={icon ?? LineChart}
+          title={emptyLabel}
+          description="به محض ثبت داده، روند اینجا رسم می‌شود."
+        />
       ) : (
         <div ref={rootRef} className="relative">
           <div ref={containerRef} className="w-full min-w-0">
