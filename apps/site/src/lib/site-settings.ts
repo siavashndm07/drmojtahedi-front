@@ -7,6 +7,8 @@ import {
   mergeBrandColors,
   mergeHomeSections,
   mergeSiteBanner,
+  normalizeHeroAutoplayDelay,
+  normalizeHeroTemplateId,
   normalizeHomeSectionOrder,
   type BrandColors,
   type HomeSectionKey,
@@ -102,6 +104,10 @@ export function resolveSiteSettings(
     homeSections: mergeHomeSections(remote.homeSections ?? base.homeSections),
     homeSectionOrder: normalizeHomeSectionOrder(
       remote.homeSectionOrder ?? base.homeSectionOrder,
+    ),
+    heroTemplate: normalizeHeroTemplateId(remote.heroTemplate ?? base.heroTemplate),
+    heroAutoplayDelay: normalizeHeroAutoplayDelay(
+      remote.heroAutoplayDelay ?? base.heroAutoplayDelay,
     ),
   };
 }

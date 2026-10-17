@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
   },
   transpilePackages: ["@drmojtahedi/shared"],
   images: {
+    dangerouslyAllowLocalIP: true,
     remotePatterns: [
       {
         protocol: "http",

@@ -85,6 +85,13 @@ export const ADMIN_MENU: NavItem[] = [
     description: "اخبار، مجله و کتاب",
     children: [
       {
+        key: "sliders",
+        label: "اسلایدر صفحه اصلی",
+        href: "/sliders",
+        icon: Images,
+        keywords: ["هیرو", "اسلاید", "hero", "slider", "بنر"],
+      },
+      {
         key: "news",
         label: "اخبار",
         href: "/news",

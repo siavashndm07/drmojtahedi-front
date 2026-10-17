@@ -2,8 +2,11 @@ import {
   mergeBrandColors,
   mergeHomeSections,
   mergeSiteBanner,
+  normalizeHeroAutoplayDelay,
+  normalizeHeroTemplateId,
   normalizeHomeSectionOrder,
   type BrandColors,
+  type HeroTemplateId,
   type HomeSectionKey,
   type HomeSections,
   type SiteBanner,
@@ -28,6 +31,8 @@ export type PublicSiteSettings = {
   social?: Partial<Record<string, string>> | null;
   homeSections?: Partial<HomeSections> | null;
   homeSectionOrder?: HomeSectionKey[] | null;
+  heroTemplate?: HeroTemplateId | null;
+  heroAutoplayDelay?: number | null;
 };
 
 export async function fetchPublicSiteSettings(): Promise<PublicSiteSettings | null> {
@@ -51,6 +56,8 @@ export async function fetchPublicSiteSettings(): Promise<PublicSiteSettings | nu
       social: data.social ?? {},
       homeSections: mergeHomeSections(data.homeSections),
       homeSectionOrder: normalizeHomeSectionOrder(data.homeSectionOrder),
+      heroTemplate: normalizeHeroTemplateId(data.heroTemplate),
+      heroAutoplayDelay: normalizeHeroAutoplayDelay(data.heroAutoplayDelay),
     };
   } catch {
     return null;

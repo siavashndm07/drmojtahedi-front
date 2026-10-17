@@ -31,7 +31,12 @@ export function permissionForPath(path: string): StaffPermissionKey | null {
   const p = path.split("?")[0].replace(/\/$/, "") || "/";
   if (p === "/login" || p.startsWith("/account")) return null;
   if (p === "/" || p === "") return "dashboard";
-  if (p.startsWith("/news") || p.startsWith("/articles") || p.startsWith("/books")) {
+  if (
+    p.startsWith("/news") ||
+    p.startsWith("/articles") ||
+    p.startsWith("/books") ||
+    p.startsWith("/sliders")
+  ) {
     return "content";
   }
   if (p.startsWith("/people") || p.startsWith("/places") || p.startsWith("/timeline")) {

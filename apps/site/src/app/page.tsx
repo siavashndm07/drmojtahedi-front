@@ -13,6 +13,7 @@ import {
   SupportCTA,
 } from "@/components/homepage/sections";
 import { listProjects, listSponsors } from "@/lib/api/foundation";
+import { listHeroSlides } from "@/lib/api/hero";
 import { listArticles } from "@/lib/api/magazine";
 import { listNews } from "@/lib/api/news";
 import { listTimeline } from "@/lib/api/people";
@@ -25,17 +26,24 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default async function HomePage() {
-  const [site, news, articles, timeline, projects, sponsors] = await Promise.all([
+  const [site, news, articles, timeline, projects, sponsors, heroSlides] = await Promise.all([
     loadSiteSettings(),
     listNews(),
     listArticles(),
     listTimeline(),
     listProjects(),
     listSponsors(),
+    listHeroSlides(),
   ]);
 
   const sections: Partial<Record<HomeSectionKey, ReactNode>> = {
-    hero: <HomeHeroSlider />,
+    hero: (
+      <HomeHeroSlider
+        slides={heroSlides.length ? heroSlides : undefined}
+        template={site.heroTemplate}
+        autoplayDelay={site.heroAutoplayDelay}
+      />
+    ),
     timeline: <TimelinePreview items={timeline} />,
     news: <NewsPreview items={news} />,
     projects: <ProjectsPreview items={projects} />,

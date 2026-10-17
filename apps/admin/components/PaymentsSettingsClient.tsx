@@ -406,39 +406,6 @@ export default function PaymentsSettingsClient() {
             storageKey="dm-payments-settings-accordion"
           >
             <FormAccordionItem
-              id="donate-message"
-              title="پیام صفحه کمک"
-              description="قبل از مبلغ در /donate نمایش داده می‌شود"
-              icon={MessageSquareText}
-            >
-              <Field
-                label="پیام معرفی کمک"
-                htmlFor="donate-message-editor"
-                hint="از نوار ابزار برای پررنگ، ایتالیک، فهرست و لینک استفاده کنید."
-              >
-                <SimpleHtmlEditor
-                  id="donate-message-editor"
-                  value={form.donateMessage ?? ""}
-                  rows={8}
-                  placeholder="حمایت شما صرف برنامه‌های فرهنگی و عام‌المنفعهٔ بنیاد می‌شود."
-                  onChange={(donateMessage) =>
-                    setForm({ ...form, donateMessage })
-                  }
-                />
-              </Field>
-              <p className="mt-3 text-xs text-ink-muted">
-                اهداف قابل انتخاب در{" "}
-                <Link
-                  href="/donation-goals"
-                  className="font-medium text-pine hover:underline"
-                >
-                  اهداف کمک
-                </Link>{" "}
-                تعریف می‌شوند.
-              </p>
-            </FormAccordionItem>
-
-            <FormAccordionItem
               id="gateways"
               title="درگاه‌های آنلاین"
               description="هر درگاهی که فعال و پیکربندی شده باشد برای پرداخت آنلاین در دسترس است."
@@ -748,6 +715,38 @@ export default function PaymentsSettingsClient() {
                 );
               })}
             </div>
+            </FormAccordionItem>
+            <FormAccordionItem
+              id="donate-message"
+              title="پیام صفحه کمک"
+              description="قبل از مبلغ در /donate نمایش داده می‌شود"
+              icon={MessageSquareText}
+            >
+              <Field
+                label="پیام معرفی کمک"
+                htmlFor="donate-message-editor"
+                hint="از نوار ابزار برای پررنگ، ایتالیک، فهرست و لینک استفاده کنید."
+              >
+                <SimpleHtmlEditor
+                  id="donate-message-editor"
+                  value={form.donateMessage ?? ""}
+                  rows={8}
+                  placeholder="حمایت شما صرف برنامه‌های فرهنگی و عام‌المنفعهٔ بنیاد می‌شود."
+                  onChange={(donateMessage) =>
+                    setForm({ ...form, donateMessage })
+                  }
+                />
+              </Field>
+              <p className="mt-3 text-xs text-ink-muted">
+                اهداف قابل انتخاب در{" "}
+                <Link
+                  href="/donation-goals"
+                  className="font-medium text-pine hover:underline"
+                >
+                  اهداف کمک
+                </Link>{" "}
+                تعریف می‌شوند.
+              </p>
             </FormAccordionItem>
           </FormAccordion>
 

@@ -3,8 +3,11 @@ import {
   mergeBrandColors,
   mergeHomeSections,
   mergeSiteBanner,
+  normalizeHeroAutoplayDelay,
+  normalizeHeroTemplateId,
   normalizeHomeSectionOrder,
   type BrandColors,
+  type HeroTemplateId,
   type HomeSectionKey,
   type HomeSections,
   type SiteBanner,
@@ -121,6 +124,8 @@ export type SiteSettings = {
   watermarkId?: string | null;
   homeSections?: HomeSections;
   homeSectionOrder?: HomeSectionKey[];
+  heroTemplate?: HeroTemplateId;
+  heroAutoplayDelay?: number;
 };
 
 export type PaymentGateway =
@@ -219,6 +224,8 @@ function normalizeSiteSettings(data: SiteSettings): SiteSettings {
     watermarkId: data.watermarkId ?? null,
     homeSections: mergeHomeSections(data.homeSections),
     homeSectionOrder: normalizeHomeSectionOrder(data.homeSectionOrder),
+    heroTemplate: normalizeHeroTemplateId(data.heroTemplate),
+    heroAutoplayDelay: normalizeHeroAutoplayDelay(data.heroAutoplayDelay),
   };
 }
 

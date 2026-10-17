@@ -94,13 +94,50 @@ export type RecentVisit = {
   device: string;
 };
 
+export type DashboardNewsItem = {
+  id: string | number;
+  title: string;
+  status: string;
+  updatedAt: string;
+};
+
+export type DashboardContribution = {
+  id: string | number;
+  title: string;
+  name: string;
+  status: string;
+  createdAt: string;
+};
+
+export type DashboardDonation = {
+  id: string | number;
+  name: string;
+  amount: number;
+  status: string;
+  createdAt: string;
+};
+
 export type DashboardStats = {
   news: number;
+  articles?: number;
+  books?: number;
   people: number;
   archive: number;
+  galleries?: number;
+  oralHistory?: number;
   sponsors: number;
+  members?: number;
+  membersPending?: number;
   newsletter: number;
   contributions: number;
+  contributionsNew?: number;
+  donationsOpen?: number;
+  donationsPaid?: number;
+  feesOpen?: number;
+  drafts?: number;
+  recentNews?: DashboardNewsItem[];
+  recentContributions?: DashboardContribution[];
+  recentDonations?: DashboardDonation[];
   todayVisits?: number;
   todayUniques?: number;
   visitsLast7Days?: VisitDayPoint[];
