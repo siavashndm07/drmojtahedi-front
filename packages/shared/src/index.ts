@@ -17,6 +17,7 @@ export const ADMIN_STORAGE_KEYS = {
 } as const;
 
 export * from "./brandColors";
+export * from "./footerNav";
 export * from "./heroTemplates";
 export * from "./homeSections";
 export * from "./simpleHtml";

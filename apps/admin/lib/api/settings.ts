@@ -1,19 +1,21 @@
 import { apiFetch } from "@/lib/api/client";
 import {
   mergeBrandColors,
+  mergeFooterNav,
   mergeHomeSections,
   mergeSiteBanner,
   normalizeHeroAutoplayDelay,
   normalizeHeroTemplateId,
   normalizeHomeSectionOrder,
   type BrandColors,
+  type FooterNavSection,
   type HeroTemplateId,
   type HomeSectionKey,
   type HomeSections,
   type SiteBanner,
 } from "@drmojtahedi/shared";
 
-export type { BrandColors, HomeSectionKey, HomeSections, SiteBanner };
+export type { BrandColors, FooterNavSection, HomeSectionKey, HomeSections, SiteBanner };
 
 export type WatermarkPosition =
   | "bottom_right"
@@ -126,6 +128,7 @@ export type SiteSettings = {
   homeSectionOrder?: HomeSectionKey[];
   heroTemplate?: HeroTemplateId;
   heroAutoplayDelay?: number;
+  footerNav?: FooterNavSection[];
 };
 
 export type PaymentGateway =
@@ -226,6 +229,7 @@ function normalizeSiteSettings(data: SiteSettings): SiteSettings {
     homeSectionOrder: normalizeHomeSectionOrder(data.homeSectionOrder),
     heroTemplate: normalizeHeroTemplateId(data.heroTemplate),
     heroAutoplayDelay: normalizeHeroAutoplayDelay(data.heroAutoplayDelay),
+    footerNav: mergeFooterNav(data.footerNav),
   };
 }
 

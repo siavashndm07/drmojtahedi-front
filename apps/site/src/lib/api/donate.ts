@@ -68,6 +68,22 @@ const EMPTY_OPTIONS: DonatePaymentOptions = {
   goals: [],
 };
 
+export async function getDonateHighlights(): Promise<{
+  message: string;
+  goals: DonateGoalOption[];
+}> {
+  if (!isApiEnabled()) return { message: "", goals: [] };
+  try {
+    const data = await apiGet<Partial<DonatePaymentOptions>>("/donate/payment-options/");
+    return {
+      message: data.message?.trim() ?? "",
+      goals: data.goals ?? [],
+    };
+  } catch {
+    return { message: "", goals: [] };
+  }
+}
+
 export async function getDonatePaymentOptions(): Promise<DonatePaymentOptions> {
   if (!isApiEnabled()) return EMPTY_OPTIONS;
   const data = await apiGet<Partial<DonatePaymentOptions>>(

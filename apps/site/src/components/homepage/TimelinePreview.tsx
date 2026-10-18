@@ -79,8 +79,8 @@ export function TimelinePreview({ items: itemsProp }: { items?: TimelineEvent[] 
               مسیر زندگی در یک نگاه
             </h2>
               <p className="mt-4 max-w-xl text-base leading-8 text-ink-muted md:text-lg">
-                از لاهیجان و تحصیل در فرانسه تا ریاست البرز و بنیان‌گذاری دانشگاه صنعتی
-                شریف — هر گره، درگاهی به اسناد و مکان‌های مرتبط است.
+                از لاهیجان تا البرز و شریف؛ چند ایستگاه از زندگی یک معلم، برای کسانی که
+                می‌خواهند میراثش را از نزدیک ببینند.
               </p>
           </div>
 

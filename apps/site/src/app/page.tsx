@@ -5,6 +5,7 @@ import { HomeHeroSlider } from "@/components/homepage/HomeHeroSlider";
 import { TimelinePreview } from "@/components/homepage/TimelinePreview";
 import {
   ArchiveHighlights,
+  DonationPreview,
   MagazinePreview,
   NewsPreview,
   PartnersPreview,
@@ -12,6 +13,7 @@ import {
   SponsorsPreview,
   SupportCTA,
 } from "@/components/homepage/sections";
+import { getDonateHighlights } from "@/lib/api/donate";
 import { listProjects, listSponsors } from "@/lib/api/foundation";
 import { listHeroSlides } from "@/lib/api/hero";
 import { listArticles } from "@/lib/api/magazine";
@@ -26,15 +28,17 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default async function HomePage() {
-  const [site, news, articles, timeline, projects, sponsors, heroSlides] = await Promise.all([
-    loadSiteSettings(),
-    listNews(),
-    listArticles(),
-    listTimeline(),
-    listProjects(),
-    listSponsors(),
-    listHeroSlides(),
-  ]);
+  const [site, news, articles, timeline, projects, sponsors, heroSlides, donate] =
+    await Promise.all([
+      loadSiteSettings(),
+      listNews(),
+      listArticles(),
+      listTimeline(),
+      listProjects(),
+      listSponsors(),
+      listHeroSlides(),
+      getDonateHighlights(),
+    ]);
 
   const sections: Partial<Record<HomeSectionKey, ReactNode>> = {
     hero: (
@@ -44,6 +48,7 @@ export default async function HomePage() {
         autoplayDelay={site.heroAutoplayDelay}
       />
     ),
+    donate: <DonationPreview message={donate.message} goals={donate.goals} />,
     timeline: <TimelinePreview items={timeline} />,
     news: <NewsPreview items={news} />,
     projects: <ProjectsPreview items={projects} />,

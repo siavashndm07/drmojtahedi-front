@@ -1,11 +1,13 @@
 import {
   mergeBrandColors,
+  mergeFooterNav,
   mergeHomeSections,
   mergeSiteBanner,
   normalizeHeroAutoplayDelay,
   normalizeHeroTemplateId,
   normalizeHomeSectionOrder,
   type BrandColors,
+  type FooterNavSection,
   type HeroTemplateId,
   type HomeSectionKey,
   type HomeSections,
@@ -27,12 +29,18 @@ export type PublicSiteSettings = {
   email?: string;
   phone?: string;
   phoneSecondary?: string;
+  phoneHref?: string;
   address?: string;
+  contactDescription?: string;
+  contactHours?: string;
+  mapLat?: number | null;
+  mapLon?: number | null;
   social?: Partial<Record<string, string>> | null;
   homeSections?: Partial<HomeSections> | null;
   homeSectionOrder?: HomeSectionKey[] | null;
   heroTemplate?: HeroTemplateId | null;
   heroAutoplayDelay?: number | null;
+  footerNav?: FooterNavSection[] | null;
 };
 
 export async function fetchPublicSiteSettings(): Promise<PublicSiteSettings | null> {
@@ -58,6 +66,7 @@ export async function fetchPublicSiteSettings(): Promise<PublicSiteSettings | nu
       homeSectionOrder: normalizeHomeSectionOrder(data.homeSectionOrder),
       heroTemplate: normalizeHeroTemplateId(data.heroTemplate),
       heroAutoplayDelay: normalizeHeroAutoplayDelay(data.heroAutoplayDelay),
+      footerNav: mergeFooterNav(data.footerNav),
     };
   } catch {
     return null;

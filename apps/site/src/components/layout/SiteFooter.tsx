@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { NewsletterSignup } from "@/components/forms/NewsletterSignup";
 import { getNavIcon } from "@/components/icons/navIcons";
-import { footerColumns, utilityNavigation } from "@/config/navigation";
+import { utilityNavigation } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 import { useSiteSettings } from "@/lib/SiteSettingsProvider";
 import { FOOTER_SOCIAL_LINKS, getActiveSocialLinks } from "@/lib/socialLinks";
 import { toPersianDigits } from "@/lib/utils/digits";
 import { cn } from "@/lib/utils/cn";
+import { visibleFooterNav } from "@drmojtahedi/shared";
 
 function FooterSocials() {
   const site = useSiteSettings();
@@ -52,6 +53,7 @@ export function SiteFooter() {
   const address = site.address || siteConfig.address;
   const phone = site.phone || siteConfig.phone;
   const email = site.email || siteConfig.email;
+  const columns = visibleFooterNav(site.footerNav);
 
   return (
     <footer className="mt-auto border-t border-ink/10 bg-pine-dark text-white">
@@ -73,10 +75,10 @@ export function SiteFooter() {
           </div>
 
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {footerColumns.map((column) => {
+            {columns.map((column) => {
               const ColumnIcon = getNavIcon(column.icon);
               return (
-                <div key={column.title}>
+                <div key={column.id}>
                   <h2 className="mb-3 flex items-center gap-2 text-sm font-medium text-white">
                     <ColumnIcon className="size-4 opacity-80" strokeWidth={1.8} aria-hidden />
                     {column.title}
@@ -85,7 +87,7 @@ export function SiteFooter() {
                     {column.links.map((link) => {
                       const LinkIcon = getNavIcon(link.icon);
                       return (
-                        <li key={link.href}>
+                        <li key={`${column.id}-${link.href}-${link.label}`}>
                           <Link
                             href={link.href}
                             className="inline-flex items-center gap-2 text-sm text-white/70 transition-colors hover:text-white"

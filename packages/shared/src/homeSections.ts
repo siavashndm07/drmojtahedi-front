@@ -1,5 +1,6 @@
 export type HomeSectionKey =
   | "hero"
+  | "donate"
   | "timeline"
   | "news"
   | "projects"
@@ -13,6 +14,7 @@ export type HomeSections = Record<HomeSectionKey, boolean>;
 
 export const HOME_SECTION_KEYS: HomeSectionKey[] = [
   "hero",
+  "donate",
   "timeline",
   "news",
   "projects",
@@ -25,6 +27,7 @@ export const HOME_SECTION_KEYS: HomeSectionKey[] = [
 
 export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   hero: "اسلایدر / هیرو",
+  donate: "کمک و همراهی",
   timeline: "خط زمان",
   news: "اخبار",
   projects: "پروژه‌ها",
@@ -37,6 +40,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
 
 export const DEFAULT_HOME_SECTIONS: HomeSections = {
   hero: true,
+  donate: true,
   timeline: true,
   news: true,
   projects: true,
@@ -78,7 +82,17 @@ export function normalizeHomeSectionOrder(
   }
 
   for (const key of HOME_SECTION_KEYS) {
-    if (!seen.has(key)) order.push(key);
+    if (seen.has(key)) continue;
+    const defaultIndex = DEFAULT_HOME_SECTION_ORDER.indexOf(key);
+    let insertAt = order.length;
+    for (let index = 0; index < order.length; index += 1) {
+      if (DEFAULT_HOME_SECTION_ORDER.indexOf(order[index]) > defaultIndex) {
+        insertAt = index;
+        break;
+      }
+    }
+    order.splice(insertAt, 0, key);
+    seen.add(key);
   }
   return order;
 }

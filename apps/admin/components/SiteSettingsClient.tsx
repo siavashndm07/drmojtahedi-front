@@ -14,6 +14,7 @@ import {
   MapPin,
   Megaphone,
   Palette,
+  PanelBottom,
   Phone,
   Share2,
   Shield,
@@ -24,11 +25,13 @@ import {
   DEFAULT_HOME_SECTION_ORDER,
   DEFAULT_HOME_SECTIONS,
   mergeBrandColors,
+  mergeFooterNav,
   mergeHomeSections,
   mergeSiteBanner,
   normalizeHomeSectionOrder,
 } from "@drmojtahedi/shared";
 import BrandColorsEditor from "@/components/BrandColorsEditor";
+import FooterNavEditor from "@/components/FooterNavEditor";
 import HomeSectionOrderEditor from "@/components/HomeSectionOrderEditor";
 import ImageAssetField from "@/components/ImageAssetField";
 import LocationMapPickerLazy from "@/components/LocationMapPickerLazy";
@@ -62,8 +65,6 @@ import {
   applyBrandColorsToDocument,
   notifyBrandColorsUpdated,
 } from "@/lib/brandTheme";
-
-const ACCORDION_KEY = "dm-site-settings-accordion";
 
 const RELATED = [
   {
@@ -131,6 +132,7 @@ function emptyForm(): SiteSettings {
     watermarkId: null,
     homeSections: { ...DEFAULT_HOME_SECTIONS },
     homeSectionOrder: [...DEFAULT_HOME_SECTION_ORDER],
+    footerNav: mergeFooterNav(null),
   };
 }
 
@@ -165,6 +167,7 @@ export default function SiteSettingsClient() {
                 : [...DEFAULT_WATERMARK_KINDS],
             homeSections: mergeHomeSections(data.homeSections),
             homeSectionOrder: normalizeHomeSectionOrder(data.homeSectionOrder),
+            footerNav: mergeFooterNav(data.footerNav),
           };
           setForm(next);
           applyBrandColorsToDocument(next.brandColors);
@@ -219,6 +222,7 @@ export default function SiteSettingsClient() {
             : [...DEFAULT_WATERMARK_KINDS],
         homeSections: mergeHomeSections(saved.homeSections),
         homeSectionOrder: normalizeHomeSectionOrder(saved.homeSectionOrder),
+        footerNav: mergeFooterNav(saved.footerNav),
       };
       setForm(next);
       applyBrandColorsToDocument(next.brandColors);
@@ -264,10 +268,7 @@ export default function SiteSettingsClient() {
 
       {form ? (
         <div className="space-y-4">
-          <FormAccordion
-            defaultOpenIds={["visual", "banner", "brand"]}
-            storageKey={ACCORDION_KEY}
-          >
+          <FormAccordion>
             <FormAccordionItem
               id="visual"
               title="هویت بصری"
@@ -679,6 +680,9 @@ export default function SiteSettingsClient() {
                 </Field>
                 <div className="sm:col-span-2 space-y-3">
                   <p className="text-sm font-medium text-ink">موقعیت روی نقشه</p>
+                  <p className="text-xs leading-6 text-ink-muted">
+                    همین نقطه در صفحهٔ تماس سایت نشان داده می‌شود.
+                  </p>
                   <LocationMapPickerLazy
                     value={
                       hasMapCoordinates({
@@ -771,6 +775,18 @@ export default function SiteSettingsClient() {
                   }
                 />
               </Field>
+            </FormAccordionItem>
+
+            <FormAccordionItem
+              id="footer"
+              title="پیوندهای فوتر"
+              description="متن، آدرس و آیکون هر لینک، و اینکه در فوتر دیده شود یا نه"
+              icon={PanelBottom}
+            >
+              <FooterNavEditor
+                value={form.footerNav ?? mergeFooterNav(null)}
+                onChange={(footerNav) => patch("footerNav", footerNav)}
+              />
             </FormAccordionItem>
 
             <FormAccordionItem

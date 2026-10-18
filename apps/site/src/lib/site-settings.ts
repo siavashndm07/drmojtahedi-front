@@ -5,12 +5,14 @@ import {
   DEFAULT_HOME_SECTIONS,
   DEFAULT_SITE_BANNER,
   mergeBrandColors,
+  mergeFooterNav,
   mergeHomeSections,
   mergeSiteBanner,
   normalizeHeroAutoplayDelay,
   normalizeHeroTemplateId,
   normalizeHomeSectionOrder,
   type BrandColors,
+  type FooterNavSection,
   type HomeSectionKey,
   type HomeSections,
   type SiteBanner,
@@ -38,12 +40,18 @@ export type ResolvedSiteSettings = {
   email: string;
   phone: string;
   phoneSecondary: string;
+  phoneHref: string;
   address: string;
+  contactDescription: string;
+  contactHours: string;
+  mapLat: number | null;
+  mapLon: number | null;
   social: Partial<Record<string, string>>;
   heroTemplate: HeroTemplateId;
   heroAutoplayDelay: number;
   homeSections: HomeSections;
   homeSectionOrder: HomeSectionKey[];
+  footerNav: FooterNavSection[];
 };
 
 /** Static fallbacks when API is unavailable (also used by client default context). */
@@ -62,12 +70,18 @@ export const siteSettings: ResolvedSiteSettings = {
   email: siteConfig.email,
   phone: siteConfig.phone,
   phoneSecondary: siteConfig.mobile,
+  phoneHref: "",
   address: siteConfig.address,
+  contactDescription: "",
+  contactHours: "",
+  mapLat: null,
+  mapLon: null,
   social: { ...siteConfig.social },
   heroTemplate: DEFAULT_HERO_TEMPLATE,
   heroAutoplayDelay: DEFAULT_HERO_AUTOPLAY_DELAY_MS,
   homeSections: { ...DEFAULT_HOME_SECTIONS },
   homeSectionOrder: [...DEFAULT_HOME_SECTION_ORDER],
+  footerNav: mergeFooterNav(null),
 };
 
 export function resolveSiteSettings(
@@ -96,7 +110,12 @@ export function resolveSiteSettings(
     email: remote.email?.trim() || base.email,
     phone: remote.phone?.trim() || base.phone,
     phoneSecondary: remote.phoneSecondary?.trim() || base.phoneSecondary,
+    phoneHref: remote.phoneHref?.trim() || base.phoneHref,
     address: remote.address?.trim() || base.address,
+    contactDescription: remote.contactDescription?.trim() || base.contactDescription,
+    contactHours: remote.contactHours?.trim() || base.contactHours,
+    mapLat: typeof remote.mapLat === "number" ? remote.mapLat : base.mapLat,
+    mapLon: typeof remote.mapLon === "number" ? remote.mapLon : base.mapLon,
     social: {
       ...base.social,
       ...(remote.social ?? {}),
@@ -109,6 +128,7 @@ export function resolveSiteSettings(
     heroAutoplayDelay: normalizeHeroAutoplayDelay(
       remote.heroAutoplayDelay ?? base.heroAutoplayDelay,
     ),
+    footerNav: mergeFooterNav(remote.footerNav),
   };
 }
 
