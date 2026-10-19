@@ -56,12 +56,65 @@ export async function getBook(slug: string): Promise<LibraryItem | null> {
   }
 }
 
+function resolveProgress(project: FoundationProject): number | null | undefined {
+  const raw = project.progressPercent ?? project.progress_percent;
+  if (raw == null || raw === ("" as unknown)) return undefined;
+  const n = Number(raw);
+  if (Number.isNaN(n)) return undefined;
+  return Math.min(100, Math.max(0, Math.round(n)));
+}
+
+function enrichProject(project: FoundationProject): FoundationProject {
+  const mock = mockProjects.find((item) => item.slug === project.slug);
+  const progress = resolveProgress(project);
+  if (!mock) {
+    return {
+      ...project,
+      progressPercent: progress ?? null,
+    };
+  }
+  const hasCover = Boolean(project.heroImage?.src);
+  return {
+    ...project,
+    description: project.description || mock.description,
+    phase: project.phase || mock.phase,
+    location: project.location || mock.location,
+    href: project.href || mock.href,
+    coverTone: project.coverTone || mock.coverTone,
+    heroImage: hasCover ? project.heroImage : mock.heroImage,
+    source: project.source || mock.source,
+    progressPercent:
+      progress ?? mock.progressPercent ?? mock.progress_percent ?? null,
+  };
+}
+
 export async function listProjects(): Promise<FoundationProject[]> {
   if (!isApiEnabled()) return mockProjects;
   const data = await apiGet<
     FoundationProject[] | { results: FoundationProject[] }
   >("/projects/");
-  return unwrapList(data);
+  const items = await unwrapList(data);
+  return items.map(enrichProject);
+}
+
+export async function getProject(slug: string): Promise<FoundationProject | null> {
+  if (!isApiEnabled()) {
+    return mockProjects.find((item) => item.slug === slug) ?? null;
+  }
+  try {
+    const project = await apiGet<FoundationProject>(`/projects/${slug}/`);
+    return enrichProject(project);
+  } catch {
+    return mockProjects.find((item) => item.slug === slug) ?? null;
+  }
+}
+
+export function relatedProjects(
+  projects: FoundationProject[],
+  currentId: string,
+  limit = 3,
+) {
+  return projects.filter((item) => item.id !== currentId).slice(0, limit);
 }
 
 export async function listCollaborateOptions(): Promise<CollaborateOption[]> {

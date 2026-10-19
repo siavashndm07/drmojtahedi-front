@@ -15,6 +15,7 @@ import {
 
   MessagesSquare,
 } from "lucide-react";
+import { ProjectProgress } from "@/components/foundation/ProjectProgress";
 import { LandingPhoto } from "@/components/homepage/LandingPhoto";
 import { ArticleCover } from "@/components/magazine/ArticleCover";
 import { FadeIn } from "@/components/shared/FadeIn";
@@ -476,7 +477,7 @@ export function ProjectsPreview({
         />
 
         <Link
-          href={flagship.href ?? "/projects"}
+          href={`/projects/${flagship.slug}`}
           className="group grid overflow-hidden rounded-3xl border border-ink/10 bg-surface shadow-[0_8px_30px_rgba(20,40,35,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-pine/30 hover:shadow-[0_18px_50px_rgba(20,40,35,0.10)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 md:grid-cols-12"
         >
           <div className="relative md:col-span-5">
@@ -493,13 +494,21 @@ export function ProjectsPreview({
             )}
           </div>
           <div className="flex flex-col justify-center p-6 md:col-span-7 md:p-8 lg:p-10">
-            {flagship.phase ? <Badge tone="bronze">{flagship.phase}</Badge> : null}
+            {flagship.phase ? (
+              <Badge tone="bronze" className="w-fit self-start">
+                {flagship.phase}
+              </Badge>
+            ) : null}
             <h3 className="mt-4 text-2xl font-semibold leading-tight tracking-tight transition-colors group-hover:text-pine md:text-3xl">
               {flagship.title}
             </h3>
             <p className="mt-3 max-w-xl text-sm leading-7 text-ink-muted md:text-[15px] md:leading-8">
               {flagship.description}
             </p>
+            <ProjectProgress
+              value={flagship.progressPercent}
+              className="mt-5 max-w-xs"
+            />
             <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-pine">
               ببینید چه می‌گذرد
               <ArrowLeft className="size-4 transition group-hover:-translate-x-0.5" aria-hidden />
@@ -512,7 +521,7 @@ export function ProjectsPreview({
             {secondary.map((project) => (
               <Link
                 key={project.id}
-                href={project.href ?? "/projects"}
+                href={`/projects/${project.slug}`}
                 className="group flex flex-col overflow-hidden rounded-3xl border border-ink/10 bg-surface shadow-[0_8px_30px_rgba(20,40,35,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-pine/30 hover:shadow-[0_18px_50px_rgba(20,40,35,0.10)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
               >
                 {project.heroImage ? (
@@ -527,13 +536,22 @@ export function ProjectsPreview({
                   </div>
                 )}
                 <div className="flex flex-1 flex-col p-5">
-                  {project.phase ? <Badge tone="bronze">{project.phase}</Badge> : null}
+                  {project.phase ? (
+                    <Badge tone="bronze" className="w-fit self-start">
+                      {project.phase}
+                    </Badge>
+                  ) : null}
                   <h3 className="mt-3 text-lg font-semibold tracking-tight transition-colors group-hover:text-pine">
                     {project.title}
                   </h3>
                   <p className="mt-2 line-clamp-2 text-sm leading-7 text-ink-muted">
                     {project.description}
                   </p>
+                  <ProjectProgress
+                    value={project.progressPercent}
+                    size="sm"
+                    className="mt-auto pt-4"
+                  />
                 </div>
               </Link>
             ))}
@@ -547,45 +565,182 @@ export function ProjectsPreview({
 export function ArchiveHighlights() {
   return (
     <FadeIn>
-      <section className="border-y border-ink/10 bg-[linear-gradient(180deg,rgb(var(--accent-soft)/0.45),rgb(var(--paper)))]">
-        <div className="content-shell section-pad">
-          <SectionHeading
-            eyebrow="دیدن و شنیدن"
-            title="میراث را ورق بزنید"
-            description="عکس، فیلم و سند؛ چیزهایی که اگر دیده نشوند، آرام‌آرام گم می‌شوند."
-            action={
-              <Link href="/gallery" className="text-sm font-medium text-pine hover:underline">
-                ورود به گالری
-              </Link>
-            }
-          />
-          <div className="grid gap-4 md:grid-cols-3">
-            <MediaTile
+      <section
+        className="relative overflow-hidden bg-cream text-ink dark:bg-surface/40"
+        aria-labelledby="archive-highlights-title"
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.035] dark:opacity-[0.06]"
+          style={{
+            backgroundImage:
+              "radial-gradient(rgb(var(--ink)) 0.7px, transparent 0.7px)",
+            backgroundSize: "18px 18px",
+          }}
+        />
+
+        <div className="content-shell section-pad relative">
+          <div className="mb-10 flex flex-col justify-between gap-6 border-b border-ink/15 pb-8 md:mb-14 md:flex-row md:items-end md:pb-10">
+            <div className="max-w-2xl">
+              <h2
+                id="archive-highlights-title"
+                className="text-display text-3xl font-medium leading-[1.5] tracking-tight text-ink md:text-5xl md:leading-[1.4]"
+              >
+                میراث را
+                <span className="text-bronze"> ورق بزنید</span>
+              </h2>
+
+              <p className="mt-4 max-w-xl text-sm leading-8 text-ink-muted md:text-base md:leading-9">
+                ردّی از آدم‌ها، لحظه‌ها و اندیشه‌ها؛ گنجینه‌ای که از گذشته روایت
+                می‌کند و برای آینده باقی می‌ماند.
+              </p>
+            </div>
+
+            <Link
               href="/gallery"
-              eyebrow="آرشیو"
-              title="گالری"
-              description="از اینجا وارد عکس‌ها و فیلم‌ها شوید."
-              icon={Images}
-              image={COVER_IMAGES.heritage}
-              tone="dark"
-            />
-            <MediaTile
-              href="/archive/photographs"
-              eyebrow="عکس"
-              title="تصویرها"
-              description="عکس‌ها و آثاری که به بنیاد سپرده شده‌اند."
-              icon={Camera}
-              image={COVER_IMAGES.gathering}
-            />
-            <MediaTile
-              href="/archive/video"
-              eyebrow="فیلم"
-              title="ویدئوها"
-              description="روایت تصویری از مراسم، مکان‌ها و آدم‌ها."
-              icon={Clapperboard}
-              image={COVER_IMAGES.ceremony}
-              tone="soft"
-            />
+              className="group inline-flex min-h-12 shrink-0 items-center gap-3 self-start pb-2 text-sm font-semibold text-ink transition-colors hover:text-bronze md:self-auto"
+            >
+              مشاهده آرشیو کامل
+              <ArrowLeft
+                className="size-4 transition-transform duration-300 group-hover:-translate-x-1"
+                aria-hidden
+              />
+            </Link>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-12 lg:gap-6">
+            <Link
+              href="/gallery"
+              className="group relative isolate flex min-h-[390px] overflow-hidden rounded-3xl bg-pine sm:min-h-[470px] lg:col-span-7 lg:min-h-[570px]"
+            >
+              <Image
+                src={COVER_IMAGES.heritage}
+                alt="نمایی از میراث و مجموعه آثار بنیاد"
+                fill
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                className="object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.04]"
+              />
+
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-ink/5"
+              />
+
+              <div
+                aria-hidden
+                className="absolute inset-4 rounded-2xl border border-white/20 transition-all duration-500 group-hover:inset-5 group-hover:border-white/35 md:inset-6"
+              />
+
+              <div className="absolute end-9 top-9 flex items-center gap-2 rounded-full border border-white/30 bg-pine/35 px-4 py-2 text-xs font-medium text-white backdrop-blur-sm">
+                <Images className="size-4" strokeWidth={1.6} />
+                گنجینه بنیاد
+              </div>
+
+              <div className="relative mt-auto w-full p-8 sm:p-10 md:p-12">
+
+                <h3 className="text-display text-3xl font-medium tracking-tight text-white sm:text-4xl md:text-5xl">
+                  گالری بنیاد
+                </h3>
+
+                <p className="mt-4 max-w-md text-sm leading-8 text-white/80 md:text-base">
+                  مجموعه‌ای از تصویرها و روایت‌ها برای شناخت بهتر میراث، فعالیت‌ها
+                  و خاطرات ماندگار.
+                </p>
+
+                <span className="mt-7 inline-flex items-center gap-3 text-sm font-semibold text-white">
+                  ورود به گالری
+                  <span className="flex size-10 items-center justify-center rounded-full border border-white/35 transition-all duration-300 group-hover:border-white group-hover:bg-white group-hover:text-pine">
+                    <ArrowLeft
+                      className="size-4 transition-transform duration-300 group-hover:-translate-x-0.5"
+                      aria-hidden
+                    />
+                  </span>
+                </span>
+              </div>
+            </Link>
+
+            <div className="grid gap-5 sm:grid-cols-2 lg:col-span-5 lg:grid-cols-1 lg:gap-6">
+              <Link
+                href="/archive/photographs"
+                className="group relative isolate flex min-h-[280px] overflow-hidden rounded-3xl bg-mint-soft sm:min-h-[340px] lg:min-h-0 lg:flex-1"
+              >
+                <Image
+                  src={COVER_IMAGES.gathering}
+                  alt="تصاویر و آثار ثبت‌شده در آرشیو بنیاد"
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 42vw"
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+                />
+
+                <div
+                  aria-hidden
+                  className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/15 to-transparent"
+                />
+
+                <div className="absolute end-5 top-5 flex size-10 items-center justify-center rounded-2xl border border-white/40 bg-pine/30 text-white backdrop-blur-sm">
+                  <Camera className="size-4.5" strokeWidth={1.6} />
+                </div>
+
+                <div className="relative mt-auto w-full p-7 md:p-8">
+
+                  <h3 className="text-2xl font-medium text-white">تصویرها</h3>
+
+                  <p className="mt-2 max-w-sm text-sm leading-7 text-white/80">
+                    عکس‌ها، چهره‌ها و لحظه‌هایی که بخشی از تاریخ بنیاد را روایت
+                    می‌کنند.
+                  </p>
+
+                  <span className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-white transition-colors group-hover:text-mint-soft">
+                    مرور تصاویر
+                    <ArrowLeft
+                      className="size-3.5 transition-transform duration-300 group-hover:-translate-x-1"
+                      aria-hidden
+                    />
+                  </span>
+                </div>
+              </Link>
+
+              <Link
+                href="/archive/video"
+                className="group relative isolate flex min-h-[280px] overflow-hidden rounded-3xl bg-mint-soft sm:min-h-[340px] lg:min-h-0 lg:flex-1"
+              >
+                <Image
+                  src={COVER_IMAGES.ceremony}
+                  alt="روایت تصویری مراسم و رویدادهای بنیاد"
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 42vw"
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+                />
+
+                <div
+                  aria-hidden
+                  className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/15 to-transparent"
+                />
+
+                <div className="absolute end-5 top-5 flex size-10 items-center justify-center rounded-2xl border border-white/40 bg-pine/30 text-white backdrop-blur-sm">
+                  <Clapperboard className="size-4.5" strokeWidth={1.6} />
+                </div>
+
+                <div className="relative mt-auto w-full p-7 md:p-8">
+                  <h3 className="text-2xl font-medium text-white">
+                    روایت‌های تصویری
+                  </h3>
+
+                  <p className="mt-2 max-w-sm text-sm leading-7 text-white/80">
+                    فیلم‌ها و روایت‌هایی از مراسم، رویدادها و آدم‌هایی که این مسیر
+                    را ساخته‌اند.
+                  </p>
+
+                  <span className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-white transition-colors group-hover:text-mint-soft">
+                    تماشای ویدئوها
+                    <ArrowLeft
+                      className="size-3.5 transition-transform duration-300 group-hover:-translate-x-1"
+                      aria-hidden
+                    />
+                  </span>
+                </div>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

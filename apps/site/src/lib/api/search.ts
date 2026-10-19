@@ -119,7 +119,7 @@ export async function search(
       id: item.id,
       title: item.title,
       excerpt: item.description,
-      href: item.href ?? "/projects",
+      href: `/projects/${item.slug}`,
       category: "library" as const,
       status: item.status,
       blob: [item.title, item.description, item.phase, item.location]

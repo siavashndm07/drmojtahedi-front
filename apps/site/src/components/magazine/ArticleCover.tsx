@@ -30,7 +30,7 @@ export function ArticleCover({
 }) {
   const tone = article.coverTone ?? "pine";
   const Icon = categoryIcon[article.category ?? ""] ?? BookOpen;
-  const src = article.heroImage?.src;
+  const src = article.heroImage?.src || article.cover;
 
   if (src) {
     return (

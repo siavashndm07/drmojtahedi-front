@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Inbox, type LucideIcon } from "lucide-react";
+import { ProjectProgress } from "@/components/foundation/ProjectProgress";
 import { FadeIn } from "@/components/shared/FadeIn";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -102,6 +103,7 @@ export function ContentCardGrid({
     meta?: string;
     badge?: string;
     comingSoon?: boolean;
+    progressPercent?: number | null;
     image?: { src: string; alt: string };
     icon?: LucideIcon;
   }[];
@@ -137,6 +139,11 @@ export function ContentCardGrid({
             {item.description ? (
               <p className="mt-3 text-sm leading-7 text-ink-muted">{item.description}</p>
             ) : null}
+            <ProjectProgress
+              value={item.progressPercent}
+              size="sm"
+              className="mt-4"
+            />
           </>
         );
 

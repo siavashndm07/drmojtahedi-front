@@ -8,6 +8,7 @@ import {
   mockOralHistory,
   mockPeople,
   mockPlaces,
+  mockProjects,
   mockSponsors,
 } from "@/lib/mock";
 
@@ -71,6 +72,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...mockPlaces.map((i) => `/heritage/places/${i.slug}`),
     ...mockArchive.map((i) => `/archive/${i.slug}`),
     ...mockSponsors.map((i) => `/sponsors/${i.slug}`),
+    ...mockProjects.map((i) => `/projects/${i.slug}`),
     ...mockOralHistory.map((i) => `/oral-history/${i.slug}`),
   ].map((route) => ({
     url: `${siteConfig.url}${route}`,

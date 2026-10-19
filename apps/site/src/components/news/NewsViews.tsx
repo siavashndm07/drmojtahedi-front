@@ -8,7 +8,11 @@ import {
   User,
 } from "lucide-react";
 import { ArticleCover } from "@/components/magazine/ArticleCover";
-import { ArticleReadingTools } from "@/components/shared/ArticleReadingTools";
+import {
+  ArticleReadingScope,
+  ArticleReadingTools,
+  ArticleZoomable,
+} from "@/components/shared/ArticleReadingTools";
 import { FadeIn } from "@/components/shared/FadeIn";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -272,7 +276,7 @@ export function NewsDetail({
   const hasHeadings = blocks.some((b) => b.type === "h2" || b.type === "h3");
 
   return (
-    <div>
+    <ArticleReadingScope>
       <header className="relative isolate overflow-hidden bg-pine print:hidden">
         {coverSrc ? (
           <div className="absolute inset-0">
@@ -365,7 +369,6 @@ export function NewsDetail({
           <ArticleReadingTools
             title={item.title}
             description={item.description}
-            contentSelector="#article-content"
           />
         </div>
       </div>
@@ -382,28 +385,12 @@ export function NewsDetail({
           ) : null}
         </div>
 
-        {coverSrc ? (
-          <figure className="mb-8 overflow-hidden rounded-2xl border border-ink/10 print:mb-6 print:rounded-none print:border-0">
-            <div className="relative aspect-[16/9] bg-cream sm:aspect-[21/9]">
-              <Image
-                src={coverSrc}
-                alt={article.heroImage?.alt || item.title}
-                fill
-                sizes="(max-width: 1024px) 100vw, 960px"
-                className="object-cover object-center"
-                priority
-              />
-            </div>
-            <figcaption className="sr-only">{item.title}</figcaption>
-          </figure>
-        ) : null}
-
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12">
           <div>
             <FadeIn>
-              <div id="article-content" className="origin-top transition-[font-size]">
+              <ArticleZoomable>
                 <BodyBlocks blocks={blocks} />
-              </div>
+              </ArticleZoomable>
             </FadeIn>
             <div className="mt-10 flex flex-wrap gap-3 border-t border-ink/10 pt-8 print:hidden">
               <Link
@@ -495,6 +482,6 @@ export function NewsDetail({
           </section>
         ) : null}
       </article>
-    </div>
+    </ArticleReadingScope>
   );
 }

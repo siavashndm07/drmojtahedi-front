@@ -35,12 +35,13 @@ export default async function ProjectsPage() {
           columns="md:grid-cols-2"
           items={projects.map((project) => ({
             key: project.id,
-            href: project.href ?? `/projects`,
+            href: `/projects/${project.slug}`,
             title: project.title,
             description: project.description,
             meta: [project.phase, project.location].filter(Boolean).join(" · "),
             badge: "پروژه",
             comingSoon: project.status === "coming-soon",
+            progressPercent: project.progressPercent,
             image: project.heroImage
               ? { src: project.heroImage.src, alt: project.heroImage.alt }
               : undefined,

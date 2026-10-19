@@ -86,6 +86,9 @@ export type FoundationProject = EntityBase & {
   phase?: string;
   location?: string;
   href?: string;
+  /** 0–100 project completion; undefined when not set */
+  progressPercent?: number | null;
+  progress_percent?: number | null;
   coverTone?: "pine" | "ink" | "bronze";
   heroImage?: MediaAsset;
 };
@@ -215,6 +218,7 @@ export type Article = EntityBase & {
   category?: string;
   tags?: string[];
   heroImage?: MediaAsset;
+  cover?: string;
   /** Conceptual cover tone when no archival photo yet */
   coverTone?: "pine" | "ink" | "bronze";
   /** Plain-text fallback body */

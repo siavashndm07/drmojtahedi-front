@@ -12,6 +12,11 @@ import {
 } from "lucide-react";
 import { ArticleCover } from "@/components/magazine/ArticleCover";
 import { ArticleReadingProgress } from "@/components/magazine/ArticleReadingProgress";
+import {
+  ArticleReadingScope,
+  ArticleReadingTools,
+  ArticleZoomable,
+} from "@/components/shared/ArticleReadingTools";
 import { FadeIn } from "@/components/shared/FadeIn";
 import { siteConfig } from "@/config/site";
 import {
@@ -198,17 +203,32 @@ export function ArticleDetail({
   );
   const minutes = article.readingTimeMinutes ?? 5;
 
+  const coverSrc = article.heroImage?.src || article.cover;
+
   return (
-    <>
+    <ArticleReadingScope>
       <ArticleReadingProgress />
 
-      <header className="relative isolate min-h-[22rem] overflow-hidden bg-pine sm:min-h-[26rem] lg:min-h-[28rem]">
-        <ArticleCover
-          article={article}
-          priority
-          className="absolute inset-0"
-          sizes="100vw"
-        />
+      <header className="relative isolate min-h-[22rem] overflow-hidden bg-pine print:hidden sm:min-h-[26rem] lg:min-h-[28rem]">
+        {coverSrc ? (
+          <div className="absolute inset-0">
+            <Image
+              src={coverSrc}
+              alt={article.heroImage?.alt || article.title}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+          </div>
+        ) : (
+          <ArticleCover
+            article={article}
+            priority
+            className="absolute inset-0"
+            sizes="100vw"
+          />
+        )}
         <div
           className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/55 to-ink/20"
           aria-hidden
@@ -291,54 +311,70 @@ export function ArticleDetail({
         </div>
       </header>
 
-      <div className="border-b border-ink/10 bg-cream/60 dark:bg-surface/40">
+      <div className="border-b border-ink/10 bg-cream/60 print:hidden dark:bg-surface/40">
         <div className="content-wide flex flex-wrap items-center justify-between gap-3 py-3 text-xs text-ink-muted">
-          <span className="inline-flex items-center gap-1.5">
-            <User className="size-3.5 text-mint-deep" aria-hidden />
-            {author}
-          </span>
-          <span className="inline-flex items-center gap-1.5 lg:hidden">
-            <Clock className="size-3.5" aria-hidden />
-            {toPersianDigits(minutes)} دقیقه
-          </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center gap-1.5">
+              <User className="size-3.5 text-mint-deep" aria-hidden />
+              {author}
+            </span>
+            <span className="inline-flex items-center gap-1.5 lg:hidden">
+              <Clock className="size-3.5" aria-hidden />
+              {toPersianDigits(minutes)} دقیقه
+            </span>
+          </div>
+          <ArticleReadingTools
+            title={article.title}
+            description={article.description}
+          />
         </div>
       </div>
 
-      <article
-        id="article-content"
-        className="content-wide pb-8 pt-10 lg:pb-12 lg:pt-12"
-      >
+      <article className="content-wide pb-8 pt-10 lg:pb-12 lg:pt-12">
+        <div className="print:block">
+          <h1 className="text-display mb-4 hidden text-3xl text-ink print:block">
+            {article.title}
+          </h1>
+          {article.description ? (
+            <p className="mb-6 hidden text-sm leading-8 text-ink-muted print:block">
+              {article.description}
+            </p>
+          ) : null}
+        </div>
+
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_17rem] lg:gap-14 xl:grid-cols-[minmax(0,1fr)_18rem] xl:gap-16">
           <div className="min-w-0">
-            <FadeIn>
-              <div className="relative overflow-hidden rounded-2xl border border-pine/15 bg-gradient-to-br from-mint-soft/80 to-surface p-6 dark:from-mint/30 sm:p-7">
-                <div
-                  className="absolute -start-6 -top-6 size-24 rounded-full bg-mint/30 blur-2xl"
-                  aria-hidden
-                />
-                <div className="relative flex gap-4">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-pine text-white">
-                    <Sparkles className="size-5" aria-hidden />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold tracking-wide text-mint-deep">
-                      خلاصه مطلب
-                    </p>
-                    <p className="mt-2 text-justify text-sm leading-8 text-ink sm:text-[0.95rem]">
-                      {article.description}
-                    </p>
+            <ArticleZoomable>
+              <FadeIn>
+                <div className="relative overflow-hidden rounded-2xl border border-pine/15 bg-gradient-to-br from-mint-soft/80 to-surface p-6 dark:from-mint/30 sm:p-7">
+                  <div
+                    className="absolute -start-6 -top-6 size-24 rounded-full bg-mint/30 blur-2xl"
+                    aria-hidden
+                  />
+                  <div className="relative flex gap-4">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-pine text-white">
+                      <Sparkles className="size-5" aria-hidden />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold tracking-wide text-mint-deep">
+                        خلاصه مطلب
+                      </p>
+                      <p className="mt-2 text-justify text-sm leading-8 text-ink sm:text-[0.95rem]">
+                        {article.description}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </FadeIn>
+              </FadeIn>
 
-            <div className="mt-10 space-y-8">
-              {blocks.map((block, index) => (
-                <FadeIn key={`section-${index + 1}`} delayMs={index * 40}>
-                  <ArticleBlockView block={block} index={index} />
-                </FadeIn>
-              ))}
-            </div>
+              <div className="mt-10 space-y-8">
+                {blocks.map((block, index) => (
+                  <FadeIn key={`section-${index + 1}`} delayMs={index * 40}>
+                    <ArticleBlockView block={block} index={index} />
+                  </FadeIn>
+                ))}
+              </div>
+            </ArticleZoomable>
 
             <FadeIn>
               <div className="mt-10 flex items-start gap-4 rounded-2xl border border-ink/10 bg-surface p-5 sm:p-6">
@@ -506,6 +542,6 @@ export function ArticleDetail({
           </FadeIn>
         ) : null}
       </article>
-    </>
+    </ArticleReadingScope>
   );
 }

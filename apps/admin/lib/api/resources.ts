@@ -378,6 +378,8 @@ export type Project = {
   phase?: string;
   location?: string;
   href?: string;
+  progress_percent?: number | null;
+  progressPercent?: number | null;
   status: ContentStatus;
 };
 
@@ -514,7 +516,23 @@ export const apiSaveTimeline = timelineApi.save;
 export const apiDeleteTimeline = timelineApi.remove;
 
 export const apiListProjects = projectsApi.list;
-export const apiSaveProject = projectsApi.save;
+export async function apiSaveProject(
+  token: string,
+  payload: Record<string, string>,
+  id?: string | number,
+) {
+  const body: Record<string, unknown> = { ...payload };
+  const raw = payload.progress_percent?.trim() ?? "";
+  if (raw === "") {
+    body.progress_percent = null;
+  } else {
+    const n = Number(raw);
+    body.progress_percent = Number.isFinite(n)
+      ? Math.min(100, Math.max(0, Math.round(n)))
+      : null;
+  }
+  return projectsApi.save(token, body, id);
+}
 export const apiDeleteProject = projectsApi.remove;
 
 export const apiListOrgans = organsApi.list;

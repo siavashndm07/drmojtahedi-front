@@ -385,6 +385,7 @@
   }
 
   #article-content {
+    zoom: 1 !important;
     font-size: 100% !important;
   }
 }

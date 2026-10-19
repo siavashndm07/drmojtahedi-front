@@ -1,6 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useId, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useId,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import toast from "react-hot-toast";
 import {
   Check,
@@ -17,33 +25,71 @@ const ZOOM_MIN = 90;
 const ZOOM_MAX = 140;
 const ZOOM_STEP = 10;
 
+type ReadingToolsContextValue = {
+  zoom: number;
+  setZoom: (value: number | ((prev: number) => number)) => void;
+};
+
+const ReadingToolsContext = createContext<ReadingToolsContextValue | null>(null);
+
+export function ArticleReadingScope({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  const [zoom, setZoom] = useState(100);
+  const value = useMemo(() => ({ zoom, setZoom }), [zoom]);
+
+  return (
+    <ReadingToolsContext.Provider value={value}>
+      <div className={className}>{children}</div>
+    </ReadingToolsContext.Provider>
+  );
+}
+
+/** Scales rem-based Tailwind text; wrap the article body with this. */
+export function ArticleZoomable({
+  children,
+  className,
+  id = "article-content",
+}: {
+  children: ReactNode;
+  className?: string;
+  id?: string;
+}) {
+  const ctx = useContext(ReadingToolsContext);
+  const zoom = ctx?.zoom ?? 100;
+
+  return (
+    <div
+      id={id}
+      className={cn("origin-top transition-[zoom]", className)}
+      style={{ zoom: zoom / 100 }}
+    >
+      {children}
+    </div>
+  );
+}
+
 type ArticleReadingToolsProps = {
   title: string;
   description?: string;
-  /** CSS selector for the printable article body */
-  contentSelector?: string;
   className?: string;
 };
 
 export function ArticleReadingTools({
   title,
   description,
-  contentSelector = "#article-content",
   className,
 }: ArticleReadingToolsProps) {
   const labelId = useId();
-  const [zoom, setZoom] = useState(100);
+  const ctx = useContext(ReadingToolsContext);
+  const zoom = ctx?.zoom ?? 100;
+  const setZoom = ctx?.setZoom;
   const [copied, setCopied] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-
-  useEffect(() => {
-    const el = document.querySelector<HTMLElement>(contentSelector);
-    if (!el) return;
-    el.style.fontSize = `${zoom}%`;
-    return () => {
-      el.style.fontSize = "";
-    };
-  }, [zoom, contentSelector]);
 
   const pageUrl =
     typeof window !== "undefined" ? window.location.href : "";
@@ -159,18 +205,25 @@ export function ArticleReadingTools({
 
       <ToolButton
         label="کوچک‌تر کردن متن"
-        onClick={() => setZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP))}
-        disabled={zoom <= ZOOM_MIN}
+        onClick={() =>
+          setZoom?.((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP))
+        }
+        disabled={!setZoom || zoom <= ZOOM_MIN}
       >
         <Minus className="size-4" aria-hidden />
       </ToolButton>
-      <span className="min-w-10 text-center text-xs font-medium tabular-nums text-ink-muted" dir="ltr">
+      <span
+        className="min-w-10 text-center text-xs font-medium tabular-nums text-ink-muted"
+        dir="ltr"
+      >
         {zoom}%
       </span>
       <ToolButton
         label="بزرگ‌تر کردن متن"
-        onClick={() => setZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP))}
-        disabled={zoom >= ZOOM_MAX}
+        onClick={() =>
+          setZoom?.((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP))
+        }
+        disabled={!setZoom || zoom >= ZOOM_MAX}
       >
         <Plus className="size-4" aria-hidden />
       </ToolButton>

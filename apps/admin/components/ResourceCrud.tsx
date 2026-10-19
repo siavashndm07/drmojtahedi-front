@@ -26,6 +26,7 @@ import PageHeader from "@/components/PageHeader";
 import {
   Field,
   Input,
+  NumberInput,
   Textarea,
   formDialogClassName,
   formDialogFieldsClassName,
@@ -39,10 +40,15 @@ import { REQUIRED_FIELD, requireTrimmed } from "@/lib/formValidation";
 type FieldDef = {
   key: string;
   label: string;
-  type?: "text" | "textarea" | "pills";
+  type?: "text" | "textarea" | "pills" | "number";
   options?: OptionPill[];
   required?: boolean;
   columns?: 2 | 3 | "auto";
+  min?: number;
+  max?: number;
+  step?: number;
+  allowEmpty?: boolean;
+  placeholder?: string;
 };
 
 type StatusFilter = "all" | "published" | "draft" | "coming-soon";
@@ -257,26 +263,70 @@ export function ResourceCrud<
                 </button>
               </div>
               <form onSubmit={onSubmit} noValidate className={formDialogFieldsClassName}>
-                {fields.map((field) =>
-                  field.type === "pills" ? (
-                    <OptionPills
-                      key={field.key}
-                      className={formDialogFullClassName}
-                      label={field.label}
-                      value={(form[field.key] as string) || (field.options?.[0]?.value ?? "")}
-                      options={field.options ?? []}
-                      columns={field.columns ?? "auto"}
-                      error={fieldErrors[field.key]}
-                      onChange={(next) => {
-                        setForm((f) => ({ ...f, [field.key]: next }));
-                        setFieldErrors((prev) => {
-                          const copy = { ...prev };
-                          delete copy[field.key];
-                          return copy;
-                        });
-                      }}
-                    />
-                  ) : (
+                {fields.map((field) => {
+                  const clearError = () =>
+                    setFieldErrors((prev) => {
+                      const copy = { ...prev };
+                      delete copy[field.key];
+                      return copy;
+                    });
+
+                  if (field.type === "pills") {
+                    return (
+                      <OptionPills
+                        key={field.key}
+                        className={formDialogFullClassName}
+                        label={field.label}
+                        value={(form[field.key] as string) || (field.options?.[0]?.value ?? "")}
+                        options={field.options ?? []}
+                        columns={field.columns ?? "auto"}
+                        error={fieldErrors[field.key]}
+                        onChange={(next) => {
+                          setForm((f) => ({ ...f, [field.key]: next }));
+                          clearError();
+                        }}
+                      />
+                    );
+                  }
+
+                  if (field.type === "number") {
+                    const raw = form[field.key]?.trim() ?? "";
+                    const parsed =
+                      raw === "" ? undefined : Number(raw);
+                    return (
+                      <Field
+                        key={field.key}
+                        label={field.label}
+                        htmlFor={`field-${field.key}`}
+                        error={fieldErrors[field.key]}
+                      >
+                        <NumberInput
+                          id={`field-${field.key}`}
+                          value={
+                            parsed !== undefined && Number.isFinite(parsed)
+                              ? parsed
+                              : undefined
+                          }
+                          min={field.min ?? 0}
+                          max={field.max}
+                          step={field.step ?? 1}
+                          allowEmpty={field.allowEmpty ?? !field.required}
+                          placeholder={field.placeholder}
+                          error={!!fieldErrors[field.key]}
+                          onChange={(value) => {
+                            setForm((f) => ({
+                              ...f,
+                              [field.key]:
+                                value === undefined ? "" : String(value),
+                            }));
+                            clearError();
+                          }}
+                        />
+                      </Field>
+                    );
+                  }
+
+                  return (
                     <Field
                       key={field.key}
                       label={field.label}
@@ -291,11 +341,7 @@ export function ResourceCrud<
                           error={!!fieldErrors[field.key]}
                           onChange={(e) => {
                             setForm((f) => ({ ...f, [field.key]: e.target.value }));
-                            setFieldErrors((prev) => {
-                              const copy = { ...prev };
-                              delete copy[field.key];
-                              return copy;
-                            });
+                            clearError();
                           }}
                         />
                       ) : (
@@ -305,17 +351,13 @@ export function ResourceCrud<
                           error={!!fieldErrors[field.key]}
                           onChange={(e) => {
                             setForm((f) => ({ ...f, [field.key]: e.target.value }));
-                            setFieldErrors((prev) => {
-                              const copy = { ...prev };
-                              delete copy[field.key];
-                              return copy;
-                            });
+                            clearError();
                           }}
                         />
                       )}
                     </Field>
-                  ),
-                )}
+                  );
+                })}
                 <div className={`${formDialogFullClassName} flex flex-wrap justify-end gap-2 border-t border-ink/10 pt-4`}>
                   <button
                     type="button"

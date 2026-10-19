@@ -291,6 +291,7 @@ export const mockProjects: FoundationProject[] = [
       "پروژهٔ خانهٔ فرهنگی و بنای یادمان — از جمله پیگیری مقدمات ساخت یادمان و موزه در لاهیجان یا تهران؛ ایدهٔ تابلوی «برج البرز» استاد محجوبی برای یادمان در تپه‌های اطراف لاهیجان.",
     phase: "پیگیری و برنامه‌ریزی",
     location: "لاهیجان / تهران",
+    progressPercent: 35,
     href: "/projects",
     coverTone: "pine",
     heroImage: coverAsset("memorial", "خانه فرهنگی و بنای یادمان"),
@@ -305,6 +306,7 @@ export const mockProjects: FoundationProject[] = [
       "همکاری بنیاد با سازمان منطقهٔ آزاد چابهار؛ پیگیری نحوهٔ اجرای توافقنامه از سوی شورای عالی مناطق آزاد.",
     phase: "پیگیری اجرا",
     location: "چابهار",
+    progressPercent: 55,
     href: "/news/dastur-abdolmaleki-chabahar",
     coverTone: "bronze",
     heroImage: coverAsset("heritage", "توافقنامه چابهار"),
@@ -318,6 +320,7 @@ export const mockProjects: FoundationProject[] = [
     description:
       "آرشیو، زندگی‌نامه، مقالات، اخبار و گالری روی بستر وب برای دسترسی عمومی.",
     phase: "MVP منتشرشده",
+    progressPercent: 80,
     href: "/",
     coverTone: "pine",
     heroImage: coverAsset("archive", "پلتفرم دیجیتال میراث"),
@@ -331,6 +334,7 @@ export const mockProjects: FoundationProject[] = [
     description:
       "گردآوری و انتشار تدریجی عکس‌ها، آثار اهدایی و ویدئوهای مرتبط با بنیاد.",
     phase: "در حال انجام",
+    progressPercent: 45,
     href: "/gallery",
     coverTone: "ink",
     heroImage: coverAsset("gathering", "دیجیتالی‌سازی گالری"),
