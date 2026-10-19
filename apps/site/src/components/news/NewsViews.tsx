@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -7,6 +8,7 @@ import {
   User,
 } from "lucide-react";
 import { ArticleCover } from "@/components/magazine/ArticleCover";
+import { ArticleReadingTools } from "@/components/shared/ArticleReadingTools";
 import { FadeIn } from "@/components/shared/FadeIn";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -20,6 +22,7 @@ import type { Article, ArticleBodyBlock, NewsItem } from "@/lib/types";
 import { toPersianDigits } from "@/lib/utils/digits";
 
 export function newsAsArticle(item: NewsItem): Article {
+  const coverSrc = item.heroImage?.src || item.cover;
   return {
     id: item.id,
     slug: item.slug,
@@ -28,7 +31,12 @@ export function newsAsArticle(item: NewsItem): Article {
     status: item.status,
     category: item.category,
     coverTone: item.coverTone,
-    heroImage: item.heroImage,
+    heroImage: coverSrc
+      ? {
+          src: coverSrc,
+          alt: item.heroImage?.alt || item.title,
+        }
+      : undefined,
   };
 }
 
@@ -251,6 +259,8 @@ export function NewsDetail({
   item: NewsItem;
   related: NewsItem[];
 }) {
+  const article = newsAsArticle(item);
+  const coverSrc = article.heroImage?.src;
   const blocks =
     item.blocks?.length
       ? item.blocks
@@ -263,15 +273,37 @@ export function NewsDetail({
 
   return (
     <div>
-      <header className="relative isolate min-h-[18rem] overflow-hidden bg-pine sm:min-h-[22rem]">
-        <ArticleCover
-          article={newsAsArticle(item)}
-          priority
-          className="absolute inset-0"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/50 to-ink/15" aria-hidden />
-        <div className="content-wide relative flex min-h-[18rem] flex-col justify-end pb-8 pt-6 sm:min-h-[22rem] sm:pb-10">
+      <header className="relative isolate overflow-hidden bg-pine print:hidden">
+        {coverSrc ? (
+          <div className="absolute inset-0">
+            <Image
+              src={coverSrc}
+              alt={article.heroImage?.alt || item.title}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-ink/92 via-ink/45 to-ink/20"
+              aria-hidden
+            />
+          </div>
+        ) : (
+          <>
+            <ArticleCover
+              article={article}
+              priority
+              className="absolute inset-0"
+              sizes="100vw"
+            />
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/50 to-ink/15"
+              aria-hidden
+            />
+          </>
+        )}
+        <div className="content-wide relative flex min-h-[20rem] flex-col justify-end pb-8 pt-6 sm:min-h-[26rem] sm:pb-10">
           <nav aria-label="مسیر" className="mb-5 text-xs text-white/75">
             <ol className="flex flex-wrap items-center gap-2">
               <li>
@@ -303,29 +335,77 @@ export function NewsDetail({
               </span>
             ) : null}
           </div>
-          <h1 className="text-display mt-4 max-w-3xl text-3xl text-white sm:text-4xl">{item.title}</h1>
+          <h1 className="text-display mt-4 max-w-3xl text-3xl text-white sm:text-4xl">
+            {item.title}
+          </h1>
           {item.description ? (
-            <p className="mt-3 max-w-2xl text-sm leading-8 text-white/85">{item.description}</p>
+            <p className="mt-3 max-w-2xl text-sm leading-8 text-white/85">
+              {item.description}
+            </p>
           ) : null}
         </div>
       </header>
 
-      {item.author ? (
-        <div className="border-b border-ink/10 bg-cream/60">
-          <div className="content-wide flex items-center gap-2 py-3 text-xs text-ink-muted">
-            <User className="size-3.5 text-mint-deep" aria-hidden />
-            {item.author}
+      <div className="border-b border-ink/10 bg-cream/60 print:hidden">
+        <div className="content-wide flex flex-wrap items-center justify-between gap-3 py-3">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-ink-muted">
+            {item.author ? (
+              <span className="inline-flex items-center gap-1.5">
+                <User className="size-3.5 text-mint-deep" aria-hidden />
+                {item.author}
+              </span>
+            ) : null}
+            {item.dateLabel ? (
+              <span className="inline-flex items-center gap-1.5">
+                <Clock className="size-3.5" aria-hidden />
+                {item.dateLabel}
+              </span>
+            ) : null}
           </div>
+          <ArticleReadingTools
+            title={item.title}
+            description={item.description}
+            contentSelector="#article-content"
+          />
         </div>
-      ) : null}
+      </div>
 
       <article className="content-wide section-pad !pt-10">
+        <div className="print:block">
+          <h1 className="text-display mb-4 hidden text-3xl text-ink print:block">
+            {item.title}
+          </h1>
+          {item.description ? (
+            <p className="mb-6 hidden text-sm leading-8 text-ink-muted print:block">
+              {item.description}
+            </p>
+          ) : null}
+        </div>
+
+        {coverSrc ? (
+          <figure className="mb-8 overflow-hidden rounded-2xl border border-ink/10 print:mb-6 print:rounded-none print:border-0">
+            <div className="relative aspect-[16/9] bg-cream sm:aspect-[21/9]">
+              <Image
+                src={coverSrc}
+                alt={article.heroImage?.alt || item.title}
+                fill
+                sizes="(max-width: 1024px) 100vw, 960px"
+                className="object-cover object-center"
+                priority
+              />
+            </div>
+            <figcaption className="sr-only">{item.title}</figcaption>
+          </figure>
+        ) : null}
+
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12">
           <div>
             <FadeIn>
-              <BodyBlocks blocks={blocks} />
+              <div id="article-content" className="origin-top transition-[font-size]">
+                <BodyBlocks blocks={blocks} />
+              </div>
             </FadeIn>
-            <div className="mt-10 flex flex-wrap gap-3 border-t border-ink/10 pt-8">
+            <div className="mt-10 flex flex-wrap gap-3 border-t border-ink/10 pt-8 print:hidden">
               <Link
                 href="/news"
                 className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-5 py-2.5 text-sm font-semibold hover:border-pine/35 hover:text-pine"
@@ -343,7 +423,7 @@ export function NewsDetail({
             </div>
           </div>
 
-          <aside className="mt-10 hidden space-y-4 lg:mt-0 lg:block">
+          <aside className="mt-10 hidden space-y-4 print:hidden lg:mt-0 lg:block">
             <div className="sticky top-24 space-y-4">
               {hasHeadings ? (
                 <div className="rounded-2xl border border-ink/10 bg-surface p-5">

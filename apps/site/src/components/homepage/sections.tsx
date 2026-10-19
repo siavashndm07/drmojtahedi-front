@@ -8,6 +8,11 @@ import {
   FolderKanban,
   HandHeart,
   Images,
+  GraduationCap,
+  BookOpen,
+  Landmark,
+  ShieldCheck,
+
   MessagesSquare,
 } from "lucide-react";
 import { LandingPhoto } from "@/components/homepage/LandingPhoto";
@@ -177,49 +182,167 @@ export function DonationPreview({
     };
   });
 
+  const impactItems = [
+    {
+      number: "۰۱",
+      icon: GraduationCap,
+      title: cards[0]?.title || "فرصت‌های آموزشی",
+      description:
+        cards[0]?.description ||
+        "کمک به گسترش فرصت‌های یادگیری و دسترسی به منابع آموزشی.",
+    },
+    {
+      number: "۰۲",
+      icon: BookOpen,
+      title: cards[1]?.title || "حفظ میراث و اسناد",
+      description:
+        cards[1]?.description ||
+        "پشتیبانی از نگهداری، سامان‌دهی و در دسترس قرار گرفتن آثار و خاطرات ارزشمند.",
+    },
+    {
+      number: "۰۳",
+      icon: Landmark,
+      title: cards[2]?.title || "پشتیبانی از نسل آینده",
+      description:
+        cards[2]?.description ||
+        "کمک به برنامه‌هایی که زمینه رشد و شکوفایی دانشجویان و جوانان را فراهم می‌کنند.",
+    },
+  ];
+
   return (
     <FadeIn>
-      <section className="content-shell section-pad !py-10 md:!py-12">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <div className="max-w-xl">
-            <h2 className="text-display text-3xl leading-tight tracking-tight text-ink md:text-4xl">راه‌های همراهی</h2>
-            {text ? (
-              <p className="mt-2 line-clamp-2 text-sm leading-7 text-ink-muted">{text}</p>
-            ) : null}
-          </div>
-          <Link href="/donate" className="text-sm font-semibold text-pine hover:underline">
-            کمک مالی
-          </Link>
-        </div>
-        <ul className="grid gap-6 sm:grid-cols-3">
-          {cards.map((card) => (
-            <li key={card.id}>
-              <Link href={card.href} className="group block">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-cream">
-                  <LandingPhoto
-                    src={card.image}
-                    fallback={card.fallback}
-                    alt={card.title}
-                    sizes="(max-width: 640px) 100vw, 33vw"
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+      <section
+        className="relative isolate overflow-hidden bg-[#102F2A] text-[#FBF8F0]"
+        aria-labelledby="foundation-donation-title"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.12]"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse at 12% 18%, #C6A66B 0, transparent 35%), radial-gradient(ellipse at 92% 88%, #6EAA91 0, transparent 32%)",
+          }}
+        />
+        <div className="content-shell section-pad !py-16 md:!py-24 lg:!py-28">
+          <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-20">
+            <div>
+              <p className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.12em] text-[#D9BD83]">
+                <span className="h-px w-8 bg-[#D9BD83]" />
+                سهم شما در ادامه یک میراث
+              </p>
+
+              <h2
+                id="foundation-donation-title"
+                className="mt-7 max-w-2xl text-3xl font-semibold leading-[1.55] tracking-tight text-[#FBF8F0] md:text-5xl md:leading-[1.45] lg:text-[3.5rem]"
+              >
+                بعضی میراث‌ها را
+                <span className="block text-[#D9BD83]">باید به آینده رساند.</span>
+              </h2>
+
+              <p className="mt-6 max-w-xl text-base leading-8 text-white/75 md:text-lg md:leading-9">
+                حمایت از بنیاد، تنها یک کمک مالی نیست؛ مشارکت در زنده نگه‌داشتن
+                اندیشه، گسترش فرصت‌های یادگیری و حفظ آثاری است که می‌توانند
+                برای نسل‌های آینده الهام‌بخش باشند.
+              </p>
+
+              {/* {text ? (
+                <p className="mt-4 max-w-xl border-r-2 border-[#D9BD83]/70 pr-4 text-sm leading-7 text-white/65">
+                  {text}
+                </p>
+              ) : null} */}
+
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Link
+                  href="/donate"
+                  className="inline-flex min-h-14 items-center justify-center gap-3 bg-[#D9BD83] px-7 py-4 text-sm font-bold text-[#173A32] transition-colors hover:bg-[#E8D3A6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#102F2A]"
+                >
+                  می‌خواهم همراه باشم
+                  <ArrowLeft className="size-4" aria-hidden />
+                </Link>
+                <Link
+                  href="/projects"
+                  className="inline-flex min-h-14 items-center justify-center gap-2 border border-white/25 px-6 py-4 text-sm font-semibold text-white transition-colors hover:border-white/60 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  فعالیت‌های بنیاد را ببینید
+                </Link>
+              </div>
+
+              <div className="mt-8 flex items-start gap-3 text-sm leading-7 text-white/60">
+                <ShieldCheck
+                  className="mt-1 size-5 shrink-0 text-[#D9BD83]"
+                  strokeWidth={1.6}
+                  aria-hidden
+                />
+                <p>
+                  پیش از مشارکت، با اهداف، برنامه‌ها و مسیرهای حمایت مالی بنیاد
+                  آشنا شوید و متناسب با علاقه و توان خود تصمیم بگیرید.
+                </p>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute -inset-3 border border-[#D9BD83]/25 md:-inset-5" aria-hidden="true" />
+              <div className="relative bg-[#F6F1E6] p-6 text-[#183A32] md:p-9 lg:p-10">
+                <div className="flex items-start justify-between gap-4 border-b border-[#183A32]/15 pb-6">
+                  <div>
+                    <p className="text-xs font-bold tracking-[0.12em] text-[#8C7041]">
+                      حمایت شما می‌تواند
+                    </p>
+                    <h3 className="mt-2 text-2xl font-semibold leading-10 md:text-xl">
+                      به سه مسیر ارزشمند جان بدهد
+                    </h3>
+                  </div>
+                  <HandHeart
+                    className="mt-1 size-8 shrink-0 text-[#8C7041]"
+                    strokeWidth={1.4}
+                    aria-hidden
                   />
                 </div>
-                <h3 className="mt-3 text-base font-semibold tracking-tight text-ink transition-colors group-hover:text-pine">
-                  {card.title}
-                </h3>
-                {card.description ? (
-                  <p className="mt-1 line-clamp-2 text-sm leading-6 text-ink-muted">
-                    {card.description}
-                  </p>
-                ) : null}
-                <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-pine">
-                  بیشتر
-                  <ArrowLeft className="size-3.5 transition group-hover:-translate-x-0.5" aria-hidden />
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+
+                <ol className="divide-y divide-[#183A32]/15">
+                  {impactItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <li key={item.number} className="group py-5 first:pt-6 last:pb-1">
+                        <div className="flex gap-4 md:gap-5">
+                          <span className="pt-1 text-xs font-semibold tabular-nums text-[#9A8051]">
+                            {item.number}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-3">
+                              <Icon
+                                className="size-5 shrink-0 text-[#54796A]"
+                                strokeWidth={1.6}
+                                aria-hidden
+                              />
+                              <h4 className="text-base font-bold leading-7 md:text-lg">
+                                {item.title}
+                              </h4>
+                            </div>
+                            <p className="mt-2 text-sm leading-7 text-[#52635C]">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+
+                <Link
+                  href="/donate"
+                  className="mt-7 flex items-center justify-between border-t border-[#183A32]/15 pt-5 text-sm font-bold text-[#245B4B] transition-colors hover:text-[#8C7041]"
+                >
+                  آشنایی با راه‌های حمایت مالی
+                  <ArrowLeft className="size-4" aria-hidden />
+                </Link>
+              </div>
+              <p className="mt-4 text-xs leading-6 text-white/50">
+                هر مشارکت، فرصتی برای نزدیک‌تر شدن به اهداف بنیاد است.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
     </FadeIn>
   );
@@ -244,7 +367,7 @@ function StoryBand({
     <section className="bg-paper">
       <div className="content-shell section-pad">
         <div className="mb-8 flex items-end justify-between gap-4 md:mb-10">
-          <h2 className="text-display max-w-2xl text-3xl leading-tight tracking-tight text-ink md:text-5xl lg:text-6xl">{title}</h2>
+          <h2 className="text-display max-w-2xl text-3xl leading-tight tracking-tight text-ink md:text-5xl lg:text-4xl">{title}</h2>
           <Link href={moreHref} className="shrink-0 text-sm font-semibold text-pine hover:underline">
             {moreLabel}
           </Link>
@@ -261,7 +384,7 @@ function StoryBand({
             {lead.category ? (
               <p className="text-sm font-semibold text-pine">{lead.category}</p>
             ) : null}
-            <h3 className="text-display mt-3 text-3xl leading-tight tracking-tight text-ink transition-colors group-hover:text-pine md:text-4xl lg:text-5xl">
+            <h3 className="text-display mt-3 text-3xl leading-tight tracking-tight text-ink transition-colors group-hover:text-pine md:text-4xl lg:text-3xl">
               {lead.title}
             </h3>
             {lead.description ? (

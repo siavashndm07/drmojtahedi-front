@@ -366,3 +366,26 @@
   height: 100%;
 }
 
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  header,
+  footer,
+  nav,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  a {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+
+  #article-content {
+    font-size: 100% !important;
+  }
+}
+
